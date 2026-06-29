@@ -24,7 +24,8 @@ class BookViewer extends StatefulWidget {
 }
 
 class _BookViewerState extends State<BookViewer> {
-  final _controller = GlobalKey<PageFlipWidgetState>();
+  // Sesuai dokumentasi versi 0.2.5, pengontrol menggunakan GlobalKey<PageFlipState>
+  final _controller = GlobalKey<PageFlipState>();
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +35,11 @@ class _BookViewerState extends State<BookViewer> {
         child: Center(
           child: Container(
             margin: const EdgeInsets.all(12.0),
-            // Mengatur rasio halaman menggunakan widget AspectRatio yang standar
             child: AspectRatio(
               aspectRatio: 3 / 4,
-              child: PageFlipWidget(
+              // Menggunakan nama widget utama 'PageFlip' sesuai struktur versi stabil
+              child: PageFlip(
                 key: _controller,
-                backgroundColor: Colors.black,
                 children: <Widget>[
                   _page('File/Gambar/Buku/A.png'),
                   _page('File/Gambar/Buku/B.png'),
