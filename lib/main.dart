@@ -1,0 +1,61 @@
+import 'package:flutter/material.dart';
+import 'package:page_flip/page_flip.dart';
+
+void main() => runApp(const DigitubApp());
+
+class DigitubApp extends StatelessWidget {
+  const DigitubApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark(),
+      home: const BookViewer(),
+    );
+  }
+}
+
+class BookViewer extends StatefulWidget {
+  const BookViewer({Key? key}) : super(key: key);
+
+  @override
+  State<BookViewer> createState() => _BookViewerState();
+}
+
+class _BookViewerState extends State<BookViewer> {
+  final _controller = GlobalKey<PageFlipWidgetState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF1C1C1E),
+      body: SafeArea(
+        child: Center(
+          child: Container(
+            aspectRatio: 3 / 4, // Rasio ukuran kertas buku portrait
+            margin: const EdgeInsets.all(12.0),
+            child: PageFlipWidget(
+              key: _controller,
+              backgroundColor: Colors.black,
+              children: <Widget>[
+                _page('File/Gambar/Buku/A.png'),
+                _page('File/Gambar/Buku/B.png'),
+                _page('File/Gambar/Buku/C.png'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _page(String imgPath) {
+    return Container(
+      color: Colors.white,
+      width: double.infinity,
+      height: double.infinity,
+      child: Image.asset(imgPath, fit: BoxFit.fill),
+    );
+  }
+}
