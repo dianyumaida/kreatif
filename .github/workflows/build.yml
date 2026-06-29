@@ -28,6 +28,13 @@ jobs:
         flutter-version: '3.19.0'
         channel: 'stable'
 
+    # 🤖 Langkah Pintar: Membuat otomatis folder sistem Android & Web yang hilang
+    - name: Recreate Platform Folders
+      run: |
+        cp lib/main.dart main.dart.bak
+        flutter create --overwrite .
+        cp main.dart.bak lib/main.dart
+
     - name: Install Dependencies
       run: flutter pub get
 
