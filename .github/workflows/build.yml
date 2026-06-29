@@ -28,16 +28,16 @@ jobs:
         flutter-version: '3.19.0'
         channel: 'stable'
 
-    - name: Get Packages
+    - name: Install Dependencies
       run: flutter pub get
 
     - name: Build APK
       run: flutter build apk --release
 
-    - name: Upload APK File
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: aplikasi-buku-digitub
+        name: digitub-app-apk
         path: build/app/outputs/flutter-apk/app-release.apk
 
     - name: Build Web Version
@@ -48,4 +48,3 @@ jobs:
       with:
         folder: build/web
         branch: gh-pages
-
