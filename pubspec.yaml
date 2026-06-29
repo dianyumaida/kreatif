@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  page_flip: ^0.2.5+1  # <--- INI SUDAH DIPERBAIKI VERSINYA
+  page_flip: 1.0.1  # Gunakan versi rilis stabil global tanpa simbol caret
 
 flutter:
   uses-material-design: true
