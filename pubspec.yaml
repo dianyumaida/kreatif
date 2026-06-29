@@ -1,7 +1,15 @@
+name: digitub_book
+description: Aplikasi Buku Digital Digitub dengan Efek Balik Halaman.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
-  page_flip: ^1.0.1  # Efek bolak-balik buku
+  page_flip: ^1.0.1
 
 flutter:
   uses-material-design: true
