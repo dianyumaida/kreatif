@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:page_flip/page_flip.dart';
- 
+
 void main() => runApp(const DigitubApp());
 
 class DigitubApp extends StatelessWidget {
@@ -55,7 +55,19 @@ class _BookViewerState extends State<BookViewer> {
       color: Colors.white,
       width: double.infinity,
       height: double.infinity,
-      child: Image.asset(imgPath, fit: BoxFit.fill),
+      child: Image.asset(
+        imgPath, 
+        fit: BoxFit.fill,
+        errorBuilder: (context, error, stackTrace) {
+          return Center(
+            child: Text(
+              'Gambar tidak ditemukan:\n$imgPath',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        },
+      ),
     );
   }
 }
