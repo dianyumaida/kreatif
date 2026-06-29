@@ -33,16 +33,19 @@ class _BookViewerState extends State<BookViewer> {
       body: SafeArea(
         child: Center(
           child: Container(
-            aspectRatio: 3 / 4,
             margin: const EdgeInsets.all(12.0),
-            child: PageFlipWidget(
-              key: _controller,
-              backgroundColor: Colors.black,
-              children: <Widget>[
-                _page('File/Gambar/Buku/A.png'),
-                _page('File/Gambar/Buku/B.png'),
-                _page('File/Gambar/Buku/C.png'),
-              ],
+            // Mengatur rasio halaman menggunakan widget AspectRatio yang standar
+            child: AspectRatio(
+              aspectRatio: 3 / 4,
+              child: PageFlipWidget(
+                key: _controller,
+                backgroundColor: Colors.black,
+                children: <Widget>[
+                  _page('File/Gambar/Buku/A.png'),
+                  _page('File/Gambar/Buku/B.png'),
+                  _page('File/Gambar/Buku/C.png'),
+                ],
+              ),
             ),
           ),
         ),
