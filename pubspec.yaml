@@ -1,0 +1,11 @@
+dependencies:
+  flutter:
+    sdk: flutter
+  page_flip: ^1.0.1  # Efek bolak-balik buku
+
+flutter:
+  uses-material-design: true
+  assets:
+    - File/Gambar/Buku/A.png
+    - File/Gambar/Buku/B.png
+    - File/Gambar/Buku/C.png
