@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:page_flip/page_flip.dart';
-
+ 
 void main() => runApp(const DigitubApp());
 
 class DigitubApp extends StatelessWidget {
