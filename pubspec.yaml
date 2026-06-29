@@ -1,19 +1,54 @@
-name: digitub_book
-description: Aplikasi Buku Digital Digitub dengan Efek Balik Halaman.
-publish_to: 'none'
-version: 1.0.0+1
+name: Build APK and Deploy to GitHub Pages
 
-environment:
-  sdk: '>=3.0.0 <4.0.0'
+on:
+  push:
+    branches: [ "main" ]
 
-dependencies:
-  flutter:
-    sdk: flutter
-  page_flip: ^1.0.1
+# Memberikan izin kepada GitHub untuk mempublikasikan website
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
-flutter:
-  uses-material-design: true
-  assets:
-    - File/Gambar/Buku/A.png
-    - File/Gambar/Buku/B.png
-    - File/Gambar/Buku/C.png
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'
+        channel: 'stable'
+
+    - name: Install Dependencies
+      run: flutter pub get
+
+    # 🤖 PROSES 1: Merakit APK Android
+    - name: Build APK
+      run: flutter build apk --release
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: digitub-app-apk
+        path: build/app/outputs/flutter-apk/app-release.apk
+
+    # 🌐 PROSES 2: Merakit Website (Flutter Web)
+    - name: Build Web Version
+      run: flutter build web --release --base-href /${{ github.event.repository.name }}/
+
+    # 🚀 PROSES 3: Mempublikasikan ke GitHub Pages
+    - name: Deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: build/web # Folder hasil render website Flutter
+        branch: gh-pages # Cabang khusus untuk menampung data website
