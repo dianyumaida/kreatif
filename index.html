@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aplikasi Al-Quran & Buku Digital Modern</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Al-Quran & Buku Digital</title>
     <style>
         body {
             background-color: #1a252f;
@@ -50,7 +50,7 @@
             text-align: center;
         }
 
-        /* Area Gambar Utama (Deteksi Sentuhan Cepat 2x) */
+        /* Area Gambar Utama (Murni Menggunakan Klik 2x HTML Dasar) */
         .content-area {
             width: 100%;
             height: 320px; 
@@ -64,7 +64,6 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
-            touch-action: manipulation; /* Mematikan delay zoom bawaan HP */
         }
 
         video, audio {
@@ -72,7 +71,7 @@
             max-height: 90%;
         }
 
-        /* AREA TEMPAT MENGETIK CATATAN (Selalu Terbuka & Aktif) */
+        /* AREA TEMPAT MENGETIK CATATAN (Langsung Terbuka & Bisa Diketik) */
         .text-work-space {
             padding: 15px;
             background-color: #fdfcf7;
@@ -146,13 +145,13 @@
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA GAMBAR: AKAN MENDETEKSI KETUKAN CEPAT 2X SECARA MANUAL -->
-        <div class="content-area" id="book-content">
+        <!-- AREA GAMBAR MURNI KLIK DUA KALI (ONDBLCLICK) HTML DASAR -->
+        <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar()">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
         </div>
 
-        <!-- AREA KETIK TEKS: BISA DIKETIK LANGSUNG -->
+        <!-- AREA KETIK TEKS: JALAN DAN BISA DIKETIK LANGSUNG KAPAN SAJA -->
         <div class="text-work-space">
             <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar buku di sini..."></textarea>
         </div>
@@ -162,21 +161,18 @@
     </div>
 
     <script>
-        // Jalur gambar murni yang memanggil file A.png, B.png, C.png Anda di GitHub
+        // Membetulkan jalur murni gambar relatif agar folder terbaca sempurna oleh web server GitHub Pages Anda
         const susunanAwalMurni = [
-            { type: "image", src: "File/Gambar/Buku/A.png", teks: "" }, 
-            { type: "image", src: "File/Gambar/Buku/B.png", teks: "" }, 
-            { type: "image", src: "File/Gambar/Buku/C.png", teks: "" }  
+            { type: "image", src: "./File/Gambar/Buku/A.png", teks: "" }, 
+            { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" }, 
+            { type: "image", src: "./File/Gambar/Buku/C.png", teks: "" }  
         ];
 
         let databaseBuku = [...susunanAwalMurni];
 
-        // Paksa bersihkan LocalStorage usang yang membuat macet saat pertama dimuat
-        if (!localStorage.getItem('bukuSistem_V4_Clean')) {
-            localStorage.clear(); // Bersihkan sisa riwayat kode lama yang merusak sistem
-            localStorage.setItem('bukuSistem_V4_Clean', JSON.stringify(susunanAwalMurni));
-        } else {
-            databaseBuku = JSON.parse(localStorage.getItem('bukuSistem_V4_Clean'));
+        // Ambil data terbaru dari memori pemicu jika ada
+        if (localStorage.getItem('mushafBukuSistem_FinalFix')) {
+            databaseBuku = JSON.parse(localStorage.getItem('mushafBukuSistem_FinalFix'));
         }
 
         let indeksAktif = 0;
@@ -191,7 +187,7 @@
         const elTextField = document.getElementById('text-input-field');
         const elRecordIndicator = document.getElementById('record-indicator');
 
-        // Fungsi menampilkan media halaman
+        // Fungsi menampilkan lembaran halaman
         function muatHalaman(indeks) {
             indeksAktif = indeks;
             const data = databaseBuku[indeksAktif];
@@ -209,34 +205,26 @@
             elTextField.value = data.teks || "";
             elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
             
-            localStorage.setItem('bukuSistem_V4_Clean', JSON.stringify(databaseBuku));
+            localStorage.setItem('mushafBukuSistem_FinalFix', JSON.stringify(databaseBuku));
         }
 
-        // Simpan otomatis ketikan teks
+        // Simpan isi ketikan secara otomatis
         elTextField.addEventListener('input', function() {
             databaseBuku[indeksAktif].teks = elTextField.value;
-            localStorage.setItem('bukuSistem_V4_Clean', JSON.stringify(databaseBuku));
+            localStorage.setItem('mushafBukuSistem_FinalFix', JSON.stringify(databaseBuku));
         });
 
-        // TRIK PANDAI: Deteksi Klik Ganda Manual untuk menembus proteksi sensor HP/Browser
-        let waktuKlikTerakhir = 0;
-        elContent.addEventListener('click', function(e) {
-            if (e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO') return;
+        // FUNGSI KLIK 2X (DOUBLE CLICK MURNI DASAR)
+        function klikDuaKaliMajuLembar() {
+            if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
 
-            let waktuSekarang = new Date().getTime();
-            let selisihWaktu = waktuSekarang - waktuKlikTerakhir;
-
-            // Jika jarak antara klik pertama dan kedua di bawah 300 milidetik, hitung sebagai KLIK 2X
-            if (selisihWaktu < 300 && selisihWaktu > 0) {
-                if (indeksAktif < databaseBuku.length - 1) {
-                    indeksAktif++;
-                } else {
-                    indeksAktif = 0; // Kembali ke cover depan A.png
-                }
-                muatHalaman(indeksAktif);
+            if (indeksAktif < databaseBuku.length - 1) {
+                indeksAktif++;
+            } else {
+                indeksAktif = 0; // Balik ke cover A
             }
-            waktuKlikTerakhir = waktuSekarang;
-        });
+            muatHalaman(indeksAktif);
+        }
 
         // KONTROL UTAMA MENU DROPDOWN
         function eksekusiPilihanMenu() {
@@ -256,3 +244,18 @@
                 elMenu.value = 'default';
             } 
             else if (nilaiPilihan === 'aksi-upload-mp3') {
+                document.getElementById('file-audio').click();
+                elMenu.value = 'default';
+            } 
+            else if (nilaiPilihan === 'aksi-rekam') {
+                toggleRekamSuara();
+                elMenu.value = 'default';
+            }
+            else if (nilaiPilihan === 'aksi-reset-total') {
+                localStorage.removeItem('mushafBukuSistem_FinalFix');
+                databaseBuku = [...susunanAwalMurni];
+                muatHalaman(0);
+                alert("🔄 Jalur gambar cover dan memori berhasil disinkronkan ulang!");
+                elMenu.value = 'default';
+            }
+            else if (nilaiPilihan === 'aksi-hapus') {
