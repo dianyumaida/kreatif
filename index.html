@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Mushaf & Buku Digital 3D Fix</title>
+    <title>Aplikasi Al-Quran & Buku Digital 3D</title>
     <style>
         body {
             background-color: #1a252f;
@@ -52,7 +52,7 @@
             transform-style: preserve-3d;
             transform-origin: left center;
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-            pointer-events: none;
+            pointer-events: none; /* Amankan klik agar tumpukan 3D tidak eror */
         }
 
         /* Sisi Depan dan Sisi Belakang Lembaran Kertas */
@@ -61,19 +61,12 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
             background-color: #ffffff;
             box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
-            color: #333;
             box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        /* Memaksa elemen gambar memenuhi ukuran halaman kertas */
-        .front img, .back img {
-            width: 100%;
-            height: 100%;
-            object-fit: fill; /* Gambar dipaksa pas satu halaman penuh */
-            display: block;
         }
 
         .front { border-radius: 0 8px 8px 0; }
@@ -88,12 +81,10 @@
         .front::after {
             content: ''; position: absolute; left: 0; top: 0; width: 20px; height: 100%;
             background: linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
-            pointer-events: none;
         }
         .back::after {
             content: ''; position: absolute; right: 0; top: 0; width: 20px; height: 100%;
             background: linear-gradient(-90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
-            pointer-events: none;
         }
 
         /* Animasi Lembar Berputar ke Kiri */
@@ -151,13 +142,13 @@
         .btn-add { background-color: #27ae60; }
         .btn-add:hover { background-color: #2cc36b; }
         
-        .btn-reset { background-color: #7f8c8d; }
+        .btn-reset { background-color: #7f8c8d; font-size: 12px; }
         .btn-reset:hover { background-color: #95a5a6; }
     </style>
 </head>
 <body>
 
-    <h1>📖 Aplikasi Mushaf & Buku Digital 3D</h1>
+    <h1>📖 Aplikasi Al-Quran & Buku Digital 3D</h1>
     <p>Gunakan panel tombol di bawah untuk membalik halaman dan mengelola lembaran baru</p>
 
     <!-- Panggung Buku 3D -->
@@ -172,7 +163,6 @@
         <!-- Baris 1: Tombol Bolak-Balik Halaman -->
         <div class="row-buttons">
             <button class="btn-nav" onclick="balikKiri()">⬅️ Buka Kiri</button>
-            <button class="btn-reset" onclick="resetBuku()">🔄 Tutup</button>
             <button class="btn-nav" onclick="balikKanan()">Buka Kanan ➡️</button>
         </div>
         
@@ -184,25 +174,29 @@
             <input type="text" id="nama-file-baru" placeholder="Ketik nama file gambar (Contoh: D.png)">
             <button class="btn-add" onclick="tambahLembarOtomatis()">➕ Tambah</button>
         </div>
+
+        <!-- Baris 3: Pembersih Memori Error Browser -->
+        <button class="btn-reset" onclick="bersihkanMemoriBrowser()">🔄 Atur Ulang Memori Buku</button>
     </div>
 
     <script>
-        // Database awal mengambil gambar A, B, dan C dari folder Anda di GitHub
-        let koleksiBuku = [
-            "File/Gambar/Buku/A.png", // Cover Depan (Halaman 1)
+        // Mengembalikan sistem pautan teks murni semula yang Anda sebutkan berhasil memunculkan gambar
+        const susunanAwalDefault = [
+            "File/Gambar/Buku/A.png", // Cover Utama (Halaman 1)
             "File/Gambar/Buku/B.png", // Halaman Isi 1 (Halaman 2)
             "File/Gambar/Buku/C.png"  // Halaman Isi 2 (Halaman 3)
         ];
 
-        // Memuat memori halaman dari LocalStorage jika ada pembaruan lembar baru
-        if (localStorage.getItem('koleksiBuku3DFixImg')) {
-            koleksiBuku = JSON.parse(localStorage.getItem('koleksiBuku3DFixImg'));
+        let koleksiBuku = [...susunanAwalDefault];
+
+        // Ambil data modifikasi dari penyimpanan browser lokal jika ada
+        if (localStorage.getItem('koleksiBuku3DKembaliNormal')) {
+            koleksiBuku = JSON.parse(localStorage.getItem('koleksiBuku3DKembaliNormal'));
         }
 
         let totalLembarKertas = 0;
         let lembarSaatIni = 0;
 
-        // Fungsi merakit lembaran kertas menggunakan tag HTML <img> agar aman dari blokir browser
         function bangunBuku() {
             const canvas = document.getElementById('book-canvas');
             canvas.innerHTML = ''; 
@@ -217,22 +211,16 @@
 
                 htmlKonten += `<div class="page" id="p${i + 1}" style="z-index: ${zIndex};">`;
 
-                // Sisi Depan Lembar (Front) - Menggunakan Tag Gambar HTML <img>
+                // Sisi Depan Lembar (Front)
                 if (indexFront < koleksiBuku.length) {
-                    htmlKonten += `
-                        <div class="front">
-                            <img src="${koleksiBuku[indexFront]}" alt="Halaman ${indexFront + 1}" onerror="this.src='https://placehold.co'">
-                        </div>`;
+                    htmlKonten += `<div class="front" style="background-image: url('${koleksiBuku[indexFront]}');"></div>`;
                 } else {
                     htmlKonten += `<div class="front" style="background-color: #ffffff; display:flex; justify-content:center; align-items:center; color:#ccc;"><h3>Lembar Kosong</h3></div>`;
                 }
 
-                // Sisi Belakang Lembar (Back) - Menggunakan Tag Gambar HTML <img>
+                // Sisi Belakang Lembar (Back)
                 if (indexBack < koleksiBuku.length) {
-                    htmlKonten += `
-                        <div class="back">
-                            <img src="${koleksiBuku[indexBack]}" alt="Halaman ${indexBack + 1}" onerror="this.src='https://placehold.co'">
-                        </div>`;
+                    htmlKonten += `<div class="back" style="background-image: url('${koleksiBuku[indexBack]}');"></div>`;
                 } else {
                     htmlKonten += `<div class="back" style="background-color: #ffffff; display:flex; justify-content:center; align-items:center; color:#ccc;"><h3>Lembar Kosong</h3></div>`;
                 }
@@ -257,7 +245,6 @@
             }
         }
 
-        // Fungsi Membalik Lembar ke Kiri (Halaman Berikutnya)
         function balikKanan() {
             if (lembarSaatIni < totalLembarKertas) {
                 lembarSaatIni++;
@@ -273,3 +260,19 @@
             }
         }
 
+        function balikKiri() {
+            if (lembarSaatIni > 0) {
+                const el = document.getElementById(`p${lembarSaatIni}`);
+                if (el) el.classList.remove('flipped');
+                lembarSaatIni--;
+
+                if (lembarSaatIni === 0) {
+                    document.getElementById('stage').classList.remove('opened');
+                }
+                perbaruiLapisanZIndex();
+            } else {
+                alert("Buku dalam kondisi tertutup (Cover Depan).");
+            }
+        }
+
+        function tambahLembarOtomatis() {
