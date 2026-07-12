@@ -29,7 +29,7 @@
             transition: transform 0.6s ease;
         }
         
-        /* Geser panggung ke kanan saat buku mulai terbuka agar simetris di tengah */
+        /* Geser panggung ke kanan saat buku mulai terbuka */
         .book-stage.opened {
             transform: translateX(190px);
         }
@@ -52,7 +52,7 @@
             transform-style: preserve-3d;
             transform-origin: left center;
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-            pointer-events: none; /* Menonaktifkan klik langsung pada gambar agar tidak bentrok */
+            pointer-events: none;
         }
 
         /* Sisi Depan dan Sisi Belakang Lembaran Kertas */
@@ -61,16 +61,24 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            background-position: center;
             background-color: #ffffff;
             box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
             color: #333;
             box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* Memaksa elemen gambar memenuhi ukuran halaman kertas */
+        .front img, .back img {
+            width: 100%;
+            height: 100%;
+            object-fit: fill; /* Gambar dipaksa pas satu halaman penuh */
+            display: block;
         }
 
         .front { border-radius: 0 8px 8px 0; }
+        
+        /* Sisi belakang lembar dibalik 180 derajat */
         .back {
             transform: rotateY(180deg);
             border-radius: 8px 0 0 8px;
@@ -79,11 +87,13 @@
         /* Efek Bayangan Lipatan Buku di Tengah */
         .front::after {
             content: ''; position: absolute; left: 0; top: 0; width: 20px; height: 100%;
-            background: linear-gradient(90deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 100%);
+            background: linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
         }
         .back::after {
             content: ''; position: absolute; right: 0; top: 0; width: 20px; height: 100%;
-            background: linear-gradient(-90deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 100%);
+            background: linear-gradient(-90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
+            pointer-events: none;
         }
 
         /* Animasi Lembar Berputar ke Kiri */
@@ -177,22 +187,22 @@
     </div>
 
     <script>
-        // Database awal struktur halaman buku yang mengambil gambar dari folder Anda di GitHub
+        // Database awal mengambil gambar A, B, dan C dari folder Anda di GitHub
         let koleksiBuku = [
             "File/Gambar/Buku/A.png", // Cover Depan (Halaman 1)
             "File/Gambar/Buku/B.png", // Halaman Isi 1 (Halaman 2)
             "File/Gambar/Buku/C.png"  // Halaman Isi 2 (Halaman 3)
         ];
 
-        // Memuat memori halaman dari LocalStorage browser jika ada pembaruan data
-        if (localStorage.getItem('koleksiBuku3DFix')) {
-            koleksiBuku = JSON.parse(localStorage.getItem('koleksiBuku3DFix'));
+        // Memuat memori halaman dari LocalStorage jika ada pembaruan lembar baru
+        if (localStorage.getItem('koleksiBuku3DFixImg')) {
+            koleksiBuku = JSON.parse(localStorage.getItem('koleksiBuku3DFixImg'));
         }
 
         let totalLembarKertas = 0;
         let lembarSaatIni = 0;
 
-        // Fungsi merakit lembaran kertas buku secara dinamis
+        // Fungsi merakit lembaran kertas menggunakan tag HTML <img> agar aman dari blokir browser
         function bangunBuku() {
             const canvas = document.getElementById('book-canvas');
             canvas.innerHTML = ''; 
@@ -203,20 +213,26 @@
             for (let i = 0; i < totalLembarKertas; i++) {
                 const indexFront = i * 2;
                 const indexBack = indexFront + 1;
-                const zIndex = totalLembarKertas - i; // Mengatur susunan tumpukan halaman awal
+                const zIndex = totalLembarKertas - i;
 
                 htmlKonten += `<div class="page" id="p${i + 1}" style="z-index: ${zIndex};">`;
 
-                // Sisi Depan Lembar (Front)
+                // Sisi Depan Lembar (Front) - Menggunakan Tag Gambar HTML <img>
                 if (indexFront < koleksiBuku.length) {
-                    htmlKonten += `<div class="front" style="background-image: url('${koleksiBuku[indexFront]}');"></div>`;
+                    htmlKonten += `
+                        <div class="front">
+                            <img src="${koleksiBuku[indexFront]}" alt="Halaman ${indexFront + 1}" onerror="this.src='https://placehold.co'">
+                        </div>`;
                 } else {
                     htmlKonten += `<div class="front" style="background-color: #ffffff; display:flex; justify-content:center; align-items:center; color:#ccc;"><h3>Lembar Kosong</h3></div>`;
                 }
 
-                // Sisi Belakang Lembar (Back)
+                // Sisi Belakang Lembar (Back) - Menggunakan Tag Gambar HTML <img>
                 if (indexBack < koleksiBuku.length) {
-                    htmlKonten += `<div class="back" style="background-image: url('${koleksiBuku[indexBack]}');"></div>`;
+                    htmlKonten += `
+                        <div class="back">
+                            <img src="${koleksiBuku[indexBack]}" alt="Halaman ${indexBack + 1}" onerror="this.src='https://placehold.co'">
+                        </div>`;
                 } else {
                     htmlKonten += `<div class="back" style="background-color: #ffffff; display:flex; justify-content:center; align-items:center; color:#ccc;"><h3>Lembar Kosong</h3></div>`;
                 }
@@ -228,7 +244,6 @@
             perbaruiLapisanZIndex();
         }
 
-        // Fungsi sinkronisasi layer z-index saat lembaran dibalik agar tumpukan kertas terlihat natural
         function perbaruiLapisanZIndex() {
             for (let i = 1; i <= totalLembarKertas; i++) {
                 const el = document.getElementById(`p${i}`);
@@ -242,14 +257,13 @@
             }
         }
 
-        // Fungsi Membalik Lembar ke Kiri (Maju ke Halaman Berikutnya)
+        // Fungsi Membalik Lembar ke Kiri (Halaman Berikutnya)
         function balikKanan() {
             if (lembarSaatIni < totalLembarKertas) {
                 lembarSaatIni++;
                 const el = document.getElementById(`p${lembarSaatIni}`);
                 if (el) el.classList.add('flipped');
                 
-                // Jika cover depan dibuka, geser panggung utama agar posisi tengah buku pas
                 if (lembarSaatIni === 1) {
                     document.getElementById('stage').classList.add('opened');
                 }
@@ -259,12 +273,3 @@
             }
         }
 
-        // Fungsi Membalik Lembar ke Kanan (Mundur ke Halaman Sebelumnya)
-        function balikKiri() {
-            if (lembarSaatIni > 0) {
-                const el = document.getElementById(`p${lembarSaatIni}`);
-                if (el) el.classList.remove('flipped');
-                lembarSaatIni--;
-
-                // Jika buku ditutup kembali ke cover awal
-                if (lembarSaatIni === 0) {
