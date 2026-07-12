@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Al-Quran & Buku Digital 3D</title>
+    <title>Sistem Mushaf & Buku Digital 3D</title>
     <style>
         body {
             background-color: #1a252f;
@@ -52,7 +52,7 @@
             transform-style: preserve-3d;
             transform-origin: left center;
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-            pointer-events: none; /* Amankan klik agar tumpukan 3D tidak eror */
+            pointer-events: none;
         }
 
         /* Sisi Depan dan Sisi Belakang Lembaran Kertas */
@@ -154,19 +154,17 @@
     <!-- Panggung Buku 3D -->
     <div class="book-stage" id="stage">
         <div class="book" id="book-canvas">
-            <!-- Lembaran buku dimuat secara dinamis oleh JavaScript di bawah -->
+            <!-- Lembaran buku dimuat otomatis -->
         </div>
     </div>
 
     <!-- Panel Kontrol Navigasi & Auto-Increment Input -->
     <div class="controls-panel">
-        <!-- Baris 1: Tombol Bolak-Balik Halaman -->
         <div class="row-buttons">
             <button class="btn-nav" onclick="balikKiri()">⬅️ Buka Kiri</button>
             <button class="btn-nav" onclick="balikKanan()">Buka Kanan ➡️</button>
         </div>
         
-        <!-- Baris 2: Input Menambah Lembar Baru -->
         <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; font-size: 13px; text-align: center; color: #bdc3c7;">
             Tambah Lembar Baru (Auto-Increment)
         </div>
@@ -175,23 +173,21 @@
             <button class="btn-add" onclick="tambahLembarOtomatis()">➕ Tambah</button>
         </div>
 
-        <!-- Baris 3: Pembersih Memori Error Browser -->
-        <button class="btn-reset" onclick="bersihkanMemoriBrowser()">🔄 Atur Ulang Memori Buku</button>
+        <button class="btn-reset" onclick="bersihkanMemoriBrowser()">🔄 Atur Ulang Jalur Gambar</button>
     </div>
 
     <script>
-        // Mengembalikan sistem pautan teks murni semula yang Anda sebutkan berhasil memunculkan gambar
+        // Gunakan pemanggilan jalur relatif './' untuk memaksa GitHub membaca folder saat ini secara presisi
         const susunanAwalDefault = [
-            "File/Gambar/Buku/A.png", // Cover Utama (Halaman 1)
-            "File/Gambar/Buku/B.png", // Halaman Isi 1 (Halaman 2)
-            "File/Gambar/Buku/C.png"  // Halaman Isi 2 (Halaman 3)
+            "./File/Gambar/Buku/A.png", 
+            "./File/Gambar/Buku/B.png", 
+            "./File/Gambar/Buku/C.png"  
         ];
 
         let koleksiBuku = [...susunanAwalDefault];
 
-        // Ambil data modifikasi dari penyimpanan browser lokal jika ada
-        if (localStorage.getItem('koleksiBuku3DKembaliNormal')) {
-            koleksiBuku = JSON.parse(localStorage.getItem('koleksiBuku3DKembaliNormal'));
+        if (localStorage.getItem('koleksiBuku3DPathFix')) {
+            koleksiBuku = JSON.parse(localStorage.getItem('koleksiBuku3DPathFix'));
         }
 
         let totalLembarKertas = 0;
@@ -255,8 +251,6 @@
                     document.getElementById('stage').classList.add('opened');
                 }
                 perbaruiLapisanZIndex();
-            } else {
-                alert("Anda sudah sampai di lembar terakhir buku!");
             }
         }
 
@@ -270,9 +264,25 @@
                     document.getElementById('stage').classList.remove('opened');
                 }
                 perbaruiLapisanZIndex();
-            } else {
-                alert("Buku dalam kondisi tertutup (Cover Depan).");
             }
         }
 
         function tambahLembarOtomatis() {
+            const input = document.getElementById('nama-file-baru');
+            const fileNama = input.value.trim();
+
+            if (!fileNama) {
+                alert("Silahkan ketik nama file gambarnya dahulu!");
+                return;
+            }
+
+            const pathGambarLengkap = `./File/Gambar/Buku/${fileNama.includes('.') ? fileNama : fileNama + '.png'}`;
+            koleksiBuku.push(pathGambarLengkap);
+            
+            localStorage.setItem('koleksiBuku3DPathFix', JSON.stringify(koleksiBuku));
+            bangunBuku();
+            
+            alert(`🎉 Sukses! File ${fileNama} terpasang.`);
+            input.value = '';
+        }
+
