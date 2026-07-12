@@ -146,7 +146,7 @@
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA GAMBAR: SEKARANG CUKUP DIKLIK 1X SAJA UNTUK MAJU KE HALAMAN BERIKUTNYA -->
+        <!-- AREA GAMBAR: CUKUP DIKLIK 1X SAJA UNTUK MAJU KE HALAMAN BERIKUTNYA -->
         <div class="content-area" id="book-content" onclick="klikMajuLembar()">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
@@ -218,7 +218,6 @@
 
         // FUNGSI KLIK 1X: Cukup klik sekali di atas gambar, buku langsung maju halaman berikutnya
         function klikMajuLembar() {
-            // Jangan membalik halaman jika user sedang menekan tombol play video/audio
             if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
 
             if (indeksAktif < databaseBuku.length - 1) {
@@ -234,8 +233,8 @@
             const nilaiPilihan = elMenu.value;
 
             if (nilaiPilihan === 'aksi-wa') {
-                const teksKirim WA = encodeURIComponent(`*Catatan Lembar ${indeksAktif + 1}:*\n${elTextField.value}`);
-                window.open(`https://whatsapp.com{teksKirim WA}`, '_blank');
+                const teksKirim = encodeURIComponent(`*Catatan Lembar ${indeksAktif + 1}:*\n${elTextField.value}`);
+                window.open(`https://whatsapp.com{teksKirim}`, '_blank');
                 elMenu.value = 'default';
             } 
             else if (nilaiPilihan === 'aksi-upload-img') {
@@ -255,3 +254,5 @@
                 elMenu.value = 'default';
             }
             else if (nilaiPilihan === 'aksi-reset-total') {
+                localStorage.removeItem('bukuSistem_FinalClean');
+                databaseBuku = [...susunanAwalMurni];
