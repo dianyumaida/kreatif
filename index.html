@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Al-Quran & Buku Digital</title>
+    <title>Sistem Manajemen Buku Digital</title>
     <style>
         body {
             background-color: #1a252f;
@@ -29,7 +29,7 @@
             flex-direction: column;
         }
 
-        /* Area Menu Navigasi Atas */
+        /* Area Menu Navigasi Atas (Gaya Kalkulator Multi) */
         .nav-header {
             background-color: #2c3e50;
             padding: 12px;
@@ -50,7 +50,7 @@
             text-align: center;
         }
 
-        /* Area Gambar Utama (Murni Menggunakan Klik 2x HTML Dasar) */
+        /* Area Gambar Utama (Double Click Murni HTML Dasar) */
         .content-area {
             width: 100%;
             height: 320px; 
@@ -71,7 +71,7 @@
             max-height: 90%;
         }
 
-        /* AREA TEMPAT MENGETIK CATATAN (Langsung Terbuka & Bisa Diketik) */
+        /* AREA TEMPAT MENGETIK CATATAN (Selalu Terbuka & Bebas Diketik) */
         .text-work-space {
             padding: 15px;
             background-color: #fdfcf7;
@@ -118,6 +118,7 @@
             color: #7f8c8d;
         }
 
+        /* Sembunyikan Input Bawaan */
         input[type="file"] {
             display: none;
         }
@@ -135,7 +136,6 @@
                 <option value="aksi-upload-vid">📹 Upload Video Baru</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
                 <option value="aksi-rekam">🎙️ Mulai / Stop Rekam Suara</option>
-                <option value="aksi-reset-total">🔄 Bersihkan & Atur Ulang Memori</option>
                 <option value="aksi-hapus">🗑️ Hapus Lembar Ini</option>
             </select>
         </div>
@@ -145,35 +145,31 @@
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA GAMBAR MURNI KLIK DUA KALI (ONDBLCLICK) HTML DASAR -->
+        <!-- AREA GAMBAR: KLIK DUA KALI (ONDBLCLICK) UNTUK MASUK KE LEMBAR BERIKUTNYA -->
         <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar()">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
         </div>
 
-        <!-- AREA KETIK TEKS: JALAN DAN BISA DIKETIK LANGSUNG KAPAN SAJA -->
+        <!-- AREA KETIK TEKS: BISA LANGSUNG DIKETIK / DIEDIT KAPAN SAJA -->
         <div class="text-work-space">
             <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar buku di sini..."></textarea>
         </div>
 
-        <!-- INDIKATOR HALAMAN BAWAH -->
+        <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 3</div>
     </div>
 
     <script>
-        // Membetulkan jalur murni gambar relatif agar folder terbaca sempurna oleh web server GitHub Pages Anda
-        const susunanAwalMurni = [
+        // Hancurkan total memori cache lama agar tidak mengunci browser Anda lagi
+        localStorage.clear();
+
+        // Struktur data murni yang langsung membaca folder utama GitHub Anda
+        let databaseBuku = [
             { type: "image", src: "./File/Gambar/Buku/A.png", teks: "" }, 
             { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" }, 
             { type: "image", src: "./File/Gambar/Buku/C.png", teks: "" }  
         ];
-
-        let databaseBuku = [...susunanAwalMurni];
-
-        // Ambil data terbaru dari memori pemicu jika ada
-        if (localStorage.getItem('mushafBukuSistem_FinalFix')) {
-            databaseBuku = JSON.parse(localStorage.getItem('mushafBukuSistem_FinalFix'));
-        }
 
         let indeksAktif = 0;
         let mediaRecorder;
@@ -187,7 +183,7 @@
         const elTextField = document.getElementById('text-input-field');
         const elRecordIndicator = document.getElementById('record-indicator');
 
-        // Fungsi menampilkan lembaran halaman
+        // Fungsi memuat konten lembar halaman
         function muatHalaman(indeks) {
             indeksAktif = indeks;
             const data = databaseBuku[indeksAktif];
@@ -202,26 +198,24 @@
                 elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
             }
 
+            // Memasukkan teks catatan lembar aktif ke kolom agar bisa diketik langsung
             elTextField.value = data.teks || "";
             elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
-            
-            localStorage.setItem('mushafBukuSistem_FinalFix', JSON.stringify(databaseBuku));
         }
 
-        // Simpan isi ketikan secara otomatis
+        // Menyimpan ketikan teks secara langsung saat user mengetik
         elTextField.addEventListener('input', function() {
             databaseBuku[indeksAktif].teks = elTextField.value;
-            localStorage.setItem('mushafBukuSistem_FinalFix', JSON.stringify(databaseBuku));
         });
 
-        // FUNGSI KLIK 2X (DOUBLE CLICK MURNI DASAR)
+        // FUNGSI UTAMA: KLIK 2x (DOUBLE CLICK) UNTUK MASUK KE PAGE BERIKUTNYA
         function klikDuaKaliMajuLembar() {
             if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
 
             if (indeksAktif < databaseBuku.length - 1) {
                 indeksAktif++;
             } else {
-                indeksAktif = 0; // Balik ke cover A
+                indeksAktif = 0; // Berputar kembali ke cover depan A.png
             }
             muatHalaman(indeksAktif);
         }
@@ -251,11 +245,18 @@
                 toggleRekamSuara();
                 elMenu.value = 'default';
             }
-            else if (nilaiPilihan === 'aksi-reset-total') {
-                localStorage.removeItem('mushafBukuSistem_FinalFix');
-                databaseBuku = [...susunanAwalMurni];
-                muatHalaman(0);
-                alert("🔄 Jalur gambar cover dan memori berhasil disinkronkan ulang!");
+            else if (nilaiPilihan === 'aksi-hapus') {
+                if (databaseBuku.length <= 1) {
+                    alert("Gagal! Minimal harus menyisakan 1 halaman cover.");
+                    elMenu.value = 'default';
+                    return;
+                }
+                if (confirm("Hapus lembar halaman ini?")) {
+                    databaseBuku.splice(indeksAktif, 1);
+                    if (indeksAktif >= databaseBuku.length) indeksAktif = databaseBuku.length - 1;
+                    muatHalaman(indeksAktif);
+                }
                 elMenu.value = 'default';
             }
-            else if (nilaiPilihan === 'aksi-hapus') {
+        }
+
