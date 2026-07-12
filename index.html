@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buku Digital Multi-Media Dropdown Fix</title>
+    <title>Sistem Buku Digital Multi-Media</title>
     <style>
         body {
             background-color: #1a252f;
@@ -17,7 +17,7 @@
             justify-content: center;
         }
 
-        /* Kontainer Utama Aplikasi */
+        /* Kontainer Utama Buku */
         .book-container {
             width: 100%;
             max-width: 420px;
@@ -29,14 +29,13 @@
             flex-direction: column;
         }
 
-        /* Area Menu Navigasi Paling Atas */
+        /* Area Menu Navigasi Atas */
         .nav-header {
             background-color: #2c3e50;
             padding: 12px;
             border-bottom: 2px solid #34495e;
         }
         
-        /* Dropdown Select Utama */
         .dropdown-select {
             width: 100%;
             padding: 12px;
@@ -51,11 +50,11 @@
             text-align: center;
         }
 
-        /* Area Tampilan Konten Utama (Media & Gambar) */
+        /* Area Tampilan Konten Utama (Gambar / Media) */
         .content-area {
             width: 100%;
-            height: 480px; 
-            background-size: cover;
+            height: 300px; 
+            background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
             background-color: #f5f5f5;
@@ -66,57 +65,44 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
-            user-select: none; /* Cegah teks terblok saat klik 2x */
         }
 
-        /* Elemen Video dan Audio */
         video, audio {
             width: 90%;
             max-height: 90%;
         }
 
-        /* Kotak Editor Teks di dalam Buku */
-        .editor-box {
-            display: none;
-            width: 100%;
+        /* AREA KETIK TEKS PERMANEN DI BAWAH GAMBAR */
+        .text-work-space {
             padding: 15px;
-            background: #fdfcf7;
-            box-sizing: border-box;
+            background-color: #fdfcf7;
             border-top: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
         }
-        .editor-box textarea {
+        
+        .book-textarea {
             width: 100%;
-            height: 100px;
+            height: 160px;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #bdc3c7;
             border-radius: 6px;
             resize: none;
+            font-size: 15px;
+            line-height: 1.6;
             box-sizing: border-box;
-            margin-bottom: 10px;
-        }
-        .btn-save-text {
-            width: 100%;
-            padding: 10px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
+            background-color: #ffffff;
+            color: #333;
+            outline: none;
         }
 
-        /* Tampilan Status Perekaman */
+        /* Status Rekaman */
         .record-status {
             font-weight: bold;
             color: #e74c3c;
-            margin-bottom: 10px;
+            position: absolute;
+            top: 10px;
             display: none;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.4; }
-            100% { opacity: 1; }
         }
 
         /* Info Indikator Halaman Paling Bawah */
@@ -138,36 +124,34 @@
 <body>
 
     <div class="book-container">
-        <!-- MENU DROPDOWN UTAMA -->
+        <!-- MENU DROPDOWN UTAMA (Pusat Tombol Pengelolaan & Link WA) -->
         <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
-                <option value="default">⚙️ -- PILIH MENU KELOLA --</option>
+                <option value="default">⚙️ -- MENU KELOLA BUKU --</option>
                 <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp</option>
-                <option value="aksi-edit">📝 Edit / Tulis Catatan Lembar Ini</option>
                 <option value="aksi-upload-img">🖼️ Upload Gambar Baru</option>
                 <option value="aksi-upload-vid">📹 Upload Video Baru</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
                 <option value="aksi-rekam">🎙️ Mulai / Stop Rekam Suara</option>
-                <option value="aksi-clear-mem">🔄 Reset Segarkan Gambar Cover</option>
+                <option value="aksi-reset-total">🔄 Atur Ulang & Segarkan Cover</option>
                 <option value="aksi-hapus">🗑️ Hapus Lembar Ini</option>
             </select>
         </div>
 
-        <!-- Hidden Input File Picker -->
+        <!-- Input File Tersembunyi -->
         <input type="file" id="file-image" accept="image/*" onchange="handleFileSelected(this, 'image')">
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA KONTEN UTAMA: KLIK 2X (DOUBLE CLICK) UNTUK MAJU KE LEMBAR BERIKUTNYA -->
+        <!-- AREA GAMBAR: DIKLIK 2X MAJU KE HALAMAN BERIKUTNYA -->
         <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar()">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
         </div>
 
-        <!-- AREA EDITOR TEKS -->
-        <div class="editor-box" id="editor-container">
-            <textarea id="text-input-field" placeholder="Ketik kalimat isi catatan buku di sini..."></textarea>
-            <button class="btn-save-text" onclick="simpanTeksCatatan()">💾 Simpan Perubahan Teks</button>
+        <!-- AREA KETIK TEKS: BISA LANGSUNG DIKETIK / DIEDIT KAPAN SAJA -->
+        <div class="text-work-space">
+            <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar buku di sini... (Otomatis Tersimpan)"></textarea>
         </div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
@@ -175,17 +159,18 @@
     </div>
 
     <script>
-        // Jalur gambar asli milik Anda dari repositori GitHub
+        // Struktur data murni repositori Anda
         const susunanDefaultMurni = [
-            { type: "image", src: "File/Gambar/Buku/A.png", teks: "" }, 
-            { type: "image", src: "File/Gambar/Buku/B.png", teks: "" }, 
-            { type: "image", src: "File/Gambar/Buku/C.png", teks: "" }  
+            { type: "image", src: "File/Gambar/Buku/A.png", teks: "Catatan Lembar A" }, 
+            { type: "image", src: "File/Gambar/Buku/B.png", teks: "Catatan Lembar B" }, 
+            { type: "image", src: "File/Gambar/Buku/C.png", teks: "Catatan Lembar C" }  
         ];
 
         let databaseBuku = [...susunanDefaultMurni];
 
-        if (localStorage.getItem('bukuDropdownMediaDblClick')) {
-            databaseBuku = JSON.parse(localStorage.getItem('bukuDropdownMediaDblClick'));
+        // Ambil data jika ada
+        if (localStorage.getItem('bukuFix_FinalSystem')) {
+            databaseBuku = JSON.parse(localStorage.getItem('bukuFix_FinalSystem'));
         }
 
         let indeksAktif = 0;
@@ -197,17 +182,15 @@
         const elPlaceholder = document.getElementById('media-placeholder');
         const elMenu = document.getElementById('menu-navigasi');
         const elIndikator = document.getElementById('page-indicator');
-        const elEditor = document.getElementById('editor-container');
         const elTextField = document.getElementById('text-input-field');
         const elRecordIndicator = document.getElementById('record-indicator');
 
-        // Fungsi memuat konten lembar halaman secara aman
+        // Fungsi memuat data halaman secara aman
         function muatHalaman(indeks) {
             indeksAktif = indeks;
             const data = databaseBuku[indeksAktif];
             elPlaceholder.innerHTML = '';
             elContent.style.backgroundImage = 'none';
-            elEditor.style.display = 'none';
 
             if (data.type === 'image') {
                 elContent.style.backgroundImage = `url('${data.src}')`;
@@ -217,25 +200,28 @@
                 elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
             }
 
+            // Memasukkan teks agar langsung bisa diedit/diketik oleh user
             elTextField.value = data.teks || "";
-            elIndikator.innerHTML = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length} ${data.teks ? '<br><small style="color:#2c3e50">📄 Ada Catatan Teks</small>' : ''}`;
+            elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
             
-            // Hanya simpan data ringan yang bukan pautan upload blob lokal agar memori tidak penuh
-            const dataBersihLokal = databaseBuku.map(item => {
-                return item.src.startsWith('blob:') ? { type: "image", src: "File/Gambar/Buku/A.png", teks: item.teks } : item;
-            });
-            localStorage.setItem('bukuDropdownMediaDblClick', JSON.stringify(dataBersihLokal));
+            // Simpan perubahan ke memori
+            localStorage.setItem('bukuFix_FinalSystem', JSON.stringify(databaseBuku));
         }
 
-        // FUNGSI KLIK 2X (DOUBLE CLICK): Lembar diklik 2x langsung masuk ke lembar berikutnya
+        // Fungsi Menyimpan otomatis isi ketikan saat user sedang mengetik teks
+        elTextField.addEventListener('input', function() {
+            databaseBuku[indeksAktif].teks = elTextField.value;
+            localStorage.setItem('bukuFix_FinalSystem', JSON.stringify(databaseBuku));
+        });
+
+        // KLIK 2X PADA GAMBAR UNTUK MAJU KE HALAMAN BERIKUTNYA
         function klikDuaKaliMajuLembar() {
-            // Abaikan double click jika pengguna sedang menyentuh tombol play video/audio internal
             if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
 
             if (indeksAktif < databaseBuku.length - 1) {
                 indeksAktif++;
             } else {
-                indeksAktif = 0; // Berputar kembali ke Cover Depan (A.png)
+                indeksAktif = 0; // Kembali ke cover depan
             }
             muatHalaman(indeksAktif);
         }
@@ -245,15 +231,28 @@
             const nilaiPilihan = elMenu.value;
 
             if (nilaiPilihan === 'aksi-wa') {
-                window.open('https://whatsapp.com', '_blank');
+                // Mengirimkan isi teks yang diketik ke saluran WA
+                const teksAman = encodeURIComponent(`*Catatan Lembar ${indeksAktif + 1}:*\n${elTextField.value}`);
+                window.open(`https://whatsapp.com{teksAman}`, '_blank');
                 elMenu.value = 'default';
-            } 
-            else if (nilaiPilihan === 'aksi-edit') {
-                elEditor.style.display = 'block';
-                elTextField.focus();
             } 
             else if (nilaiPilihan === 'aksi-upload-img') {
                 document.getElementById('file-image').click();
                 elMenu.value = 'default';
             } 
             else if (nilaiPilihan === 'aksi-upload-vid') {
+                document.getElementById('file-video').click();
+                elMenu.value = 'default';
+            } 
+            else if (nilaiPilihan === 'aksi-upload-mp3') {
+                document.getElementById('file-audio').click();
+                elMenu.value = 'default';
+            } 
+            else if (nilaiPilihan === 'aksi-rekam') {
+                toggleRekamSuara();
+                elMenu.value = 'default';
+            }
+            else if (nilaiPilihan === 'aksi-reset-total') {
+                localStorage.removeItem('bukuFix_FinalSystem');
+                databaseBuku = [...susunanDefaultMurni];
+                muatHalaman(0);
