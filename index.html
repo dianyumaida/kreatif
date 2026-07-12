@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Book & Mushaf Digital 3D</title>
+    <title>Mushaf & Buku Digital 3D Fix</title>
     <style>
         body {
             background-color: #1a252f;
@@ -20,18 +20,18 @@
         h1 { margin-bottom: 5px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
         p { margin-top: 0; color: #95a5a6; font-size: 14px; margin-bottom: 30px; }
 
-        /* Area Meja/Panggung Buku (3D Render Area) */
+        /* Area Panggung Buku (3D Render) */
         .book-stage {
-            width: 450px; /* Ukuran satu halaman */
-            height: 550px;
+            width: 360px; /* Ukuran disesuaikan agar pas di layar HP & Laptop */
+            height: 480px;
             perspective: 2000px;
             position: relative;
             transition: transform 0.6s ease;
         }
 
-        /* Geser panggung ke kanan saat buku terbuka agar posisi tepat di tengah layar */
+        /* Geser panggung ke kanan saat buku terbuka */
         .book-stage.opened {
-            transform: translateX(225px);
+            transform: translateX(180px);
         }
 
         /* Kontainer Buku Utama */
@@ -40,7 +40,6 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.6s ease;
         }
 
         /* Komponen Lembaran Kertas Buku */
@@ -53,13 +52,12 @@
             transform-style: preserve-3d;
             transform-origin: left center;
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 1;
         }
 
-        /* Pengaturan urutan tumpukan kertas (Layering) */
-        #page1 { z-index: 5; }
-        #page2 { z-index: 4; }
-        #page3 { z-index: 3; }
+        /* Atur urutan tumpukan awal (Lapis Kertas) */
+        #page1 { z-index: 3; }
+        #page2 { z-index: 2; }
+        #page3 { z-index: 1; }
 
         /* Sisi Depan dan Sisi Belakang Lembaran Kertas */
         .front, .back {
@@ -74,44 +72,38 @@
             box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
         }
 
-        /* Potongan sudut kertas melengkung (Efek Buku Premium) */
-        .front {
-            border-radius: 0 8px 8px 0;
-        }
+        .front { border-radius: 0 8px 8px 0; }
 
-        /* Sisi belakang lembar dibalik 180 derajat agar tampil normal saat dibuka ke kiri */
+        /* Sisi belakang lembar dibalik 180 derajat */
         .back {
             transform: rotateY(180deg);
             border-radius: 8px 0 0 8px;
         }
 
-        /* Efek Bayangan Lipatan Buku di Tengah (Sisi Kiri & Kanan) */
+        /* Efek Bayangan Lipatan Buku di Tengah */
         .front::after {
-            content: ''; position: absolute; left: 0; top: 0; width: 25px; height: 100%;
+            content: ''; position: absolute; left: 0; top: 0; width: 20px; height: 100%;
             background: linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
         }
         .back::after {
-            content: ''; position: absolute; right: 0; top: 0; width: 25px; height: 100%;
+            content: ''; position: absolute; right: 0; top: 0; width: 20px; height: 100%;
             background: linear-gradient(-90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
         }
 
-        /* Trigger Kelas CSS Saat Lembaran Dibuka Berputar ke Kiri */
+        /* Efek Putar Lembaran ke Kiri */
         .page.flipped {
             transform: rotateY(-180deg);
         }
 
-        /* Setelah lembar terbuka, turunkan z-indexnya agar lembar di bawahnya bisa diklik */
-        .page.flipped {
-            z-index: 2 !important;
-        }
-        #page1.flipped { z-index: 10 !important; }
-        #page2.flipped { z-index: 11 !important; }
+        /* Penyesuaian lapisan z-index setelah halaman dibalik agar tidak bentrok */
+        #page1.flipped { z-index: 4; }
+        #page2.flipped { z-index: 5; }
 
-        /* Panel Navigasi Tombol */
+        /* Panel Tombol Navigasi Bawah */
         .controls-container {
             margin-top: 40px;
             background: rgba(255, 255, 255, 0.08);
-            padding: 12px 20px;
+            padding: 15px 25px;
             border-radius: 30px;
             display: flex;
             gap: 15px;
@@ -119,7 +111,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
         button, input {
-            padding: 10px 18px;
+            padding: 12px 20px;
             border-radius: 20px;
             border: none;
             font-size: 14px;
@@ -137,27 +129,27 @@
             transition: background 0.2s;
         }
         button:hover { background-color: #3498db; }
-        .btn-danger { background-color: #e74c3c; }
-        .btn-danger:hover { background-color: #c0392b; }
+        .btn-nav { background-color: #e67e22; }
+        .btn-nav:hover { background-color: #f39c12; }
     </style>
 </head>
 <body>
 
     <h1>📖 Aplikasi Mushaf & Buku Digital 3D</h1>
-    <p>Sentuh atau klik langsung pada lembar kertas untuk membalik halaman</p>
+    <p>Gunakan tombol Navigasi di bawah untuk membalik halaman buku</p>
 
     <!-- Panggung Buku -->
     <div class="book-stage" id="stage">
         <div class="book">
             
-            <!-- LEMBAR 1: COVER DEPAN (Gambar A) -> Dibalik Menampilkan (Gambar B) -->
-            <div class="page" id="page1" onclick="bukaLembar(1)">
+            <!-- LEMBAR 1: COVER DEPAN (Gambar A) -> Belakang (Gambar B) -->
+            <div class="page" id="page1">
                 <div class="front" style="background-image: url('File/Gambar/Buku/A.png');"></div>
                 <div class="back" style="background-image: url('File/Gambar/Buku/B.png');"></div>
             </div>
 
-            <!-- LEMBAR 2: HALAMAN TENGAH (Gambar C) -> Dibalik Menampilkan Slot Kosong -->
-            <div class="page" id="page2" onclick="bukaLembar(2)">
+            <!-- LEMBAR 2: HALAMAN TENGAH (Gambar C) -> Belakang (Slot Baru) -->
+            <div class="page" id="page2">
                 <div class="front" style="background-image: url('File/Gambar/Buku/C.png');"></div>
                 <div class="back" id="slot-auto-back" style="background-image: url('https://placehold.co');"></div>
             </div>
@@ -171,38 +163,51 @@
         </div>
     </div>
 
-    <!-- Fitur Unggah Manajemen Lembar Baru -->
+    <!-- Tombol Utama untuk Membalik Lembaran Buku -->
     <div class="controls-container">
+        <button class="btn-nav" onclick="tombolKembali()">⬅️ Buka ke Kanan</button>
+        <button class="btn-nav" onclick="tombolMaju()">Buka ke Kiri ➡️</button>
+    </div>
+
+    <!-- Fitur Unggah & Auto Increment -->
+    <div class="controls-container" style="margin-top: 15px; background: rgba(0,0,0,0.2);">
         <input type="text" id="nama-file-baru" placeholder="Ketik nama file (Contoh: D.png)">
-        <button onclick="prosesAutoIncrement()">➕ Tambah Lembar Baru</button>
-        <button class="btn-danger" onclick="tutupSemuaHalaman()">🔄 Tutup Buku</button>
+        <button style="background-color: #27ae60;" onclick="prosesAutoIncrement()">➕ Tambah Lembar</button>
     </div>
 
     <script>
-        // Fungsi Logika Membuka Kertas Buku
-        function bukaLembar(nomorHalaman) {
-            const lembar = document.getElementById(`page${nomorHalaman}`);
-            const panggung = document.getElementById('stage');
+        // Mencatat posisi lembaran yang sedang aktif terbuka
+        let lembarAktif = 0; 
 
-            if (!lembar.classList.contains('flipped')) {
-                // Jalankan animasi membalik lembaran ke kiri
-                lembar.classList.add('flipped');
-                
-                // Jika lembar pertama (cover) dibuka, geser posisi buku agar simetris tengah
-                if (nomorHalaman === 1) {
-                    panggung.classList.add('opened');
-                }
-            } else {
-                // Jalankan animasi menutup lembaran kembali ke kanan
-                lembar.classList.remove('flipped');
-                
-                if (nomorHalaman === 1) {
-                    panggung.classList.remove('opened');
-                }
+        // Fungsi ketika menekan tombol "Buka ke Kiri" (Maju Halaman)
+        function tombolMaju() {
+            const panggung = document.getElementById('stage');
+            
+            if (lembarAktif === 0) {
+                document.getElementById('page1').classList.add('flipped');
+                panggung.classList.add('opened');
+                lembarAktif = 1;
+            } else if (lembarAktif === 1) {
+                document.getElementById('page2').classList.add('flipped');
+                lembarAktif = 2;
             }
         }
 
-        // FUNGSI AUTO-INCREMENT: Memasukkan data file baru (Misal D.png) ke lembar selanjutnya
+        // Fungsi ketika menekan tombol "Buka ke Kanan" (Kembali Halaman)
+        function tombolKembali() {
+            const panggung = document.getElementById('stage');
+            
+            if (lembarAktif === 2) {
+                document.getElementById('page2').classList.remove('flipped');
+                lembarAktif = 1;
+            } else if (lembarAktif === 1) {
+                document.getElementById('page1').classList.remove('flipped');
+                panggung.classList.remove('opened');
+                lembarAktif = 0;
+            }
+        }
+
+        // FUNGSI AUTO-INCREMENT (Menghubungkan gambar baru ke lembar lanjutan)
         function prosesAutoIncrement() {
             const input = document.getElementById('nama-file-baru');
             const fileNama = input.value.trim();
@@ -212,22 +217,12 @@
                 return;
             }
 
-            // Hubungkan otomatis ke folder target Anda di GitHub
             const pathGambarBaru = `File/Gambar/Buku/${fileNama.includes('.') ? fileNama : fileNama + '.png'}`;
-            
-            // Masukkan gambar baru tersebut ke sisi balik Lembar ke-2 (Halaman setelah C)
             const targetSlot = document.getElementById('slot-auto-back');
             targetSlot.style.backgroundImage = `url('${pathGambarBaru}')`;
             
-            alert(`✅ Sukses! File ${fileNama} berhasil didaftarkan sebagai halaman lanjutan setelah Gambar C.`);
+            alert(`✅ Sukses! File ${fileNama} terpasang di halaman setelah Gambar C.`);
             input.value = '';
-        }
-
-        // Fungsi Reset untuk Menutup Buku Kembali Semula
-        function tutupSemuaHalaman() {
-            document.getElementById('page1').classList.remove('flipped');
-            document.getElementById('page2').classList.remove('flipped');
-            document.getElementById('stage').classList.remove('opened');
         }
     </script>
 </body>
