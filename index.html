@@ -3,271 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buku Tulis Baru Interaktif</title>
-    <!-- Memuat jQuery dan Turn.js untuk efek animasi balik lembaran kertas -->
-    <script src="https://jquery.com"></script>
-    <script src="https://cloudflare.com"></script>
+    <title>Buku 3D Bolak-Balik Nyata</title>
     <style>
         body {
-            background-color: #2e3d49;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #2c3e50;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #ffffff;
             min-height: 100vh;
-            justify-content: center;
+            color: white;
         }
-        h1 { margin-bottom: 5px; text-shadow: 2px 2px 5px rgba(0,0,0,0.3); font-size: 26px; }
-        p { margin-top: 0; color: #a0aab2; font-size: 14px; margin-bottom: 20px; }
+        h1 { margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        p { margin-top: 0; color: #bdc3c7; margin-bottom: 30px; }
 
-        /* Kontainer Utama Buku */
-        #buku-container {
-            position: relative;
+        /* Panggung Utama Efek 3D */
+        .scene {
+            width: 400px;
+            height: 500px;
+            perspective: 1500px;
             margin: 20px auto;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            border-radius: 4px;
         }
 
-        /* Ukuran Buku Tulis Terbuka (2 Halaman Berdampingan) */
-        #buku-tulis {
-            width: 900px;
-            height: 550px;
-        }
-
-        /* Desain Kertas Lembaran Buku Baru Kosong */
-        .page {
-            width: 450px;
-            height: 550px;
-            background-color: #fcfcfc;
-            /* Membuat Garis-Garis Buku Tulis Baru Bermotif Garis Biru Tipis */
-            background-image: 
-                linear-gradient(90px, transparent, transparent),
-                linear-gradient(#e1e6eb 1px, transparent 1px);
-            background-size: 100% 24px;
+        /* Struktur Buku Fisik */
+        .book {
+            width: 100%;
+            height: 100%;
             position: relative;
-            box-sizing: border-box;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
         }
 
-        /* Garis Pinggir Buku Tulis (Garis Vertikal Merah Khas Buku Baru) */
-        .page::before {
+        /* Lembaran Kertas Buku */
+        .page {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-style: preserve-3d;
+            transform-origin: left center;
+            transition: transform 1s cubic-bezier(0.645, 0.045, 0.355, 1);
+            cursor: pointer;
+        }
+
+        /* Bagian Depan dan Belakang Lembaran Kertas */
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            box-shadow: inset 3px 0 20px rgba(0,0,0,0.2), 5px 5px 15px rgba(0,0,0,0.3);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: white;
+            border-radius: 0 5px 5px 0;
+        }
+
+        /* Sisi belakang lembaran harus diputar 180 derajat agar tidak terbalik */
+        .back {
+            transform: rotateY(180deg);
+            border-radius: 5px 0 0 5px;
+        }
+
+        /* Efek Lipatan Gelap Di Tengah Saat Buku Terbuka */
+        .front::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 45px;
-            width: 1px;
-            height: 100%;
-            background-color: #ff9999;
+            left: 0; top: 0; width: 15px; height: 100%;
+            background: linear-gradient(90deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);
         }
-
-        /* Efek Bayangan Melengkung di Tengah Buku (Aspek Realistis) */
-        .hard {
-            background-color: #1a252f !important;
-            background-image: none !important;
-        }
-        .hard::before { display: none; }
-
-        /* Desain Cover Depan Buku Baru */
-        .cover-depan {
-            background: #2980b9 !important; /* Warna Sampul Buku */
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 4px 0 0 4px;
-            box-shadow: inset -10px 0 20px rgba(0,0,0,0.2);
-        }
-        .cover-depan h2 {
-            border: 3px double white;
-            padding: 15px 30px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 22px;
-            background: rgba(0,0,0,0.1);
-        }
-
-        /* Desain Cover Belakang Buku Baru */
-        .cover-belakang {
-            background: #2980b9 !important;
-            border-radius: 0 4px 4px 0;
-            box-shadow: inset 10px 0 20px rgba(0,0,0,0.2);
-        }
-
-        /* Bayangan Lipatan di Tengah Buku */
-        .gradient-tengah {
+        .back::after {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 450px;
-            width: 20px;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
-            z-index: 10;
-            pointer-events: none;
+            right: 0; top: 0; width: 15px; height: 100%;
+            background: linear-gradient(-90deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);
         }
 
-        /* Tombol Kontrol */
-        .panel-kontrol {
-            margin-top: 25px;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 12px 20px;
-            border-radius: 30px;
+        /* Animasi Transisi Sempurna Saat Lembar Dibuka (Berputar ke Kiri) */
+        .page.flipped {
+            transform: rotateY(-180deg);
+        }
+
+        /* Atur t-index otomatis agar tumpukan kertas tidak tembus pandang */
+        #p1 { z-index: 3; }
+        #p2 { z-index: 2; }
+        #p3 { z-index: 1; }
+
+        /* Panel Tombol Navigasi bawah */
+        .controls {
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
             display: flex;
             gap: 15px;
             align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        button {
-            padding: 8px 16px;
-            border-radius: 20px;
+        input, button {
+            padding: 10px 15px;
+            border-radius: 5px;
             border: none;
-            font-size: 13px;
-            font-weight: bold;
-            background-color: #34495e;
+            font-size: 14px;
+        }
+        input { width: 180px; }
+        button {
+            background-color: #3498db;
             color: white;
+            font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
         }
-        button:hover { background-color: #1abc9c; }
-        .btn-tambah { background-color: #27ae60; }
-        .btn-tambah:hover { background-color: #2cc36b; }
-        .btn-hapus { background-color: #c0392b; }
-        .btn-hapus:hover { background-color: #e74c3c; }
-        .info-halaman { font-size: 14px; font-weight: 500; min-width: 120px; text-align: center; }
+        button:hover { background-color: #2980b9; }
+        .btn-danger { background-color: #e74c3c; }
+        .btn-danger:hover { background-color: #c0392b; }
     </style>
 </head>
 <body>
 
-    <h1>📝 Buku Tulis Baru Kosong</h1>
-    <p>Gunakan tombol atau klik ujung kertas untuk membalik halaman per lembar seperti buku asli</p>
+    <h1>📖 Buku Digital 3D Interaktif</h1>
+    <p>Klik langsung pada lembar buku untuk membuka dan membalik halamannya</p>
 
-    <!-- Struktur Buku Fisik -->
-    <div id="buku-container">
-        <!-- Efek Bayangan Tengah untuk Buku Terbuka -->
-        <div class="gradient-tengah"></div>
-        
-        <div id="buku-tulis">
-            <!-- Halaman 1: Cover Depan Berwarna -->
-            <div class="hard cover-depan">
-                <h2>BUKU CATATAN</h2>
-                <p style="color: #e0e0e0; margin-top: 10px;">Lembar Baru Belum Diisi</p>
+    <!-- Kontainer Panggung Buku -->
+    <div class="scene">
+        <div class="book" id="my-book">
+            
+            <!-- LEMBAR 1: COVER DEPAN (Gambar A) & HALAMAN BALIKNYA (Gambar B) -->
+            <div class="page" id="p1" onclick="balikHalaman(1)">
+                <div class="front" style="background-image: url('File/Gambar/Buku/A.png');"></div>
+                <div class="back" style="background-image: url('File/Gambar/Buku/B.png');"></div>
             </div>
-            
-            <!-- Halaman 2: Kosong Bergaris -->
-            <div class="page"></div>
-            
-            <!-- Halaman 3: Kosong Bergaris -->
-            <div class="page"></div>
-            
-            <!-- Halaman 4: Kosong Bergaris -->
-            <div class="page"></div>
 
-            <!-- Halaman 5: Kosong Bergaris -->
-            <div class="page"></div>
+            <!-- LEMBAR 2: HALAMAN TENGAH (Gambar C) & HALAMAN KOSONG BARU -->
+            <div class="page" id="p2" onclick="balikHalaman(2)">
+                <div class="front" style="background-image: url('File/Gambar/Buku/C.png');"></div>
+                <div class="back" style="background-image: url('https://placehold.co');"></div>
+            </div>
 
-            <!-- Halaman 6: Cover Belakang -->
-            <div class="hard cover-belakang"></div>
+            <!-- LEMBAR 3: TEMPAT UNTUK MENERIMA UPLOAD FILE BARU BERIKUTNYA -->
+            <div class="page" id="p3" onclick="balikHalaman(3)">
+                <div class="front" id="slot-baru-front" style="background-image: url('https://placehold.co');"></div>
+                <div class="back" style="background-color: #34495e;"></div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Navigasi Lembar Buku -->
-    <div class="panel-kontrol">
-        <button onclick="kembaliLembar()">⬅️ Balik Kiri</button>
-        <span class="info-halaman" id="indeks-halaman">Halaman 1 / 6</span>
-        <button onclick="majuLembar()">Balik Kanan ➡️</button>
-    </div>
-
-    <!-- Manajemen Jumlah Lembar Otomatis -->
-    <div class="panel-kontrol" style="margin-top: 10px; background: rgba(0,0,0,0.2);">
-        <button class="btn-tambah" onclick="tambahLembarOtomatis()">➕ Tambah Lembar Baru (Auto-Increment)</button>
-        <button class="btn-hapus" onclick="hapusLembarTerakhir()">🗑️ Robek Lembar Terakhir</button>
+    <!-- Sistem Kontrol Tambah Lembar Kertas Baru Otomatis -->
+    <div class="controls">
+        <input type="text" id="input-nama-file" placeholder="Ketik nama file (Contoh: D.png)">
+        <button onclick="tambahLembarOtomatis()">➕ Tambah Lembar Ke Buku</button>
+        <button class="btn-danger" onclick="resetBuku()">🔄 Atur Ulang Buku</button>
     </div>
 
     <script>
-        // Set awal total halaman di dalam buku tulis
-        let totalHalaman = 6;
+        // Logika fungsi klik membalik kertas
+        function balikHalaman(pageId) {
+            const page = document.getElementById(`p${pageId}`);
+            const book = document.getElementById('my-book');
 
-        // Ambil data jumlah halaman terakhir dari browser jika ada
-        if (localStorage.getItem('totalHalamanBukuBaru')) {
-            totalHalaman = parseInt(localStorage.getItem('totalHalamanBukuBaru'));
-        }
-
-        function rakitUlangBuku() {
-            const buku = $('#buku-tulis');
-            buku.html(''); // Kosongkan isi buku lama
-
-            // 1. Buat Cover Depan
-            buku.append(`
-                <div class="hard cover-depan">
-                    <h2>BUKU CATATAN</h2>
-                    <p style="color: #e0e0e0; margin-top: 10px;">Lembar Baru Belum Diisi</p>
-                </div>
-            `);
-
-            // 2. Buat Isi Lembaran Bergaris Berdasarkan Jumlah Halaman yang Diinginkan
-            for (let i = 2; i < totalHalaman; i++) {
-                buku.append('<div class="page"></div>');
-            }
-
-            // 3. Buat Cover Belakang
-            buku.append('<div class="hard cover-belakang"></div>');
-
-            // 4. Inisialisasi Ulang Pustaka Turn.js
-            buku.turn({
-                width: 900,
-                height: 550,
-                elevation: 50,
-                gradients: true,
-                autoCenter: true,
-                duration: 1000, // Kecepatan efek membalik kertas (1 detik)
-                when: {
-                    turned: function(event, page, view) {
-                        $('#indeks-halaman').text(`Halaman ${page} / ${totalHalaman}`);
-                    }
+            if (!page.classList.contains('flipped')) {
+                // Efek buka halaman ke kiri
+                page.classList.add('flipped');
+                
+                // Geser posisi buku sedikit ke kanan saat terbuka agar simetris di tengah
+                if(pageId === 1) {
+                    book.style.transform = "translateX(50%)";
                 }
-            });
-
-            // Simpan kondisi jumlah lembar saat ini ke memori browser
-            localStorage.setItem('totalHalamanBukuBaru', totalHalaman);
+            } else {
+                // Efek menutup halaman kembali ke kanan
+                page.classList.remove('flipped');
+                
+                if(pageId === 1) {
+                    book.style.transform = "translateX(0%)";
+                }
+            }
         }
 
-        // Navigasi Balik Buku Manual
-        function kembaliLembar() { $('#buku-tulis').turn('previous'); }
-        function majuLembar() { $('#buku-tulis').turn('next'); }
-
-        // FUNGSI AUTO-INCREMENT (Menambah lembar kosong baru ke paling belakang buku)
+        // FUNGSI AUTO-INCREMENT: Menambahkan gambar baru (Misal D.png) langsung ke lembaran buku berikutnya
         function tambahLembarOtomatis() {
-            // Ditambah 2 halaman sekaligus karena format buku selalu kanan-kiri (1 lembar bolak-balik)
-            totalHalaman += 2; 
-            
-            $('#buku-tulis').turn('destroy'); // Bongkar buku lama
-            rakitUlangBuku(); // Susun ulang dengan lembaran kertas baru
-            
-            // Otomatis balik ke halaman lembaran baru tersebut
-            setTimeout(() => {
-                $('#buku-tulis').turn('page', totalHalaman - 2);
-            }, 200);
-        }
+            const input = document.getElementById('input-nama-file');
+            const namaFile = input.value.trim();
 
-        // FUNGSI HAPUS LEMBARAN (Merasur/Merobek halaman kosong dari bagian belakang)
-        function hapusLembarTerakhir() {
-            if (totalHalaman <= 4) {
-                alert("Buku tulis sudah tipis! Tidak bisa merobek lembaran utama.");
+            if (!namaFile) {
+                alert("Silahkan isi nama file gambar Anda terlebih dahulu!");
                 return;
             }
 
-            if (confirm("Apakah Anda yakin ingin merobek lembar halaman kertas terakhir ini?")) {
-                totalHalaman -= 2; // Kurangi selembar kertas (2 halaman kanan-kiri)
-                $('#buku-tulis').turn('destroy');
-                rakitUlangBuku();
-            }
+            // Gabungkan nama file menjadi path lengkap folder Anda
+            const pathGambarBaru = `File/Gambar/Buku/${namaFile.includes('.') ? namaFile : namaFile + '.png'}`;
+            
+            // Masukkan gambar baru tersebut ke dalam slot lembaran buku ke-3
+            const slotFront = document.getElementById('slot-baru-front');
+            slotFront.style.backgroundImage = `url('${pathGambarBaru}')`;
+            
+            alert(`✅ Berhasil! File ${namaFile} dipasang sebagai halaman baru di dalam lembar ke-3.`);
+            input.value = '';
         }
 
-        // Jalankan perakitan kertas buku saat pertama kali dimuat
-        $(document).ready(function() {
-            rakitUlangBuku();
-        });
+        // Fungsi Reset Memori Tampilan Buku
+        function resetBuku() {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('flipped');
+            });
+            document.getElementById('my-book').style.transform = "translateX(0%)";
+        }
     </script>
 </body>
 </html>
