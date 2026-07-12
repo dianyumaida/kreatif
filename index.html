@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buku Digital Multi-Media Dropdown</title>
+    <title>Buku Digital Multi-Media Dropdown Fix</title>
     <style>
         body {
             background-color: #1a252f;
@@ -66,6 +66,7 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
+            user-select: none; /* Cegah teks terblok saat klik 2x */
         }
 
         /* Elemen Video dan Audio */
@@ -74,7 +75,7 @@
             max-height: 90%;
         }
 
-        /* Kotak Editor Teks Pop-up di dalam Buku */
+        /* Kotak Editor Teks di dalam Buku */
         .editor-box {
             display: none;
             width: 100%;
@@ -104,7 +105,7 @@
             cursor: pointer;
         }
 
-        /* Tampilan Status Rekaman */
+        /* Tampilan Status Perekaman */
         .record-status {
             font-weight: bold;
             color: #e74c3c;
@@ -129,7 +130,6 @@
             color: #7f8c8d;
         }
 
-        /* Sembunyikan Input File Asli */
         input[type="file"] {
             display: none;
         }
@@ -138,7 +138,7 @@
 <body>
 
     <div class="book-container">
-        <!-- MENU DROPDOWN UTAMA (Gabungan Tombol Navigasi, Upload Multi-Media, Edit & Rekam) -->
+        <!-- MENU DROPDOWN UTAMA -->
         <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">⚙️ -- PILIH MENU KELOLA --</option>
@@ -148,22 +148,23 @@
                 <option value="aksi-upload-vid">📹 Upload Video Baru</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
                 <option value="aksi-rekam">🎙️ Mulai / Stop Rekam Suara</option>
+                <option value="aksi-clear-mem">🔄 Reset Segarkan Gambar Cover</option>
                 <option value="aksi-hapus">🗑️ Hapus Lembar Ini</option>
             </select>
         </div>
 
-        <!-- Hidden input untuk memicu file picker device -->
+        <!-- Hidden Input File Picker -->
         <input type="file" id="file-image" accept="image/*" onchange="handleFileSelected(this, 'image')">
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA KONTEN UTAMA: MENAMPILKAN GAMBAR / VIDEO / AUDIO -->
-        <div class="content-area" id="book-content" onclick="klikGambarMajuLembar()">
+        <!-- AREA KONTEN UTAMA: KLIK 2X (DOUBLE CLICK) UNTUK MAJU KE LEMBAR BERIKUTNYA -->
+        <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar()">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
         </div>
 
-        <!-- AREA EDITOR TEKS (Muncul Hanya Saat Menu Edit Dipilih) -->
+        <!-- AREA EDITOR TEKS -->
         <div class="editor-box" id="editor-container">
             <textarea id="text-input-field" placeholder="Ketik kalimat isi catatan buku di sini..."></textarea>
             <button class="btn-save-text" onclick="simpanTeksCatatan()">💾 Simpan Perubahan Teks</button>
@@ -174,15 +175,17 @@
     </div>
 
     <script>
-        // Database awal file media bawaan Anda
-        let databaseBuku = [
+        // Jalur gambar asli milik Anda dari repositori GitHub
+        const susunanDefaultMurni = [
             { type: "image", src: "File/Gambar/Buku/A.png", teks: "" }, 
             { type: "image", src: "File/Gambar/Buku/B.png", teks: "" }, 
             { type: "image", src: "File/Gambar/Buku/C.png", teks: "" }  
         ];
 
-        if (localStorage.getItem('bukuDropdownMediaLengkap')) {
-            databaseBuku = JSON.parse(localStorage.getItem('bukuDropdownMediaLengkap'));
+        let databaseBuku = [...susunanDefaultMurni];
+
+        if (localStorage.getItem('bukuDropdownMediaDblClick')) {
+            databaseBuku = JSON.parse(localStorage.getItem('bukuDropdownMediaDblClick'));
         }
 
         let indeksAktif = 0;
@@ -198,7 +201,7 @@
         const elTextField = document.getElementById('text-input-field');
         const elRecordIndicator = document.getElementById('record-indicator');
 
-        // Fungsi memuat konten lembar halaman secara dinamis berdasarkan jenis medianya
+        // Fungsi memuat konten lembar halaman secara aman
         function muatHalaman(indeks) {
             indeksAktif = indeks;
             const data = databaseBuku[indeksAktif];
@@ -214,21 +217,25 @@
                 elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
             }
 
-            // Tampilkan teks di dalam field input jika user membuka menu edit nanti
             elTextField.value = data.teks || "";
-
             elIndikator.innerHTML = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length} ${data.teks ? '<br><small style="color:#2c3e50">📄 Ada Catatan Teks</small>' : ''}`;
-            localStorage.setItem('bukuDropdownMediaLengkap', JSON.stringify(databaseBuku));
+            
+            // Hanya simpan data ringan yang bukan pautan upload blob lokal agar memori tidak penuh
+            const dataBersihLokal = databaseBuku.map(item => {
+                return item.src.startsWith('blob:') ? { type: "image", src: "File/Gambar/Buku/A.png", teks: item.teks } : item;
+            });
+            localStorage.setItem('bukuDropdownMediaDblClick', JSON.stringify(dataBersihLokal));
         }
 
-        function klikGambarMajuLembar() {
-            // Hindari membalik halaman jika user sedang mengklik tombol play video/audio di dalam konten
+        // FUNGSI KLIK 2X (DOUBLE CLICK): Lembar diklik 2x langsung masuk ke lembar berikutnya
+        function klikDuaKaliMajuLembar() {
+            // Abaikan double click jika pengguna sedang menyentuh tombol play video/audio internal
             if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
 
             if (indeksAktif < databaseBuku.length - 1) {
                 indeksAktif++;
             } else {
-                indeksAktif = 0;
+                indeksAktif = 0; // Berputar kembali ke Cover Depan (A.png)
             }
             muatHalaman(indeksAktif);
         }
@@ -250,14 +257,3 @@
                 elMenu.value = 'default';
             } 
             else if (nilaiPilihan === 'aksi-upload-vid') {
-                document.getElementById('file-video').click();
-                elMenu.value = 'default';
-            } 
-            else if (nilaiPilihan === 'aksi-upload-mp3') {
-                document.getElementById('file-audio').click();
-                elMenu.value = 'default';
-            } 
-            else if (nilaiPilihan === 'aksi-rekam') {
-                toggleRekamSuara();
-                elMenu.value = 'default';
-            } 
