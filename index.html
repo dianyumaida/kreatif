@@ -146,7 +146,7 @@
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA GAMBAR: CUKUP DIKLIK 1X SAJA UNTUK MAJU KE HALAMAN BERIKUTNYA -->
+        <!-- AREA GAMBAR: SEKARANG CUKUP DIKLIK 1X SAJA UNTUK MAJU KE HALAMAN BERIKUTNYA -->
         <div class="content-area" id="book-content" onclick="klikMajuLembar()">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
@@ -164,9 +164,9 @@
     <script>
         // Jalur gambar asli repositori kreatif Anda di GitHub
         const susunanAwalMurni = [
-            { type: "image", src: "File/Gambar/Buku/A.png", teks: "Ketik catatan untuk Lembar A di sini..." }, 
-            { type: "image", src: "File/Gambar/Buku/B.png", teks: "Ketik catatan untuk Lembar B di sini..." }, 
-            { type: "image", src: "File/Gambar/Buku/C.png", teks: "Ketik catatan untuk Lembar C di sini..." }  
+            { type: "image", src: "File/Gambar/Buku/A.png", teks: "" }, 
+            { type: "image", src: "File/Gambar/Buku/B.png", teks: "" }, 
+            { type: "image", src: "File/Gambar/Buku/C.png", teks: "" }  
         ];
 
         let databaseBuku = [...susunanAwalMurni];
@@ -256,3 +256,4 @@
             else if (nilaiPilihan === 'aksi-reset-total') {
                 localStorage.removeItem('bukuSistem_FinalClean');
                 databaseBuku = [...susunanAwalMurni];
+                muatHalaman(0);
