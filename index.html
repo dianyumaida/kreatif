@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buku Digital Multi-Navigasi</title>
+    <title>Buku Digital Minimalis Dropdown</title>
     <style>
         body {
             background-color: #1a252f;
@@ -17,7 +17,7 @@
             justify-content: center;
         }
 
-        /* Kontainer Utama Buku */
+        /* Kontainer Utama Aplikasi */
         .book-container {
             width: 100%;
             max-width: 420px;
@@ -29,252 +29,216 @@
             flex-direction: column;
         }
 
-        /* Menu Navigasi Paling Atas (Seperti Contoh Kalkulator Multi) */
+        /* Area Menu Navigasi Paling Atas */
         .nav-header {
             background-color: #2c3e50;
             padding: 12px;
             border-bottom: 2px solid #34495e;
         }
+        
+        /* dropdown select utama */
         .dropdown-select {
             width: 100%;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
             border: 1px solid #7f8c8d;
             background-color: #1a252f;
             color: white;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: bold;
             outline: none;
             cursor: pointer;
         }
 
-        /* Area Gambar Lembar Buku */
-        .page-bg {
+        /* Area Gambar (Bisa Diklik Langsung untuk Balik Lembar) */
+        .page-area {
             width: 100%;
-            height: 280px;
+            height: 480px; /* Ukuran gambar diperpanjang karena area teks hilang */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-color: #f5f5f5;
-        }
-
-        /* Area Kerja Form (Menggantikan Teks Statis Lama) */
-        .work-area {
-            padding: 15px;
-            background-color: #fdfcf7;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        /* Kolom untuk Mengetik / Mengedit Teks Isi Lembar Ini */
-        .editor-label {
-            font-size: 13px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .book-textarea {
-            width: 100%;
-            height: 100px;
-            padding: 10px;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            resize: none;
-            font-size: 14px;
-            box-sizing: border-box;
-            background-color: #ffffff;
-            color: #333;
-            outline: none;
-        }
-
-        /* Baris Tombol Aksi */
-        .action-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* Gaya Tombol Edit/Simpan Teks */
-        .btn-action {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 14px;
             cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            box-sizing: border-box;
+            position: relative;
+            transition: opacity 0.2s ease-in-out;
         }
-        .btn-edit {
-            background-color: #3498db;
-            color: white;
+        .page-area:active {
+            opacity: 0.8;
         }
-        .btn-edit:hover { background-color: #2980b9; }
 
-        /* Gaya Tombol Kirim WhatsApp */
-        .btn-wa {
-            background-color: #25d366;
-            color: white;
-        }
-        .btn-wa:hover { background-color: #20ba5a; }
-
-        /* Footer Halaman */
+        /* Info Indikator Halaman Paling Bawah (Sesuai Panah 1) */
         .page-footer {
             text-align: center;
-            padding: 10px;
+            padding: 12px;
             background: #f1f2f6;
             border-top: 1px solid #ddd;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
             color: #7f8c8d;
-        }
-
-        /* Panel Auto-Increment (Admin) */
-        .admin-panel {
-            margin-top: 20px;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 12px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 395px;
-            box-sizing: border-box;
-        }
-        .admin-row {
-            display: flex;
-            gap: 8px;
-        }
-        .admin-row input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 6px;
-            border: none;
-        }
-        .btn-add {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <div class="book-container">
-        <!-- BARIS MENU NAVIGASI UTAMA (Di Bagian Paling Atas Buku) -->
+        <!-- MENU DROPDOWN UTAMA (Tempat seluruh tombol aksi dan navigasi berkumpul) -->
         <div class="nav-header">
-            <select class="dropdown-select" id="menu-navigasi" onchange="pilihHalamanDariMenu()">
-                <!-- Opsi menu akan diisi otomatis oleh JavaScript -->
+            <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
+                <!-- Opsi menu akan diisi otomatis lewat JavaScript -->
             </select>
         </div>
 
-        <!-- AREA GAMBAR (COVER/ISI) -->
-        <div class="page-bg" id="book-image"></div>
-        
-        <!-- AREA EDIT TEKS & TOMBOL KIRIM (Terintegrasi Penuh) -->
-        <div class="work-area">
-            <div class="editor-label" id="label-halaman">📝 Sunting Catatan Untuk Lembar A:</div>
-            <textarea id="book-text" class="book-textarea" placeholder="Tulis isi lembaran buku di sini..."></textarea>
-            
-            <!-- Tombol Aksi Bersama: Simpan Perubahan Teks & Kirim Ke Link Channel WA -->
-            <div class="action-row">
-                <button class="btn-action btn-edit" onclick="simpanPerubahanTeks()">💾 Simpan Edit Teks</button>
-                <a href="https://whatsapp.com" target="_blank" class="btn-action btn-wa" id="wa-link">📲 Kirim Ke WA</a>
-            </div>
-        </div>
+        <!-- AREA GAMBAR: TEKS HILANG TOTAL & GAMBAR BISA DIKLIK LANGSUNG (Auto-Flip) -->
+        <div class="page-area" id="book-image" onclick="klikGambarMajuLembar()"></div>
 
-        <!-- INDIKATOR HALAMAN -->
+        <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 3</div>
     </div>
 
-    <!-- PANEL AUTO INCREMENT (Tambah Halaman Otomatis) -->
-    <div class="admin-panel">
-        <div style="font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #bdc3c7;">Otomatis Tambah Lembar Pilihan Baru:</div>
-        <div class="admin-row">
-            <input type="text" id="input-nama-file" placeholder="Ketik nama file gambar (Contoh: D.png)">
-            <button class="btn-add" onclick="tambahLembarOtomatis()">➕ Tambah</button>
-        </div>
-    </div>
-
     <script>
-        // Struktur database lengkap (Gambar + Isi teks bawaan untuk setiap menu)
+        // Database utama file gambar Anda di dalam repositori GitHub
         let databaseBuku = [
-            { kode: "A", gambar: "File/Gambar/Buku/A.png", teks: "Catatan khusus untuk Lembar A (Cover)." },
-            { kode: "B", gambar: "File/Gambar/Buku/B.png", teks: "Materi tulisan penting di Lembar B." },
-            { kode: "C", gambar: "File/Gambar/Buku/C.png", teks: "Dokumen lanjutan untuk halaman C." }
+            "File/Gambar/Buku/A.png", 
+            "File/Gambar/Buku/B.png", 
+            "File/Gambar/Buku/C.png"  
         ];
 
-        // Sinkronisasi memori browser lokal
-        if (localStorage.getItem('bukuMultiNavigasiData')) {
-            databaseBuku = JSON.parse(localStorage.getItem('bukuMultiNavigasiData'));
+        // Sinkronisasi memori browser Lokal
+        if (localStorage.getItem('bukuDropdownAksiData')) {
+            databaseBuku = JSON.parse(localStorage.getItem('bukuDropdownAksiData'));
         }
 
         let indeksAktif = 0;
 
         const elGambar = document.getElementById('book-image');
         const elMenu = document.getElementById('menu-navigasi');
-        const elTeks = document.getElementById('book-text');
-        const elLabel = document.getElementById('label-halaman');
         const elIndikator = document.getElementById('page-indicator');
-        const elWaLink = document.getElementById('wa-link');
 
-        // Fungsi merakit teks opsi menu dropdown agar up-to-date
-        function renderMenuDropdown() {
-            elMenu.innerHTML = '<option value="-1">-- Pilih Menu Navigasi --</option>';
-            databaseBuku.forEach((item, indeks) => {
+        // Fungsi merakit seluruh tombol aksi dan daftar halaman ke dalam satu dropdown menu
+        function susunMenuDropdown() {
+            elMenu.innerHTML = '';
+
+            // 1. Kelompok Judul Utama Default
+            const grupNavigasi = document.createElement('optgroup');
+            grupNavigasi.label = "📁 -- BUKA LEMBAR HALAMAN --";
+
+            databaseBuku.forEach((path, indeks) => {
+                // Ambil karakter nama file (A, B, C, dst) sebagai identitas menu
+                let namaFile = path.split('/').pop().split('.')[0].toUpperCase();
                 const opsi = document.createElement('option');
-                opsi.value = indeks;
-                opsi.text = `📁 -- Lembar ${item.kode} -- ▶`;
-                elMenu.appendChild(opsi);
+                opsi.value = `buka-${indeks}`;
+                opsi.text = `📄 Buka Lembar ${namaFile} ${indeks === indeksAktif ? '◀' : ''}`;
+                grupNavigasi.appendChild(opsi);
             });
-            elMenu.value = indeksAktif;
+            elMenu.appendChild(grupNavigasi);
+
+            // 2. Kelompok Tombol Aksi / Fitur Pengelolaan
+            const grupAksi = document.createElement('optgroup');
+            grupAksi.label = "⚙️ -- ACTION / TOMBOL EDIT --";
+
+            // Tombol Kirim Ke WhatsApp
+            const opsiWa = document.createElement('option');
+            opsiWa.value = "aksi-wa";
+            opsiWa.text = "📲 Kirim ke Saluran WhatsApp";
+            grupAksi.appendChild(opsiWa);
+
+            // Tombol Auto-Increment Lembar Baru
+            const opsiTambah = document.createElement('option');
+            opsiTambah.value = "aksi-tambah";
+            opsiTambah.text = "➕ Tambah Lembar Baru (Auto)";
+            grupAksi.appendChild(opsiTambah);
+
+            // Tombol Hapus Lembar Aktif
+            const opsiHapus = document.createElement('option');
+            opsiHapus.value = "aksi-hapus";
+            opsiHapus.text = "🗑️ Hapus Lembar yang Dibuka";
+            grupAksi.appendChild(opsiHapus);
+
+            elMenu.appendChild(grupAksi);
+            
+            // Set agar dropdown menampilkan posisi lembar aktif saat ini
+            elMenu.value = `buka-${indeksAktif}`;
         }
 
-        // Fungsi menampilkan data lembar ke monitor berdasarkan pilihan menu
+        // Fungsi memuat tampilan gambar lembar buku ke layar
         function muatHalaman(indeks) {
             indeksAktif = indeks;
-            const item = databaseBuku[indeksAktif];
-
-            elGambar.style.backgroundImage = `url('${item.gambar}')`;
-            elTeks.value = item.teks;
-            elLabel.innerText = `📝 Sunting Catatan Untuk Lembar ${item.kode}:`;
+            elGambar.style.backgroundImage = `url('${databaseBuku[indeksAktif]}')`;
             elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
-            elMenu.value = indeksAktif;
-
-            // Integrasi Tombol Kirim WA: Otomatis menyelipkan teks catatan ke dalam pesan teks WhatsApp (Opsional tetapi sangat keren!)
-            const teksAmanUrl = encodeURIComponent(`*Catatan Lembar ${item.kode}:*\n${item.teks}`);
-            elWaLink.href = `https://whatsapp.com?text=${teksAmanUrl}`;
             
-            localStorage.setItem('bukuMultiNavigasiData', JSON.stringify(databaseBuku));
+            localStorage.setItem('bukuDropdownAksiData', JSON.stringify(databaseBuku));
+            susunMenuDropdown();
         }
 
-        // Trigger saat dropdown diganti pilihan menunya
-        function pilihHalamanDariMenu() {
-            const val = parseInt(elMenu.value);
-            if (val >= 0) {
-                muatHalaman(val);
+        // FUNGSI KLIK GAMBAR: Gambar bisa diklik langsung untuk maju ke halaman berikutnya
+        function klikGambarMajuLembar() {
+            if (indeksAktif < databaseBuku.length - 1) {
+                indeksAktif++;
+                muatHalaman(indeksAktif);
+            } else {
+                // Jika sudah lembar terakhir, klik gambar akan memutar kembali ke cover depan
+                indeksAktif = 0;
+                muatHalaman(indeksAktif);
             }
         }
 
-        // Fungsi Tombol "Simpan Edit Teks"
-        function simpanPerubahanTeks() {
-            databaseBuku[indeksAktif].teks = elTeks.value;
-            localStorage.setItem('bukuMultiNavigasiData', JSON.stringify(databaseBuku));
-            muatHalaman(indeksAktif);
-            alert(`✅ Berhasil memperbarui teks catatan pada Lembar ${databaseBuku[indeksAktif].kode}!`);
+        // Fungsi kontrol pusat untuk mengeksekusi pilihan di dalam menu dropdown
+        function eksekusiPilihanMenu() {
+            const nilaiPilihan = elMenu.value;
+
+            if (nilaiPilihan.startsWith('buka-')) {
+                // Jika memilih baris buka halaman
+                const targetIndeks = parseInt(nilaiPilihan.split('-')[1]);
+                muatHalaman(targetIndeks);
+            } 
+            else if (nilaiPilihan === 'aksi-wa') {
+                // Jika memilih tombol WhatsApp, langsung buka tab link baru
+                window.open('https://whatsapp.com', '_blank');
+                elMenu.value = `buka-${indeksAktif}`; // Kembalikan teks menu ke lembar aktif
+            } 
+            else if (nilaiPilihan === 'aksi-tambah') {
+                // Jika memilih tombol Auto-Increment Tambah Lembar Baru
+                const inputNama = prompt("Masukkan nama file gambar baru yang sudah diupload ke GitHub:\n(Contoh: D.png atau E.png)");
+                
+                if (inputNama && inputNama.trim() !== '') {
+                    const fileMurni = inputNama.trim();
+                    const pathLengkap = `File/Gambar/Buku/${fileMurni.includes('.') ? fileMurni : fileMurni + '.png'}`;
+                    
+                    databaseBuku.push(pathLengkap);
+                    localStorage.setItem('bukuDropdownAksiData', JSON.stringify(databaseBuku));
+                    
+                    // Lompat langsung membuka halaman baru yang dibuat di paling belakang
+                    muatHalaman(databaseBuku.length - 1);
+                    alert("🎉 Sukses membuat opsi halaman baru di dalam dropdown!");
+                } else {
+                    elMenu.value = `buka-${indeksAktif}`;
+                }
+            } 
+            else if (nilaiPilihan === 'aksi-hapus') {
+                // Jika memilih tombol Hapus Lembar
+                if (databaseBuku.length <= 1) {
+                    alert("Gagal menghapus! Minimal harus menyisakan 1 lembar cover depan.");
+                    elMenu.value = `buka-${indeksAktif}`;
+                    return;
+                }
+
+                if (confirm(`Apakah Anda yakin ingin menghapus Lembar ke-${indeksAktif + 1} ini dari daftar?`)) {
+                    databaseBuku.splice(indeksAktif, 1);
+                    
+                    if (indeksAktif >= databaseBuku.length) {
+                        indeksAktif = databaseBuku.length - 1;
+                    }
+                    muatHalaman(indeksAktif);
+                } else {
+                    elMenu.value = `buka-${indeksAktif}`;
+                }
+            }
         }
 
-        // Fungsi Auto-Increment: Tambah halaman baru langsung memproduksi opsi menu baru
-        function tambahLembarOtomatis() {
-            const input = document.getElementById('input-nama-file');
-            const fileNama = input.value.trim();
-
-            if (!fileNama) {
-                alert("Silahkan ketik nama file gambarnya dahulu!");
-                return;
-            }
-
-            const namaMurni = fileNama.replace(/\.[^/.]+$/, "").toUpperCase();
+        // Eksekusi muat sistem pertama kali web dibuka
+        window.onload = function() {
+            muatHalaman(0); // Tampilkan gambar cover A pertama kali
+        };
+    </script>
+</body>
+</html>
