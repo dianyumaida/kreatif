@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mushaf & Buku Digital 3D Fix</title>
+    <title>Buku Digital Full Page & Editor Teks</title>
     <style>
         body {
-            background-color: #1a252f;
+            background-color: #2c3e50;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
@@ -15,215 +15,254 @@
             align-items: center;
             min-height: 100vh;
             color: white;
-            justify-content: center;
         }
-        h1 { margin-bottom: 5px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
-        p { margin-top: 0; color: #95a5a6; font-size: 14px; margin-bottom: 30px; }
+        h1 { margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); font-size: 24px; }
+        p { margin-top: 0; color: #bdc3c7; font-size: 14px; margin-bottom: 20px; }
 
-        /* Area Panggung Buku (3D Render) */
-        .book-stage {
-            width: 360px; /* Ukuran disesuaikan agar pas di layar HP & Laptop */
-            height: 480px;
-            perspective: 2000px;
-            position: relative;
-            transition: transform 0.6s ease;
-        }
-
-        /* Geser panggung ke kanan saat buku terbuka */
-        .book-stage.opened {
-            transform: translateX(180px);
-        }
-
-        /* Kontainer Buku Utama */
-        .book {
+        /* Wadah Utama Buku Satu Halaman Penuh */
+        .book-container {
             width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-        }
-
-        /* Komponen Lembaran Kertas Buku */
-        .page {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transform-style: preserve-3d;
-            transform-origin: left center;
-            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        /* Atur urutan tumpukan awal (Lapis Kertas) */
-        #page1 { z-index: 3; }
-        #page2 { z-index: 2; }
-        #page3 { z-index: 1; }
-
-        /* Sisi Depan dan Sisi Belakang Lembaran Kertas */
-        .front, .back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-color: #ffffff;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
-        }
-
-        .front { border-radius: 0 8px 8px 0; }
-
-        /* Sisi belakang lembar dibalik 180 derajat */
-        .back {
-            transform: rotateY(180deg);
-            border-radius: 8px 0 0 8px;
-        }
-
-        /* Efek Bayangan Lipatan Buku di Tengah */
-        .front::after {
-            content: ''; position: absolute; left: 0; top: 0; width: 20px; height: 100%;
-            background: linear-gradient(90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
-        }
-        .back::after {
-            content: ''; position: absolute; right: 0; top: 0; width: 20px; height: 100%;
-            background: linear-gradient(-90deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
-        }
-
-        /* Efek Putar Lembaran ke Kiri */
-        .page.flipped {
-            transform: rotateY(-180deg);
-        }
-
-        /* Penyesuaian lapisan z-index setelah halaman dibalik agar tidak bentrok */
-        #page1.flipped { z-index: 4; }
-        #page2.flipped { z-index: 5; }
-
-        /* Panel Tombol Navigasi Bawah */
-        .controls-container {
-            margin-top: 40px;
-            background: rgba(255, 255, 255, 0.08);
-            padding: 15px 25px;
-            border-radius: 30px;
+            max-w: 600px;
+            background: white;
+            color: #333;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            overflow: hidden;
             display: flex;
-            gap: 15px;
-            align-items: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            flex-direction: column;
+            height: 700px;
+            position: relative;
         }
-        button, input {
-            padding: 12px 20px;
+
+        /* Area Gambar Latar Belakang Lembar Buku */
+        .page-bg {
+            width: 100%;
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border-bottom: 2px solid #ddd;
+            position: relative;
+            background-color: #f5f5f5;
+        }
+        .page-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 12px;
             border-radius: 20px;
-            border: none;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
         }
-        input {
-            background-color: #ffffff;
+
+        /* Area Mengetik / Membaca / Mengedit Tulisan Buku */
+        .editor-area {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background-color: #fdfcf7; /* Warna kertas koran/buku nyaman di mata */
+        }
+        .book-textarea {
+            width: 100%;
+            flex: 1;
+            border: none;
+            resize: none;
+            background: transparent;
+            font-size: 16px;
+            line-height: 1.6;
             color: #2c3e50;
-            width: 180px;
+            outline: none;
+            font-family: 'Courier New', Courier, monospace;
+            /* Motif Garis Buku Tulis */
+            background-image: linear-gradient(#e1e6eb 1px, transparent 1px);
+            background-size: 100% 28px;
         }
-        button {
-            background-color: #2980b9;
+
+        /* Batas Info Halaman bawah */
+        .page-footer {
+            text-align: center;
+            padding: 10px;
+            background: #f1f2f6;
+            border-top: 1px solid #ddd;
+            font-size: 14px;
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+
+        /* Kontrol Navigasi Balik Lembar */
+        .nav-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .btn-nav {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #3498db;
             color: white;
+            font-weight: bold;
+            font-size: 15px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: 0.2s;
         }
-        button:hover { background-color: #3498db; }
-        .btn-nav { background-color: #e67e22; }
-        .btn-nav:hover { background-color: #f39c12; }
+        .btn-nav:hover { background: #2980b9; }
+
+        /* Panel Manajemen File Gambar (Auto Increment, Edit, Hapus) */
+        .management-panel {
+            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 570px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+        }
+        .btn-action {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-add { background: #27ae60; }
+        .btn-add:hover { background: #2cc36b; }
+        .btn-del { background: #e74c3c; }
+        .btn-del:hover { background: #c0392b; }
     </style>
 </head>
 <body>
 
-    <h1>📖 Aplikasi Mushaf & Buku Digital 3D</h1>
-    <p>Gunakan tombol Navigasi di bawah untuk membalik halaman buku</p>
+    <h1>📝 Buku Digital Satu Halaman Penuh (Editor)</h1>
+    <p>Tampilan full satu lembar utuh. Anda bisa membaca, mengetik isi teks, serta mengelola lembaran baru.</p>
 
-    <!-- Panggung Buku -->
-    <div class="book-stage" id="stage">
-        <div class="book">
-            
-            <!-- LEMBAR 1: COVER DEPAN (Gambar A) -> Belakang (Gambar B) -->
-            <div class="page" id="page1">
-                <div class="front" style="background-image: url('File/Gambar/Buku/A.png');"></div>
-                <div class="back" style="background-image: url('File/Gambar/Buku/B.png');"></div>
-            </div>
+    <!-- Kontainer Lembar Buku Satu Halaman Penuh -->
+    <div class="book-container">
+        <!-- Bagian Atas: Gambar Lembar -->
+        <div class="page-bg" id="book-image">
+            <span class="page-badge" id="book-code">KODE: BK-A</span>
+        </div>
+        
+        <!-- Bagian Tengah: Tempat Menulis Teks Catatan Buku -->
+        <div class="editor-area">
+            <textarea id="book-text" class="book-textarea" placeholder="Ketik isi catatan atau teks buku di sini... (Otomatis Tersimpan)"></textarea>
+        </div>
 
-            <!-- LEMBAR 2: HALAMAN TENGAH (Gambar C) -> Belakang (Slot Baru) -->
-            <div class="page" id="page2">
-                <div class="front" style="background-image: url('File/Gambar/Buku/C.png');"></div>
-                <div class="back" id="slot-auto-back" style="background-image: url('https://placehold.co');"></div>
-            </div>
+        <!-- Bagian Bawah: Indikator Nomor Halaman -->
+        <div class="page-footer" id="page-indicator">Lembar 1 dari 3</div>
+    </div>
 
-            <!-- LEMBAR 3: COVER BELAKANG BUKU -->
-            <div class="page" id="page3">
-                <div class="front" style="background-color: #34495e; border-radius: 0 8px 8px 0;"></div>
-                <div class="back" style="background-color: #2c3e50;"></div>
-            </div>
+    <!-- Tombol Navigasi Bolak-Balik Lembar Utuh -->
+    <div class="nav-controls">
+        <button class="btn-nav" onclick="kembaliLembar()">⬅️ Lembar Sebelumnya</button>
+        <button class="btn-nav" onclick="majuLembar()">Lembar Berikutnya ➡️</button>
+    </div>
 
+    <!-- Panel Kontrol Input: Tambah Gambar Otomatis & Hapus Lembar -->
+    <div class="management-panel">
+        <div style="font-size: 14px; font-weight: bold; color: #dbecf8;">⚙️ Kelola Struktur Lembar Gambar Buku:</div>
+        <div class="input-row">
+            <input type="text" id="input-gambar" placeholder="Ketik nama file gambar baru (Contoh: D.png)">
+            <button class="btn-action btn-add" onclick="tambahLembarOtomatis()">➕ Auto Tambah Lembar</button>
+        </div>
+        <div class="input-row">
+            <button class="btn-action btn-del" style="width: 100%;" onclick="hapusLembarSekarang()">🗑️ Hapus/Robek Lembar yang Sedang Dibuka Ini</button>
         </div>
     </div>
 
-    <!-- Tombol Utama untuk Membalik Lembaran Buku -->
-    <div class="controls-container">
-        <button class="btn-nav" onclick="tombolKembali()">⬅️ Buka ke Kanan</button>
-        <button class="btn-nav" onclick="tombolMaju()">Buka ke Kiri ➡️</button>
-    </div>
-
-    <!-- Fitur Unggah & Auto Increment -->
-    <div class="controls-container" style="margin-top: 15px; background: rgba(0,0,0,0.2);">
-        <input type="text" id="nama-file-baru" placeholder="Ketik nama file (Contoh: D.png)">
-        <button style="background-color: #27ae60;" onclick="prosesAutoIncrement()">➕ Tambah Lembar</button>
-    </div>
-
     <script>
-        // Mencatat posisi lembaran yang sedang aktif terbuka
-        let lembarAktif = 0; 
+        // Database awal struktur halaman buku yang terhubung ke folder file Anda di GitHub
+        let databaseBuku = [
+            { kode: "BK-A", gambar: "File/Gambar/Buku/A.png", isiTeks: "Ini adalah teks catatan awal untuk Lembar A. Silakan edit kalimat ini langsung..." },
+            { kode: "BK-B", gambar: "File/Gambar/Buku/B.png", isiTeks: "Ini adalah teks untuk halaman B. Anda bisa menghapusnya atau menulis materi baru di sini." },
+            { kode: "BK-C", gambar: "File/Gambar/Buku/C.png", isiTeks: "Lembar C siap digunakan untuk membaca maupun menulis data dokumen digital." }
+        ];
 
-        // Fungsi ketika menekan tombol "Buka ke Kiri" (Maju Halaman)
-        function tombolMaju() {
-            const panggung = document.getElementById('stage');
+        // Ambil data terbaru dari memori browser jika pengguna sudah pernah menambah/mengedit teks
+        if (localStorage.getItem('myDigitalBookData')) {
+            databaseBuku = JSON.parse(localStorage.getItem('myDigitalBookData'));
+        }
+
+        // Variabel penunjuk lembar halaman yang sedang dibuka (dimulai dari indeks 0)
+        let indeksAktif = 0;
+
+        const elemenGambar = document.getElementById('book-image');
+        const elemenKode = document.getElementById('book-code');
+        const elemenTeks = document.getElementById('book-text');
+        const elemenIndikator = document.getElementById('page-indicator');
+
+        // Fungsi Menampilkan Satu Lembar Buku Secara Penuh (Full Page View)
+        function muatHalaman() {
+            const dataHalaman = databaseBuku[indeksAktif];
+
+            // Tampilkan Gambar Latar Lembar Penuh
+            elemenGambar.style.backgroundImage = `url('${dataHalaman.gambar}')`;
+            elemenKode.innerText = `KODE: ${dataHalaman.kode}`;
             
-            if (lembarAktif === 0) {
-                document.getElementById('page1').classList.add('flipped');
-                panggung.classList.add('opened');
-                lembarAktif = 1;
-            } else if (lembarAktif === 1) {
-                document.getElementById('page2').classList.add('flipped');
-                lembarAktif = 2;
+            // Tampilkan Teks tulisan di dalam lembar tersebut
+            elemenTeks.value = dataHalaman.isiTeks;
+            
+            // Update nomor halaman bawah
+            elemenIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
+            
+            // Simpan setiap perubahan struktur ke memori
+            localStorage.setItem('myDigitalBookData', JSON.stringify(databaseBuku));
+        }
+
+        // Simpan teks secara otomatis saat user sedang mengetik di lembar tersebut
+        elemenTeks.addEventListener('input', function() {
+            databaseBuku[indeksAktif].isiTeks = elemenTeks.value;
+            localStorage.setItem('myDigitalBookData', JSON.stringify(databaseBuku));
+        });
+
+        // Navigasi Balik Lembar Maju Mundur (Full Page Slide)
+        function majuLembar() {
+            if (indeksAktif < databaseBuku.length - 1) {
+                indeksAktif++;
+                muatHalaman();
+            } else {
+                alert("Anda sudah berada di lembar halaman terakhir buku!");
             }
         }
 
-        // Fungsi ketika menekan tombol "Buka ke Kanan" (Kembali Halaman)
-        function tombolKembali() {
-            const panggung = document.getElementById('stage');
-            
-            if (lembarAktif === 2) {
-                document.getElementById('page2').classList.remove('flipped');
-                lembarAktif = 1;
-            } else if (lembarAktif === 1) {
-                document.getElementById('page1').classList.remove('flipped');
-                panggung.classList.remove('opened');
-                lembarAktif = 0;
+        function kembaliLembar() {
+            if (indeksAktif > 0) {
+                indeksAktif--;
+                muatHalaman();
+            } else {
+                alert("Anda sedang membuka cover / lembar halaman pertama!");
             }
         }
 
-        // FUNGSI AUTO-INCREMENT (Menghubungkan gambar baru ke lembar lanjutan)
-        function prosesAutoIncrement() {
-            const input = document.getElementById('nama-file-baru');
-            const fileNama = input.value.trim();
+        // FUNGSI AUTO-INCREMENT (Menambah lembar penuh baru berdasarkan input nama gambar)
+        function tambahLembarOtomatis() {
+            const input = document.getElementById('input-gambar');
+            const namaFile = input.value.trim();
 
-            if (!fileNama) {
-                alert("Silahkan ketik nama file gambarnya terlebih dahulu!");
+            if (!namaFile) {
+                alert("Silakan isi nama file gambar Anda terlebih dahulu!");
                 return;
             }
 
-            const pathGambarBaru = `File/Gambar/Buku/${fileNama.includes('.') ? fileNama : fileNama + '.png'}`;
-            const targetSlot = document.getElementById('slot-auto-back');
-            targetSlot.style.backgroundImage = `url('${pathGambarBaru}')`;
-            
-            alert(`✅ Sukses! File ${fileNama} terpasang di halaman setelah Gambar C.`);
-            input.value = '';
-        }
-    </script>
-</body>
-</html>
+            // Ekstrak nama file tanpa ekstensi untuk dijadikan kode otomatis
+            const namaMurni = namaFile.replace(/\.[^/.]+$/, "").toUpperCase();
