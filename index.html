@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Aplikasi Al-Quran & Buku Digital Modern</title>
     <style>
         body {
@@ -50,7 +50,7 @@
             text-align: center;
         }
 
-        /* Area Gambar Utama (Bisa Diklik Sekali Langsung untuk Maju) */
+        /* Area Gambar Utama (Deteksi Sentuhan Cepat 2x) */
         .content-area {
             width: 100%;
             height: 320px; 
@@ -64,6 +64,7 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
+            touch-action: manipulation; /* Mematikan delay zoom bawaan HP */
         }
 
         video, audio {
@@ -118,7 +119,6 @@
             color: #7f8c8d;
         }
 
-        /* Sembunyikan Input Bawaan */
         input[type="file"] {
             display: none;
         }
@@ -146,15 +146,15 @@
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA GAMBAR: SEKARANG CUKUP DIKLIK 1X SAJA UNTUK MAJU KE HALAMAN BERIKUTNYA -->
-        <div class="content-area" id="book-content" onclick="klikMajuLembar()">
+        <!-- AREA GAMBAR: AKAN MENDETEKSI KETUKAN CEPAT 2X SECARA MANUAL -->
+        <div class="content-area" id="book-content">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
         </div>
 
-        <!-- AREA KETIK TEKS: PASTI BISA DIKETIK LANGSUNG KAPAN SAJA -->
+        <!-- AREA KETIK TEKS: BISA DIKETIK LANGSUNG -->
         <div class="text-work-space">
-            <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar buku di sini... (Otomatis Tersimpan)"></textarea>
+            <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar buku di sini..."></textarea>
         </div>
 
         <!-- INDIKATOR HALAMAN BAWAH -->
@@ -162,7 +162,7 @@
     </div>
 
     <script>
-        // Jalur gambar asli repositori kreatif Anda di GitHub
+        // Jalur gambar murni yang memanggil file A.png, B.png, C.png Anda di GitHub
         const susunanAwalMurni = [
             { type: "image", src: "File/Gambar/Buku/A.png", teks: "" }, 
             { type: "image", src: "File/Gambar/Buku/B.png", teks: "" }, 
@@ -171,9 +171,12 @@
 
         let databaseBuku = [...susunanAwalMurni];
 
-        // Membaca memori penyimpanan lokal browser
-        if (localStorage.getItem('bukuSistem_FinalClean')) {
-            databaseBuku = JSON.parse(localStorage.getItem('bukuSistem_FinalClean'));
+        // Paksa bersihkan LocalStorage usang yang membuat macet saat pertama dimuat
+        if (!localStorage.getItem('bukuSistem_V4_Clean')) {
+            localStorage.clear(); // Bersihkan sisa riwayat kode lama yang merusak sistem
+            localStorage.setItem('bukuSistem_V4_Clean', JSON.stringify(susunanAwalMurni));
+        } else {
+            databaseBuku = JSON.parse(localStorage.getItem('bukuSistem_V4_Clean'));
         }
 
         let indeksAktif = 0;
@@ -188,7 +191,7 @@
         const elTextField = document.getElementById('text-input-field');
         const elRecordIndicator = document.getElementById('record-indicator');
 
-        // Fungsi utama menampilkan lembaran halaman
+        // Fungsi menampilkan media halaman
         function muatHalaman(indeks) {
             indeksAktif = indeks;
             const data = databaseBuku[indeksAktif];
@@ -203,30 +206,37 @@
                 elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
             }
 
-            // Memasukkan teks catatan ke dalam kotak agar bisa langsung diketik
             elTextField.value = data.teks || "";
             elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
             
-            localStorage.setItem('bukuSistem_FinalClean', JSON.stringify(databaseBuku));
+            localStorage.setItem('bukuSistem_V4_Clean', JSON.stringify(databaseBuku));
         }
 
-        // Fungsi Menyimpan otomatis isi tulisan saat user sedang mengetik teks
+        // Simpan otomatis ketikan teks
         elTextField.addEventListener('input', function() {
             databaseBuku[indeksAktif].teks = elTextField.value;
-            localStorage.setItem('bukuSistem_FinalClean', JSON.stringify(databaseBuku));
+            localStorage.setItem('bukuSistem_V4_Clean', JSON.stringify(databaseBuku));
         });
 
-        // FUNGSI KLIK 1X: Cukup klik sekali di atas gambar, buku langsung maju halaman berikutnya
-        function klikMajuLembar() {
-            if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
+        // TRIK PANDAI: Deteksi Klik Ganda Manual untuk menembus proteksi sensor HP/Browser
+        let waktuKlikTerakhir = 0;
+        elContent.addEventListener('click', function(e) {
+            if (e.target.tagName === 'VIDEO' || e.target.tagName === 'AUDIO') return;
 
-            if (indeksAktif < databaseBuku.length - 1) {
-                indeksAktif++;
-            } else {
-                indeksAktif = 0; // Kembali ke cover awal jika sudah di akhir
+            let waktuSekarang = new Date().getTime();
+            let selisihWaktu = waktuSekarang - waktuKlikTerakhir;
+
+            // Jika jarak antara klik pertama dan kedua di bawah 300 milidetik, hitung sebagai KLIK 2X
+            if (selisihWaktu < 300 && selisihWaktu > 0) {
+                if (indeksAktif < databaseBuku.length - 1) {
+                    indeksAktif++;
+                } else {
+                    indeksAktif = 0; // Kembali ke cover depan A.png
+                }
+                muatHalaman(indeksAktif);
             }
-            muatHalaman(indeksAktif);
-        }
+            waktuKlikTerakhir = waktuSekarang;
+        });
 
         // KONTROL UTAMA MENU DROPDOWN
         function eksekusiPilihanMenu() {
@@ -246,14 +256,3 @@
                 elMenu.value = 'default';
             } 
             else if (nilaiPilihan === 'aksi-upload-mp3') {
-                document.getElementById('file-audio').click();
-                elMenu.value = 'default';
-            } 
-            else if (nilaiPilihan === 'aksi-rekam') {
-                toggleRekamSuara();
-                elMenu.value = 'default';
-            }
-            else if (nilaiPilihan === 'aksi-reset-total') {
-                localStorage.removeItem('bukuSistem_FinalClean');
-                databaseBuku = [...susunanAwalMurni];
-                muatHalaman(0);
