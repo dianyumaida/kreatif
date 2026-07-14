@@ -199,7 +199,6 @@
         <div class="nav-header">
             <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target Penanda: Sudut: sin</h3>
             
-            <!-- DROPDOWN UTAMA TUNGGAL (Teks statis di bawahnya telah dihapus) -->
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
@@ -212,17 +211,14 @@
                 <option value="aksi-penanda">🔗 Buat Hyperlink Penanda</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
                 
-                <!-- GRUP PILIHAN UNTUK MENENTUKAN KATEGORI AKTIF -->
                 <optgroup id="grup-target-kategori" label="🎯 PILIH WADAH PENANDA AKTIF">
                     <option value="set-kategori-sin">📐 Wadah Aktif: Sudut: sin</option>
                     <option value="set-kategori-cos">📐 Wadah Aktif: Sudut: cos</option>
                     <option value="set-kategori-tan">📐 Wadah Aktif: Sudut: tan</option>
                 </optgroup>
 
-                <!-- DAFTAR SINKRONISASI HYPERLINK HASIL PENANDAAN MASUK KE SINI -->
-                <optgroup id="grup-sub-penanda-sin" label="📂 DAFTAR HYPERLINK - SUDUT SIN"></optgroup>
-                <optgroup id="grup-sub-penanda-cos" label="📂 DAFTAR HYPERLINK - SUDUT COS"></optgroup>
-                <optgroup id="grup-sub-penanda-tan" label="📂 DAFTAR HYPERLINK - SUDUT TAN"></optgroup>
+                <!-- DISATUKAN DALAM SATU FOLDER DROPDOWN UTAMA KELOLA PENANDA -->
+                <optgroup id="grup-folder-penanda" label="📂 DAFTAR HYPERLINK PENANDA"></optgroup>
             </select>
         </div>
         
@@ -259,11 +255,11 @@
     let sedangMerekam = false;
     let streamSuara = null;
 
-    // Manajemen Kategori Penanda Tunggal di Dalam Dropdown
+    // Struktur Data Kategori Manajemen Link
     let kategoriMaster = {
-        "sin": { nama: "Sudut: sin", elGrup: null, listLink: [] },
-        "cos": { nama: "Sudut: cos", elGrup: null, listLink: [] },
-        "tan": { nama: "Sudut: tan", elGrup: null, listLink: [] }
+        "sin": { nama: "Sudut: sin", listLink: [] },
+        "cos": { nama: "Sudut: cos", listLink: [] },
+        "tan": { nama: "Sudut: tan", listLink: [] }
     };
     let kategoriTerpilihSaatIni = "sin"; 
 
@@ -274,32 +270,44 @@
     const elRadioContainer = document.getElementById('radio-container');
     const elMediaTools = document.getElementById('media-tools');
     const textHeaderUtama = document.getElementById('textHeaderUtama');
+    const elFolderPenanda = document.getElementById('grup-folder-penanda');
 
-    // Mengisi sub-item hyperlink penanda secara dinamis ke dalam select utama di atas
+    // Menggabungkan seluruh list kategori dan sub-link ke dalam satu folder grup menu utama
     function updateDropdownPenandaTunggal() {
-        kategoriMaster.sin.elGrup = document.getElementById('grup-sub-penanda-sin');
-        kategoriMaster.cos.elGrup = document.getElementById('grup-sub-penanda-cos');
-        kategoriMaster.tan.elGrup = document.getElementById('grup-sub-penanda-tan');
+        if (!elFolderPenanda) return;
+        elFolderPenanda.innerHTML = "";
+
+        let totalLink = 0;
 
         Object.keys(kategoriMaster).forEach(key => {
-            if(kategoriMaster[key].elGrup) {
-                kategoriMaster[key].elGrup.innerHTML = "";
-                
-                if(kategoriMaster[key].listLink.length === 0) {
-                    const optKosong = document.createElement('option');
-                    optKosong.disabled = true;
-                    optKosong.text = "   (Belum ada data hyperlink)";
-                    kategoriMaster[key].elGrup.appendChild(optKosong);
-                }
+            const itemKat = kategoriMaster[key];
+            
+            // Buat pembatas judul kategori sebagai option non-aktif (sebagai label penanda sub folder)
+            const optLabelKategori = document.createElement('option');
+            optLabelKategori.disabled = true;
+            optLabelKategori.style.fontWeight = "bold";
+            optLabelKategori.style.color = "#2ecc71";
+            optLabelKategori.text = `--- ${itemKat.nama.toUpperCase()} ---`;
+            elFolderPenanda.appendChild(optLabelKategori);
 
-                kategoriMaster[key].listLink.forEach((item, index) => {
+            if (itemKat.listLink.length === 0) {
+                const optKosong = document.createElement('option');
+                optKosong.disabled = true;
+                optKosong.text = "    (Belum ada data penanda)";
+                elFolderPenanda.appendChild(optKosong);
+            } else {
+                itemKat.listLink.forEach((item, index) => {
                     const opt = document.createElement('option');
                     opt.value = `lompat-${key}-${index}`;
-                    opt.text = `   🔗 [Hlm ${item.idHalaman + 1}] "${item.isiTeks.substring(0, 15)}..."`;
-                    kategoriMaster[key].elGrup.appendChild(opt);
+                    opt.text = `    🔗 [Hlm ${item.idHalaman + 1}] "${item.isiTeks.substring(0, 14)}..."`;
+                    elFolderPenanda.appendChild(opt);
+                    totalLink++;
                 });
             }
         });
+
+        // Update label folder utama agar menampilkan info jumlah total data penanda aktif
+        elFolderPenanda.label = `📂 DAFTAR HYPERLINK PENANDA (${totalLink})`;
     }
     function muatHalaman(indeks) {
         indeksAktif = indeks;
@@ -355,7 +363,7 @@
 
     function buatPenandaDariBlokTeks() {
         if (!kataKunciSeleksi) {
-            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu.");
+            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu sebelum memilih menu ini.");
             return;
         }
         const seleksi = window.getSelection();
@@ -370,7 +378,7 @@
             range.insertNode(aLink);
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            // Memasukkan item baru sesuai wadah kategori yang sedang aktif dipilih
+            // Masukkan data ke sub list kategori aktif saat ini
             kategoriMaster[kategoriTerpilihSaatIni].listLink.push({
                 idHalaman: indeksAktif,
                 linkId: penandaId,
@@ -381,7 +389,7 @@
 
             seleksi.removeAllRanges();
             kataKunciSeleksi = "";
-            alert(`Sukses! Dimasukkan ke Daftar Hyperlink Kategori: ${kategoriMaster[kategoriTerpilihSaatIni].nama}`);
+            alert(`Sukses! Dimasukkan ke Folder Penanda Kelompok Kategori: ${kategoriMaster[kategoriTerpilihSaatIni].nama}`);
         }
     }
     function lompatKeTargetHyperlink(idHalaman, linkId) {
@@ -431,12 +439,12 @@
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
 
-        // Penanganan memilih wadah kategori aktif
+        // Aksi pengatur penentu wadah kategori aktif
         if (nilaiPilihan === 'set-kategori-sin') { kategoriTerpilihSaatIni = "sin"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.sin.nama; elMenu.value = 'default'; return; }
         if (nilaiPilihan === 'set-kategori-cos') { kategoriTerpilihSaatIni = "cos"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.cos.nama; elMenu.value = 'default'; return; }
         if (nilaiPilihan === 'set-kategori-tan') { kategoriTerpilihSaatIni = "tan"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.tan.nama; elMenu.value = 'default'; return; }
 
-        // Penanganan ketika item hyperlink diklik pada dropdown utama
+        // Aksi deteksi melompat klik target sub link di dalam folder grup select utama
         if (nilaiPilihan.startsWith("lompat-")) {
             const parts = nilaiPilihan.split("-");
             const keyKat = parts[1];
@@ -591,7 +599,7 @@
         }
     }
 
-    // Inisialisasi awal dropdown tunggal
+    // Inisialisasi awal struktur folder gabungan tunggal
     updateDropdownPenandaTunggal();
     muatHalaman(0);
 </script>
