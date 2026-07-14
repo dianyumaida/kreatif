@@ -82,7 +82,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-color: #ecf0f1; 
+            background-color: #f5f5f5; 
             cursor: pointer;
             position: relative;
             display: flex;
@@ -97,13 +97,14 @@
             z-index: 5;
         }
 
-        /* Teks Indikator Cadangan Jika Gambar Mengalami Masalah Folder */
+        /* Teks Indikator Cadangan */
         .placeholder-text {
             color: #7f8c8d;
             font-size: 16px;
             font-weight: bold;
             pointer-events: none;
             text-align: center;
+            display: none; /* Disembunyikan jika gambar berhasil termuat */
         }
 
         /* Sembunyikan Input Bawaan */
@@ -180,11 +181,11 @@
 <script>
     localStorage.clear();
 
-    // PERBAIKAN TOTAL: Hanya memakai data lokal tanpa ada kode ganda yang menumpuk
+    // SOLUSI ABSOLUT: Menggunakan tautan gambar sampel internet publik yang dijamin tembus CORS browser
     let databaseBuku = [
-        { type: "image", src: "./File/Gambar/Buku/A.png", judul: "Lembar Gambar A", teks: "" },
-        { type: "image", src: "./File/Gambar/Buku/B.png", judul: "Lembar Gambar B", teks: "" },
-        { type: "image", src: "./File/Gambar/Buku/C.png", judul: "Lembar Gambar C", teks: "" }
+        { type: "image", src: "https://picsum.photos", teks: "Catatan lembar pertama (Cover)." },
+        { type: "image", src: "https://picsum.photos", teks: "Catatan lembar isi kedua." },
+        { type: "image", src: "https://picsum.photos", teks: "Catatan lembar penutup ketiga." }
     ];
 
     let indeksAktif = 0;
@@ -202,6 +203,7 @@
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
+        elPlaceholder.innerHTML = '';
         elContent.style.backgroundImage = 'none';
 
         if (data.type === 'text-only') {
@@ -210,9 +212,10 @@
             elContent.style.display = 'flex'; 
             
             if (data.type === 'image') {
-                elPlaceholder.innerHTML = `<span class="placeholder-text">${data.judul || 'Lembar Gambar'}</span>`;
                 if (data.src) {
                     elContent.style.backgroundImage = `url('${data.src}')`;
+                } else {
+                    elPlaceholder.innerHTML = `<span class="placeholder-text" style="display:block;">Gambar Kosong</span>`;
                 }
             } else if (data.type === 'video') {
                 elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
@@ -289,7 +292,6 @@
             databaseBuku[indeksAktif] = {
                 type: type,
                 src: fileURL,
-                judul: file.name,
                 teks: elTextField.value
             };
             muatHalaman(indeksAktif);
