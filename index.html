@@ -36,6 +36,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            z-index: 20;
         }
 
         .dropdown-select {
@@ -63,6 +64,7 @@
             font-size: 12px;
             font-weight: bold;
             border-bottom: 1px solid #2c3e50;
+            z-index: 20;
         }
 
         .size-slider {
@@ -81,7 +83,7 @@
             background: rgba(0,0,0,0.7);
             padding: 5px 10px;
             border-radius: 4px;
-            z-index: 10;
+            z-index: 30;
         }
 
         /* Info Indikator Halaman Paling Bawah */
@@ -93,12 +95,13 @@
             font-size: 14px;
             font-weight: bold;
             color: #7f8c8d;
+            z-index: 20;
         }
 
         /* Area Bingkai Penampung Media */
         .content-area {
             width: 100%;
-            height: 250px;
+            max-height: 220px;
             background-color: #ecf0f1; 
             cursor: pointer;
             position: relative;
@@ -107,12 +110,13 @@
             align-items: center;
             box-sizing: border-box;
             overflow: hidden;
+            z-index: 5;
         }
 
         /* Elemen Gambar Utama */
         .display-image {
             width: 100%;
-            height: 100%;
+            height: 220px;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
@@ -123,7 +127,7 @@
         video, audio {
             width: 100%;
             max-height: 100%;
-            z-index: 5;
+            z-index: 6;
             transition: width 0.1s ease, height 0.1s ease;
         }
 
@@ -142,6 +146,8 @@
             overflow-y: auto;
             outline: none;
             flex-grow: 1;
+            position: relative;
+            z-index: 10;
         }
 
         /* GAYA HYPERLINK PENANDA */
@@ -155,22 +161,6 @@
             border-radius: 3px;
         }
 
-        /* TOMBOL MELAYANG */
-        .floating-menu-btn {
-            position: absolute;
-            display: none;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            cursor: pointer;
-            z-index: 999;
-        }
-
         /* Panel Radio Button */
         .radio-dropdown-panel {
             padding: 8px 15px;
@@ -180,6 +170,7 @@
             gap: 12px;
             overflow-x: auto;
             align-items: center;
+            z-index: 20;
         }
 
         .radio-item {
@@ -201,14 +192,13 @@
 <body>
 
     <div class="book-container">
-        <!-- TOMBOL POP-UP MELAYANG KHUSUS PENANDA -->
-        <button id="floating-btn" class="floating-menu-btn" onclick="buatPenandaDariBlokTeks()">📌 Buat Penanda</button>
-
         <!-- MENU UTAMA DAN DROPDOWN RIWAYAT DI BAWAHNYA -->
         <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
+                <!-- BARU: Menu penanda dimasukkan kembali ke dropdown atas agar aman dari sensor HP -->
+                <option value="aksi-bookmark">📌 Jadikan Teks Diblok Sebagai Penanda</option>
                 <option value="aksi-cari">🔍 Jalankan Pencarian Kata Kunci Catatan</option>
                 <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp KASY</option>
                 <option value="aksi-upload-img">🖼️ Upload Gambar Baru</option>
@@ -218,7 +208,7 @@
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
             </select>
 
-            <!-- DROPDOWN DAFTAR RIWAYAT -->
+            <!-- DROPDOWN DAFTAR RIWAYAT DI BAWAHNYA -->
             <select class="dropdown-select" id="dropdown-riwayat" onchange="lompatKeRiwayatPenanda()" style="background-color: #34495e; border-color: #2c3e50;">
                 <option value="default">📂 -- DAFTAR RIWAYAT PENANDA TEKS --</option>
             </select>
@@ -249,7 +239,7 @@
         </div>
 
         <!-- AREA KETIK TEKS MELEBAR FULL PAGE -->
-        <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Silakan ketik catatan lembar baru Anda di sini..." onmouseup="periksaSeleksiTeks()" onkeyup="periksaSeleksiTeks()" ondblclick="pemicuKlikAreaTeks(event)"></div>
+        <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Silakan ketik catatan lembar baru Anda di sini..." ondblclick="klikDuaKaliMajuLembar(event)"></div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 1</div>
@@ -275,7 +265,6 @@
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
     const elRadioContainer = document.getElementById('radio-container');
-    const elFloatingBtn = document.getElementById('floating-btn');
     const elSizeSlider = document.getElementById('media-size-slider');
     const elSizePercentage = document.getElementById('size-percentage');
     const elSizePanel = document.getElementById('size-panel');
@@ -313,7 +302,6 @@
 
         elTextField.innerHTML = data.teks || "";
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
-        elFloatingBtn.style.display = 'none'; 
         
         renderRadioHalaman();
     }
@@ -352,28 +340,15 @@
         });
     }
 
-    function periksaSeleksiTeks() {
-        const seleksi = window.getSelection();
-        const teksTerpilih = seleksi.toString().trim();
-
-        if (teksTerpilih.length > 0) {
-            const range = seleksi.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-            const containerRect = document.querySelector('.book-container').getBoundingClientRect();
-
-            elFloatingBtn.style.top = (rect.top - containerRect.top - 35) + 'px';
-            elFloatingBtn.style.left = (rect.left - containerRect.left + (rect.width / 2) - 50) + 'px';
-            elFloatingBtn.style.display = 'block';
-        } else {
-            elFloatingBtn.style.display = 'none';
-        }
-    }
-
+    // FUNGSI MEMBUAT HYPERLINK KUNCI DAN MASUKKAN DAFTAR KE DROPDOWN RIWAYAT BAWAH
     function buatPenandaDariBlokTeks() {
         const seleksi = window.getSelection();
         const teksTerpilih = seleksi.toString().trim();
 
-        if (!teksTerpilih) return;
+        if (!teksTerpilih) {
+            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu sebelum memilih menu ini.");
+            return;
+        }
 
         const range = seleksi.getRangeAt(0);
         const aLink = document.createElement('span');
@@ -386,8 +361,10 @@
         range.deleteContents();
         range.insertNode(aLink);
 
+        // Simpan konten terbaru ke memori halaman aktif
         databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
+        // Simpan ke array riwayat penanda
         const dataRiwayat = {
             idHalaman: indeksAktif,
             linkId: penandaId,
@@ -395,15 +372,17 @@
         };
         riwayatPenanda.push(dataRiwayat);
 
+        // Masukkan daftar baru secara dinamis ke dalam Dropdown Riwayat
         const opsiBaru = document.createElement('option');
         opsiBaru.value = riwayatPenanda.length - 1;
         opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${teksTerpilih.substring(0, 20)}..."`;
         elRiwayatDropdown.appendChild(opsiBaru);
 
         seleksi.removeAllRanges();
-        elFloatingBtn.style.display = 'none';
+        alert("Sukses! Kalimat dijadikan hyperlink dan masuk ke riwayat dropdown bawah.");
     }
 
+    // FUNGSI LOMPAT KE STRUKTUR RIWAYAT JIKA OPSI DROPDOWN BAWAH DIKLIK
     function lompatKeRiwayatPenanda() {
         const indeksRiwayat = elRiwayatDropdown.value;
         if (indeksRiwayat === 'default') return;
@@ -411,6 +390,7 @@
         const target = riwayatPenanda[indeksRiwayat];
         muatHalaman(target.idHalaman);
         
+        // Beri efek animasi kedip kuning penanda
         setTimeout(() => {
             const elemenLink = elTextField.querySelector(`[data-link-id="${target.linkId}"]`);
             if (elemenLink) {
@@ -426,11 +406,6 @@
     elTextField.addEventListener('input', function() {
         databaseBuku[indeksAktif].teks = elTextField.innerHTML;
     });
-
-    function pemicuKlikAreaTeks(event) {
-        if (window.getSelection().toString().length > 0) return;
-        klikDuaKaliMajuLembar(event);
-    }
 
     function klikDuaKaliMajuLembar(event) {
         if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
@@ -463,6 +438,10 @@
             muatHalaman(databaseBuku.length - 1);
             elMenu.value = 'default';
         }
+        else if (nilaiPilihan === 'aksi-bookmark') {
+            buatPenandaDariBlokTeks();
+            elMenu.value = 'default';
+        }
         else if (nilaiPilihan === 'aksi-cari') {
             cariTeksBuku();
             elMenu.value = 'default';
@@ -471,7 +450,6 @@
             const teksMurni = elTextField.innerText || elTextField.textContent;
             const teksKirim = encodeURIComponent(`Berikut update Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n"${teksMurni}"\n\nIkuti saluran KASY di WhatsApp: https://whatsapp.com`);
             
-            // FIX REDIRECT POPUP: Membuat jangkar klik virtual agar lolos sensor pop-up HP
             const linkWA = document.createElement('a');
             linkWA.href = `https://wa.me{teksKirim}`;
             linkWA.target = '_blank';
