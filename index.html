@@ -39,19 +39,18 @@
             z-index: 200;
         }
 
-        /* STRUKTUR CSS CUSTOM DROPDOWN SEPERTI CONTOH GAMBAR */
-        .custom-dropdown-container {
+        /* STRUKTUR ARSITEKTUR KUSTOM DROPDOWN MULTI-LEVEL TREE */
+        .custom-dropdown-wrapper {
             position: relative;
             width: 100%;
-            box-sizing: border-box;
         }
 
-        .dropdown-trigger {
-            background-color: #f5f5f5;
-            color: #333;
+        .dropdown-main-button {
+            background-color: #ffffff;
+            color: #333333;
             padding: 12px 15px;
             border-radius: 6px;
-            border: 1px solid #ccc;
+            border: 1px solid #bdc3c7;
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
@@ -61,84 +60,101 @@
             user-select: none;
         }
 
-        .dropdown-panel-content {
+        .dropdown-tree-panel {
             display: none;
             position: absolute;
             top: 100%;
             left: 0;
             width: 100%;
-            background: white;
-            border: 1px solid #ccc;
+            background: #ffffff;
+            border: 1px solid #bdc3c7;
             border-radius: 0 0 6px 6px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
             max-height: 380px;
             overflow-y: auto;
             z-index: 300;
         }
 
-        .dropdown-panel-content.buka {
+        .dropdown-tree-panel.show-panel {
             display: block;
         }
 
-        /* Item Aksi Kelola Buku */
-        .action-menu-item {
-            padding: 10px 15px;
+        /* Item Induk Operasi Kelola Catatan Buku */
+        .action-item-row {
+            padding: 11px 15px;
             font-size: 13px;
-            font-weight: 6px;
+            font-weight: 600;
             color: #2c3e50;
             cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f1f2f6;
         }
-        .action-menu-item:hover {
-            background-color: #ecf0f1;
+        .action-item-row:hover {
+            background-color: #f8f9fa;
         }
 
-        /* Pembatas / Header Folder Kategori */
-        .folder-category-header {
-            background-color: #eeeeee;
+        /* Desain Baris Folder Kategori Sesuai Link Contoh Anda */
+        .folder-toggle-bar {
+            background-color: #f5f6fa;
             padding: 10px 15px;
             font-size: 13px;
             font-weight: bold;
-            color: #555;
+            color: #487eb0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #dcdde1;
+            user-select: none;
+        }
+        .folder-left-info {
             display: flex;
             align-items: center;
-            gap: 6px;
-            border-bottom: 1px solid #ddd;
+            gap: 8px;
         }
 
-        /* Item Target Wadah Aktif (sin, cos, tan) */
-        .sub-target-item {
+        /* Kontainer Akordion Isi Sub Folder (Collapsible content) */
+        .folder-sub-content {
+            display: none; /* Tertutup secara default */
+            background-color: #ffffff;
+        }
+        .folder-sub-content.folder-terbuka {
+            display: block;
+        }
+        /* Item Baris Pilihan Parameter Utama (sin, cos, tan) */
+        .parameter-select-row {
             padding: 10px 15px 10px 35px;
             font-size: 13px;
-            color: #333;
+            color: #2f3640;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #f9f9f9;
+            border-bottom: 1px solid #f5f6fa;
         }
-        .sub-target-item:hover {
-            background-color: #f7f9fa;
+        .parameter-select-row:hover {
+            background-color: #fcfcfc;
         }
-        /* Visual Lingkaran Radio Kustom di Sebelah Kanan */
-        .custom-radio-circle {
-            width: 14px;
-            height: 14px;
-            border: 2px solid #7f8c8d;
+
+        /* Tombol Bundar Radio Kustom Sisi Kanan */
+        .radio-dot-marker {
+            width: 15px;
+            height: 15px;
+            border: 2px solid #b2bec3;
             border-radius: 50%;
             display: inline-block;
             position: relative;
+            box-sizing: border-box;
         }
 
-        .sub-target-item.aktif-wadah .custom-radio-circle {
-            border-color: #2980b9;
+        .parameter-select-row.aktif-target-wadah .radio-dot-marker {
+            border-color: #0984e3;
         }
 
-        .sub-target-item.aktif-wadah .custom-radio-circle::after {
+        .parameter-select-row.aktif-target-wadah .radio-dot-marker::after {
             content: '';
-            width: 8px;
-            height: 8px;
-            background-color: #2980b9;
+            width: 7px;
+            height: 7px;
+            background-color: #0984e3;
             border-radius: 50%;
             position: absolute;
             top: 50%;
@@ -146,24 +162,24 @@
             transform: translate(-50%, -50%);
         }
 
-        /* Elemen Sub-Link Hyperlink Hasil Blok Penanda */
-        .nested-bookmark-link {
-            padding: 8px 15px 8px 50px;
+        /* Tampilan Anak Hyperlink Hasil Pembuatan Penanda */
+        .child-link-bookmark-row {
+            padding: 8px 15px 8px 55px;
             font-size: 11px;
-            color: #7f8c8d;
-            background-color: #fafbfc;
+            color: #718093;
+            background-color: #fdfefe;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 4px;
             border-bottom: 1px solid #f1f2f6;
         }
-        .nested-bookmark-link:hover {
-            background-color: #f1f2f6;
-            color: #2980b9;
+        .child-link-bookmark-row:hover {
+            background-color: #f5f6fa;
+            color: #0984e3;
         }
 
-        /* PANEL TOMBOL PENGATUR UKURAN MEDIA BAWAH HP */
+        /* PANEL TOMBOL HP PENGATUR MEDIA */
         .media-tools-bar {
             background-color: #2c3e50;
             padding: 6px;
@@ -307,48 +323,51 @@
         <div class="nav-header">
             <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target: Sudut: sin</h3>
             
-            <!-- IMPLEMENTASI CUSTOM COMPONENT DROPDOWN TUNGGAL -->
-            <div class="custom-dropdown-container">
-                <div class="dropdown-trigger" id="custom-trigger" onclick="toggleDropdownPanel(event)">
-                    <span id="trigger-label">-- Pilih Menu --</span>
+            <!-- IMPLEMENTASI TREE DROPDOWN COMPONENT AKORDION TUNGGAL -->
+            <div class="custom-dropdown-wrapper">
+                <div class="dropdown-main-button" id="main-dropdown-btn" onclick="toggleMainTreePanel(event)">
+                    <span id="label-dropdown-text">-- Pilih Menu --</span>
                     <span>▼</span>
                 </div>
                 
-                <div class="dropdown-panel-content" id="custom-panel">
-                    <!-- Kelompok Aksi Buku Utama -->
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-tambah')">➕ Tambah Halaman Baru</div>
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-cari')">🔍 Pencarian</div>
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-wa')">📲 Kirim Saluran WhatsApp</div>
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-upload-img')">📸 Upload Gambar Baru (Letak Kursor)</div>
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-upload-vid')">📹 Upload Video Baru (Letak Kursor)</div>
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-upload-mp3')">🎵 Upload Lagu MP3</div>
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-rekam')">🎙️ Mulai Perekaman Suara</div>
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-penanda')">🔗 Buat Hyperlink Penanda</div>
-                    <div class="action-menu-item" onclick="pilihMenuAksi('aksi-hapus')">❌ Hapus Lembar Ini</div>
+                <div class="dropdown-tree-panel" id="tree-panel-box">
+                    <!-- Menu Operasional Sistem -->
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-tambah')">➕ Tambah Halaman Baru</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-cari')">🔍 Pencarian</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-wa')">📲 Kirim Saluran WhatsApp</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-upload-img')">📸 Upload Gambar Baru (Letak Kursor)</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-upload-vid')">📹 Upload Video Baru (Letak Kursor)</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-upload-mp3')">🎵 Upload Lagu MP3</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-rekam')">🎙️ Mulai Perekaman Suara</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-penanda')">🔗 Buat Hyperlink Penanda</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-hapus')">❌ Hapus Lembar Ini</div>
                     
-                    <!-- KELOMPOK DAFTAR HYPERLINK SEPERTI GAMBAR CONTOH ANDA -->
-                    <div class="folder-category-header">📂 -- sudut --</div>
+                    <!-- FOLDER GRUP AKORDION UTAMA SEPERTI CONTOH WEB ANDA -->
+                    <div class="folder-toggle-bar" onclick="toggleFolderContent('folder-sudut-box', event)">
+                        <div class="folder-left-info">📁 <span>-- sudut --</span></div>
+                        <span id="panah-folder-sudut-box">▼</span>
+                    </div>
                     
-                    <!-- Wadah Target Sin -->
-                    <div class="sub-target-item aktif-wadah" id="item-wadah-sin" onclick="pilihWadahAktif('wadah-sin', event)">
-                        <span>sin</span>
-                        <span class="custom-radio-circle"></span>
-                    </div>
-                    <div id="sub-links-sin-box"></div> <!-- Tempat render link sin dinamis -->
+                    <!-- Isi Konten di Dalam Folder (Bisa dilipat naik-turun saat diklik) -->
+                    <div class="folder-sub-content folder-terbuka" id="folder-sudut-box">
+                        <!-- Item Sin -->
+                        <div class="parameter-select-row aktif-target-wadah" id="row-wadah-sin" onclick="gantiTargetWadahAktif('wadah-sin', event)">
+                            <span>sin</span> <span class="radio-dot-marker"></span>
+                        </div>
+                        <div id="links-box-sin"></div> <!-- Tempat render link sin halaman -->
 
-                    <!-- Wadah Target Cos -->
-                    <div class="sub-target-item" id="item-wadah-cos" onclick="pilihWadahAktif('wadah-cos', event)">
-                        <span>cos</span>
-                        <span class="custom-radio-circle"></span>
-                    </div>
-                    <div id="sub-links-cos-box"></div> <!-- Tempat render link cos dinamis -->
+                        <!-- Item Cos -->
+                        <div class="parameter-select-row" id="row-wadah-cos" onclick="gantiTargetWadahAktif('wadah-cos', event)">
+                            <span>cos</span> <span class="radio-dot-marker"></span>
+                        </div>
+                        <div id="links-box-cos"></div> <!-- Tempat render link cos halaman -->
 
-                    <!-- Wadah Target Tan -->
-                    <div class="sub-target-item" id="item-wadah-tan" onclick="pilihWadahAktif('wadah-tan', event)">
-                        <span>tan</span>
-                        <span class="custom-radio-circle"></span>
+                        <!-- Item Tan -->
+                        <div class="parameter-select-row" id="row-wadah-tan" onclick="gantiTargetWadahAktif('wadah-tan', event)">
+                            <span>tan</span> <span class="radio-dot-marker"></span>
+                        </div>
+                        <div id="links-box-tan"></div> <!-- Tempat render link tan halaman -->
                     </div>
-                    <div id="sub-links-tan-box"></div> <!-- Tempat render link tan dinamis -->
                 </div>
             </div>
         </div>
@@ -386,15 +405,15 @@
     let sedangMerekam = false;
     let streamSuara = null;
 
-    // Manajemen penyimpanan terstruktur link dinamis kustom dropdown
+    // Database penyimpanan data array sub-link di bawah sin/cos/tan
     let dataPenandaKategori = {
-        "wadah-sin": { nama: "Sudut: sin", boxId: "sub-links-sin-box", listLink: [] },
-        "wadah-cos": { nama: "Sudut: cos", boxId: "sub-links-cos-box", listLink: [] },
-        "wadah-tan": { nama: "Sudut: tan", boxId: "sub-links-tan-box", listLink: [] }
+        "wadah-sin": { nama: "Sudut: sin", domBoxId: "links-box-sin", listLink: [] },
+        "wadah-cos": { nama: "Sudut: cos", domBoxId: "links-box-cos", listLink: [] },
+        "wadah-tan": { nama: "Sudut: tan", domBoxId: "links-box-tan", listLink: [] }
     };
     let wadahTerpilihSaatIni = "wadah-sin";
-    const elTriggerLabel = document.getElementById('trigger-label');
-    const elCustomPanel = document.getElementById('custom-panel');
+    const elDropdownLabel = document.getElementById('label-dropdown-text');
+    const elTreePanelBox = document.getElementById('tree-panel-box');
     const elIndikator = document.getElementById('page-indicator');
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
@@ -402,56 +421,70 @@
     const elMediaTools = document.getElementById('media-tools');
     const textHeaderUtama = document.getElementById('textHeaderUtama');
 
-    // Membuka/menutup panel kustom dropdown
-    function toggleDropdownPanel(event) {
+    // 1. Membuka/Menutup Panel Induk Dropdown Utama
+    function toggleMainTreePanel(event) {
         if (event) event.stopPropagation();
-        elCustomPanel.classList.toggle('buka');
+        elTreePanelBox.classList.toggle('show-panel');
     }
 
-    // Klik di luar panel otomatis menutup kustom dropdown
+    // Menutup paksa panel dropdown jika user melakukan klik di area luar component
     document.addEventListener('click', function() {
-        elCustomPanel.classList.remove('buka');
+        elTreePanelBox.classList.remove('show-panel');
     });
 
-    // Mengubah pilihan target kelola wadah aktif (sin, cos, tan) sesuai klik gambar
-    function pilihWadahAktif(idWadah, event) {
+    // 2. Fungsi Akordion Naik Turun: Menutup/membuka isi folder kategori (-- sudut --) sesuai link contoh
+    function toggleFolderContent(boxId, event) {
         if (event) event.stopPropagation();
+        const targetBox = document.getElementById(boxId);
+        const panahIndikator = document.getElementById(`panah-${boxId}`);
         
-        wadahTerpilihSaatIni = idWadah;
-        textHeaderUtama.innerText = "Target: " + dataPenandaKategori[idWadah].nama;
-        elTriggerLabel.innerText = dataPenandaKategori[idWadah].nama;
-
-        // Atur ulang visualisasi status kelas aktif agar dot bundar biru berpindah
-        document.querySelectorAll('.sub-target-item').forEach(el => el.classList.remove('aktif-wadah'));
-        document.getElementById(`item-${idWadah}`).classList.add('aktif-wadah');
-
-        elCustomPanel.classList.remove('buka'); // Tutup dropdown
+        targetBox.classList.toggle('folder-terbuka');
+        if (targetBox.classList.contains('folder-terbuka')) {
+            panahIndikator.innerText = "▼";
+        } else {
+            panahIndikator.innerText = "▶";
+        }
     }
 
-    // Fungsi memperbarui list sub-link hasil penandaan teks agar masuk rapi di bawah folder penanda
-    function renderSubLinksKustomDropdown() {
+    // 3. Memilih target wadah aktif dan mengaktifkan tanda radio lingkaran dot biru di sisi kanan
+    function gantiTargetWadahAktif(idWadah, event) {
+        if (event) event.stopPropagation();
+
+        wadahTerpilihSaatIni = idWadah;
+        textHeaderUtama.innerText = "Target: " + dataPenandaKategori[idWadah].nama;
+        elDropdownLabel.innerText = dataPenandaKategori[idWadah].nama;
+
+        // Reset semua tanda titik biru lama
+        document.querySelectorAll('.parameter-select-row').forEach(row => row.classList.remove('aktif-target-wadah'));
+        // Berikan tanda titik biru pada yang baru saja diklik
+        document.getElementById(`row-${idWadah}`).classList.add('aktif-target-wadah');
+
+        elTreePanelBox.classList.remove('show-panel'); // Otomatis lipat menutup panel dropdown induk
+    }
+
+    // 4. Merender baris sub-link secara berurutan dan menjorok ke dalam di bawah folder sin/cos/tan
+    function renderSubLinksTreeDropdown() {
         Object.keys(dataPenandaKategori).forEach(key => {
             const dataKat = dataPenandaKategori[key];
-            const boxKonten = document.getElementById(dataKat.boxId);
-            if (!boxKonten) return;
+            const boxContainer = document.getElementById(dataKat.domBoxId);
+            if (!boxContainer) return;
 
-            boxKonten.innerHTML = ""; // Bersihkan list lama
+            boxContainer.innerHTML = ""; // Bersihkan list lama
 
             dataKat.listLink.forEach((link, index) => {
-                const divLink = document.createElement('div');
-                divLink.className = "nested-bookmark-link";
-                divLink.innerText = `└─ 🔗 [Hlm ${link.idHalaman + 1}] "${link.isiTeks.substring(0, 12)}..."`;
+                const childRow = document.createElement('div');
+                childRow.className = "child-link-bookmark-row";
+                childRow.innerText = `└─ 🔗 [Hlm ${link.idHalaman + 1}] "${link.isiTeks.substring(0, 11)}..."`;
                 
-                divLink.onclick = function(event) {
+                childRow.onclick = function(event) {
                     event.stopPropagation();
                     lompatKeTargetHyperlink(link.idHalaman, link.linkId);
-                    elCustomPanel.classList.remove('buka');
+                    elTreePanelBox.classList.remove('show-panel'); // Tutup dropdown
                 };
-                boxKonten.appendChild(divLink);
+                boxContainer.appendChild(childRow);
             });
         });
     }
-
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
@@ -463,6 +496,7 @@
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
         renderRadioHalaman();
     }
+
     function deteksiKlikMedia(event) {
         let targetBlock = event.target.closest('.embedded-media-block');
         if (targetBlock) {
@@ -520,19 +554,19 @@
             range.insertNode(aLink);
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            // Masukkan data sub-link ke folder kategori yang sedang aktif lingkaran radionya
+            // Masukkan data sub-link ke wadah yang lingkaran dot birunya sedang menyala aktif
             dataPenandaKategori[wadahTerpilihSaatIni].listLink.push({
                 idHalaman: indeksAktif,
                 linkId: penandaId,
                 isiTeks: kataKunciSeleksi
             });
 
-            // Perbarui susunan daftar link kustom dropdown
-            renderSubLinksKustomDropdown();
+            // Perbarui susunan rendering pohon daftar penanda kustom dropdown
+            renderSubLinksTreeDropdown();
 
             seleksi.removeAllRanges();
             kataKunciSeleksi = "";
-            alert(`Sukses! Teks dimasukkan di bawah kategori: ${dataPenandaKategori[wadahTerpilihSaatIni].nama}`);
+            alert(`Sukses! Teks ditambahkan di bawah sub-kategori: ${dataPenandaKategori[wadahTerpilihSaatIni].nama}`);
         }
     }
 
@@ -578,9 +612,9 @@
         if (indeksDitemukan !== -1) { muatHalaman(indeksDitemukan); } else { alert("Kata kunci tidak ditemukan."); }
     }
 
-    // Handler penentu aksi eksekusi menu kustom dropdown utama
-    function pilihMenuAksi(nilaiAksi) {
-        elCustomPanel.classList.remove('buka'); // Tutup panel setelah dipilih
+    // Fungsi jembatan penangkap eksekusi klik baris menu aksi utama
+    function eksekusiAksiKelola(nilaiAksi) {
+        elTreePanelBox.classList.remove('show-panel'); // Tutup panel induk dropdown
 
         if (nilaiAksi === 'aksi-tambah') {
             databaseBuku.push({ teks: "" });
@@ -615,7 +649,7 @@
 
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const fileObj = input.files[0]; // Membaca berkas pertama dari array picker agar sukses tampil masuk page
+            const fileObj = input.files[0]; // Sukses memanggil indeks pertama berkas picker
             let selection = window.getSelection();
             let range = (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) ? selection.getRangeAt(0) : document.createRange();
             if (selection.rangeCount === 0 || !elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
@@ -712,8 +746,6 @@
         }
     }
 
-    // Eksekusi render inisialisasi awal
-    renderSubLinksKustomDropdown();
     muatHalaman(0);
 </script>
 </body>
