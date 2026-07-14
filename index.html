@@ -17,7 +17,7 @@
             justify-content: center;
         }
 
-        /* Kontainer Utama Buku - FULL PAGE KIRI KANAN */
+        /* Kontainer Utama Buku - SATU PAGE PENUH TRANSPARAN LAYER */
         .book-container {
             width: 100%;
             max-width: 440px;
@@ -36,7 +36,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            z-index: 100;
+            z-index: 200;
         }
 
         .dropdown-select {
@@ -52,7 +52,7 @@
             cursor: pointer;
         }
 
-        /* Panel Kontrol Khusus Gambar Terpilih */
+        /* Panel Kontrol Posisi dan Ukuran Gambar Terpilih */
         .image-tools-panel {
             background-color: #34495e;
             padding: 8px;
@@ -61,7 +61,7 @@
             justify-content: space-between;
             gap: 4px;
             border-bottom: 1px solid #2c3e50;
-            z-index: 100;
+            z-index: 200;
             flex-wrap: wrap;
         }
 
@@ -79,8 +79,7 @@
         }
 
         .tool-btn:hover { background-color: #2ecc71; }
-
-        /* Status Perekaman Suara */
+        /* Tombol Stop Rekam Merah Interaktif */
         .record-status {
             font-weight: bold;
             color: white;
@@ -92,7 +91,7 @@
             background: #e74c3c;
             padding: 8px 16px;
             border-radius: 20px;
-            z-index: 150;
+            z-index: 250;
             cursor: pointer;
             border: 2px solid white;
             animation: pulse 1s infinite alternate;
@@ -109,54 +108,63 @@
             font-size: 14px;
             font-weight: bold;
             color: #7f8c8d;
-            z-index: 90;
+            z-index: 190;
         }
-        /* AREA KERJA MEDIA - TATA LETAK BEBAS (ABSOLUTE POSITIONING) */
-        .content-area {
+
+        /* KANVAS KHUSUS TEMPAT MENYUSUN MULTI-MEDIA SECARA BEBAS */
+        .media-canvas-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 340px; /* Tinggi ditambah agar muat formasi gambar atas-bawah */
-            background-color: #ecf0f1; 
-            position: relative;
-            box-sizing: border-box;
-            overflow: hidden; /* Dikunci agar tidak ada kebocoran area sentuh */
+            height: 100%;
+            pointer-events: auto; 
             z-index: 5;
+            overflow: hidden;
         }
 
         /* STRUKTUR BINGKAI GAMBAR KANVAS BEBAS */
         .img-wrapper {
-            position: absolute; /* Membuat gambar bisa ditaruh di mana saja seperti kanvas */
+            position: absolute; 
             border: 2px dashed transparent;
             box-sizing: border-box;
             cursor: move;
             display: inline-block;
-            transition: outline 0.1s ease;
         }
 
         /* Penanda Visual Gambar Aktif Saat Diklik */
         .img-wrapper.active-target {
             border-color: #2ecc71;
-            box-shadow: 0 0 12px rgba(46, 204, 113, 0.6);
-            z-index: 80 !important; /* Naikkan tingkatan gambar aktif di atas gambar lain */
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.7);
+            z-index: 90 !important;
         }
 
-        .img-wrapper img {
+        .img-wrapper img, .img-wrapper video {
             display: block;
             width: 100%;
             height: 100%;
-            object-fit: fill; /* Mengizinkan gambar ditarik melebar secara elastis */
+            object-fit: contain; 
         }
 
-        video, audio {
+        /* Penampung Pemutar Audio Rekaman */
+        .audio-container {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            display: flex;
+            justify-content: center;
+            z-index: 150;
+        }
+
+        audio {
             width: 100%;
-            height: 100%;
-            z-index: 6;
         }
-
         /* AREA TEKS CATATAN - DIKUNCI LAPISANNYA AGAR PENANDA BEBAS EROR */
         .text-work-space {
             padding: 20px;
-            background-color: #ffffff;
-            border-top: 1px solid #ddd;
+            background-color: transparent; 
             margin: 0;
             width: 100%;
             height: 100%;
@@ -168,7 +176,7 @@
             outline: none;
             flex-grow: 1;
             position: relative;
-            z-index: 40; /* Berada di atas kanvas gambar agar pemblokiran teks berjalan lancar */
+            z-index: 10; 
         }
 
         /* GAYA HYPERLINK PENANDA CATATAN */
@@ -190,7 +198,7 @@
             gap: 12px;
             overflow-x: auto;
             align-items: center;
-            z-index: 90;
+            z-index: 190;
         }
 
         .radio-item {
@@ -210,7 +218,6 @@
 <body>
 
     <div class="book-container">
-        <!-- SATU DROPDOWN UTAMA DI ATAS -->
         <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
@@ -218,10 +225,11 @@
                 <option value="aksi-bookmark">📌 Jadikan Teks Diblok Sebagai Penanda</option>
                 <option value="aksi-cari">🔍 Jalankan Pencarian Kata Kunci Catatan</option>
                 <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp KASY</option>
-                <option value="aksi-upload-img">🖼️ Upload Gambar Baru (Bisa Banyak)</option>
+                <option value="aksi-upload-img">🖼️ Upload Gambar Baru</option>
                 <option value="aksi-upload-vid">🎥 Upload Video Baru</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
                 <option value="aksi-rekan">🎙️ Mulai Perekaman Suara</option>
+                <option value="aksi-mode-media">🔄 Aktifkan/Matikan Mode Atur Gambar</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
                 <optgroup label="📂 DAFTAR RIWAYAT PENANDA TEKS" id="grup-riwayat-penanda">
                     <!-- Diisi otomatis -->
@@ -229,7 +237,6 @@
             </select>
         </div>
 
-        <!-- PANEL TOMBOL PENGATUR POSISI INDIVIDU GAMBAR TERPILIH -->
         <div class="image-tools-panel" id="image-tools">
             <button class="tool-btn" onclick="ubahSkalaAktif(25, 25)">➕ Besar</button>
             <button class="tool-btn" onclick="ubahSkalaAktif(-25, -25)">➖ Kecil</button>
@@ -241,31 +248,26 @@
             <button class="tool-btn" onclick="hapusGambarAktif()" style="background:#e74c3c;">❌ Hapus</button>
         </div>
 
-        <!-- PANEL RADIO BUTTON -->
         <div class="radio-dropdown-panel" id="radio-container">
             <!-- Diisi otomatis -->
         </div>
 
-        <!-- AREA KANVAS UTAMA -->
-        <div class="content-area" id="book-content" onclick="hilangkanFokusGambar(event)">
+        <input type="file" id="file-image" accept="image/*" multiple onchange="handleFileSelected(this, 'image')">
+        <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
+        <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
+
+        <div style="position: relative; flex-grow: 1; width: 100%; display: flex; flex-direction: column;">
+            <div class="media-canvas-layer" id="media-canvas"></div>
+            <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Silakan ketik catatan lembar baru Anda di sini..." onmouseup="periksaSeleksiTeks()" onkeyup="periksaSeleksiTeks()" ondblclick="klikDuaKaliMajuLembar(event)"></div>
             <button class="record-status" id="record-indicator" onclick="toggleRekamSuara()">🔴 ⏹️ Klik di Sini untuk Stop Rekam</button>
-            <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none; position: absolute;"></div>
+            <div id="audio-placement" class="audio-container"></div>
         </div>
 
-        <!-- AREA KETIK TEKS MELEBAR FULL PAGE -->
-        <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Silakan ketik catatan lembar baru Anda di sini..." ondblclick="klikDuaKaliMajuLembar(event)"></div>
-
-        <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 1</div>
     </div>
 <script>
-    // Membuka gambar awal B.png dengan koordinat bebas standar awal
     let databaseBuku = [
-        { 
-            type: "image", 
-            mediaList: [{ src: "./File/Gambar/Buku/B.png", x: 10, y: 10, w: 140, h: 140, z: 10 }], 
-            teks: "" 
-        }
+        { mediaList: [], teks: "", audioBase64: "" }
     ];
 
     let riwayatPenanda = [];
@@ -274,9 +276,8 @@
     let mediaRecorder;
     let audioChunks = [];
     let sedangMerekam = false;
+    let modeAturGambarActive = false; 
 
-    const elContent = document.getElementById('book-content');
-    const elPlaceholder = document.getElementById('media-placeholder');
     const elMenu = document.getElementById('menu-navigasi');
     const elGrupRiwayat = document.getElementById('grup-riwayat-penanda');
     const elIndikator = document.getElementById('page-indicator');
@@ -284,94 +285,104 @@
     const elRecordIndicator = document.getElementById('record-indicator');
     const elRadioContainer = document.getElementById('radio-container');
     const elImageTools = document.getElementById('image-tools');
+    const elMediaCanvas = document.getElementById('media-canvas');
+    const elAudioPlacement = document.getElementById('audio-placement');
 
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
-        elPlaceholder.innerHTML = '';
         elImageTools.style.display = 'none';
         indeksGambarDipilih = null;
-
-        // Bersihkan sisa render elemen media lama
-        const wrappersLama = elContent.querySelectorAll('.img-wrapper, video, audio');
-        wrappersLama.forEach(w => w.remove());
-
-        if (data.type === 'text-only') {
-            elContent.style.display = 'none'; 
-        } else {
-            elContent.style.display = 'block'; // Diubah ke block agar koordinat absolute berjalan
-
-            if (data.mediaList && data.mediaList.length > 0) {
-                data.mediaList.forEach((mediaItem, idx) => {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'img-wrapper';
-                    
-                    // Terapkan koordinat posisi bebas kustom individu masing-masing gambar
-                    wrapper.style.left = (mediaItem.x || 0) + 'px';
-                    wrapper.style.top = (mediaItem.y || 0) + 'px';
-                    wrapper.style.width = (mediaItem.w || 120) + 'px';
-                    wrapper.style.height = (mediaItem.h || 120) + 'px';
-                    wrapper.style.zIndex = mediaItem.z || 10;
-                    
-                    const img = document.createElement('img');
-                    img.src = mediaItem.src;
-                    
-                    wrapper.onclick = function(e) {
-                        e.stopPropagation(); 
-                        pilihGambarTarget(idx, wrapper);
-                    };
-
-                    wrapper.appendChild(img);
-                    elContent.appendChild(wrapper);
-                });
-            } else if (data.type === 'video') {
-                elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
-            } else if (data.type === 'audio') {
-                elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
-            }
-        }
+        elAudioPlacement.innerHTML = '';
+        elMediaCanvas.innerHTML = '';
 
         elTextField.innerHTML = data.teks || "";
+
+        if (data.mediaList && data.mediaList.length > 0) {
+            data.mediaList.forEach((mediaItem, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'img-wrapper';
+                
+                wrapper.style.left = (mediaItem.x || 15) + 'px';
+                wrapper.style.top = (mediaItem.y || 40) + 'px';
+                wrapper.style.width = (mediaItem.w || 140) + 'px';
+                wrapper.style.height = (mediaItem.h || 140) + 'px';
+                wrapper.style.zIndex = mediaItem.z || 15;
+                
+                if (mediaItem.type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = mediaItem.src;
+                    video.controls = true;
+                    video.playsInline = true;
+                    wrapper.appendChild(video);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = mediaItem.src;
+                    wrapper.appendChild(img);
+                }
+                
+                wrapper.onclick = function(e) {
+                    if (!modeAturGambarActive) return;
+                    e.stopPropagation(); 
+                    pilihGambarTarget(idx, wrapper);
+                };
+
+                elMediaCanvas.appendChild(wrapper);
+            });
+        }
+
+        if (data.audioBase64) {
+            fetch(data.audioBase64)
+            .then(res => res.blob())
+            .then(blob => {
+                const blobURL = URL.createObjectURL(blob);
+                elAudioPlacement.innerHTML = `<audio src="${blobURL}" controls></audio>`;
+            });
+        }
+
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
         renderRadioHalaman();
     }
 
+    function toggleModeAturGambar() {
+        modeAturGambarActive = !modeAturGambarActive;
+        if (modeAturGambarActive) {
+            elTextField.style.pointerEvents = 'none'; 
+            alert("Mode Atur Gambar AKTIF! Silakan klik media gambar/video di layar untuk memperbesar/menggeser.");
+        } else {
+            elTextField.style.pointerEvents = 'auto'; 
+            elImageTools.style.display = 'none';
+            indeksGambarDipilih = null;
+            const semuaWrapper = elMediaCanvas.querySelectorAll('.img-wrapper');
+            semuaWrapper.forEach(w => w.classList.remove('active-target'));
+            alert("Mode Ketik Teks AKTIF! Anda bisa mengetik catatan dan memblok kalimat dengan normal kembali.");
+        }
+    }
     function pilihGambarTarget(idx, elemenWrapper) {
         indeksGambarDipilih = idx;
-        const semuaWrapper = elContent.querySelectorAll('.img-wrapper');
+        const semuaWrapper = elMediaCanvas.querySelectorAll('.img-wrapper');
         semuaWrapper.forEach(w => w.classList.remove('active-target'));
         elemenWrapper.classList.add('active-target');
         elImageTools.style.display = 'flex'; 
     }
 
-    function hilangkanFokusGambar(event) {
-        if(event.target.id === 'book-content') {
-            indeksGambarDipilih = null;
-            elImageTools.style.display = 'none';
-            const semuaWrapper = elContent.querySelectorAll('.img-wrapper');
-            semuaWrapper.forEach(w => w.classList.remove('active-target'));
-        }
-    }
-
-    // FUNGSI PERBESAR / PERKECIL INDIVIDU GAMBAR TERPILIH
     function ubahSkalaAktif(lebarTambah, tinggiTambah) {
         if (indeksGambarDipilih === null) return;
         let mediaItem = databaseBuku[indeksAktif].mediaList[indeksGambarDipilih];
-        mediaItem.w = (mediaItem.w || 120) + lebarTambah;
-        mediaItem.h = (mediaItem.h || 120) + tinggiTambah;
+        mediaItem.w = (mediaItem.w || 140) + lebarTambah;
+        mediaItem.h = (mediaItem.h || 140) + tinggiTambah;
         
-        if (mediaItem.w < 30) mediaItem.w = 30;
-        if (mediaItem.h < 30) mediaItem.h = 30;
+        if (mediaItem.w < 35) mediaItem.w = 35;
+        if (mediaItem.h < 35) mediaItem.h = 35;
 
         muatHalaman(indeksAktif);
         reFokusGambar();
     }
 
-    // FUNGSI GESER KOORDINAT BEBAS (KIRI, KANAN, ATAS, BAWAH)
     function geserPosisiAktif(arah) {
         if (indeksGambarDipilih === null) return;
         let mediaItem = databaseBuku[indeksAktif].mediaList[indeksGambarDipilih];
-        const jarakGeser = 25; // Tingkat kepekaan pergeseran sekali klik dalam pixel
+        const jarakGeser = 25; 
 
         if (arah === 'kiri') mediaItem.x = (mediaItem.x || 0) - jarakGeser;
         if (arah === 'kanan') mediaItem.x = (mediaItem.x || 0) + jarakGeser;
@@ -381,20 +392,21 @@
         muatHalaman(indeksAktif);
         reFokusGambar();
     }
-    // FUNGSI TARIK PENUH SEPERTI SKETSA KOTAK REQUES ANDA
+
     function tarikPenuhAktif() {
         if (indeksGambarDipilih === null) return;
         let mediaItem = databaseBuku[indeksAktif].mediaList[indeksGambarDipilih];
         mediaItem.x = 0;
         mediaItem.y = 0;
-        mediaItem.w = elContent.clientWidth;
-        mediaItem.h = elContent.clientHeight;
+        mediaItem.w = elMediaCanvas.clientWidth;
+        mediaItem.h = elMediaCanvas.clientHeight;
+        
         muatHalaman(indeksAktif);
         reFokusGambar();
     }
 
     function reFokusGambar() {
-        const semuaW = elContent.querySelectorAll('.img-wrapper');
+        const semuaW = elMediaCanvas.querySelectorAll('.img-wrapper');
         if(semuaW[indeksGambarDipilih]) pilihGambarTarget(indeksGambarDipilih, semuaW[indeksGambarDipilih]);
     }
 
@@ -404,41 +416,45 @@
         muatHalaman(indeksAktif);
     }
 
-    // REPARASI TOTAL PENANDA TEKS (HYPERLINK RUNNING 100% SUKSES)
-    function buatPenandaDariBlokTeks() {
-        const seleksi = window.getSelection();
-        const teksTerpilih = seleksi.toString().trim();
+    let kataKunciSeleksi = "";
+    function periksaSeleksiTeks() {
+        kataKunciSeleksi = window.getSelection().toString().trim();
+    }
 
-        if (!teksTerpilih) {
-            alert("Gagal! Silakan sorot/blok kalimat teks catatan Anda terlebih dahulu.");
+    function buatPenandaDariBlokTeks() {
+        if (!kataKunciSeleksi) {
+            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu sebelum memilih menu ini.");
             return;
         }
 
-        const range = seleksi.getRangeAt(0);
-        const aLink = document.createElement('span');
-        aLink.className = 'hyperlink-bookmark';
-        aLink.textContent = teksTerpilih;
-        
-        const penandaId = "link-" + Date.now();
-        aLink.setAttribute('data-link-id', penandaId);
+        const seleksi = window.getSelection();
+        if (seleksi.rangeCount > 0) {
+            const range = seleksi.getRangeAt(0);
+            const aLink = document.createElement('span');
+            aLink.className = 'hyperlink-bookmark';
+            aLink.textContent = kataKunciSeleksi;
+            
+            const penandaId = "link-" + Date.now();
+            aLink.setAttribute('data-link-id', penandaId);
 
-        range.deleteContents();
-        range.insertNode(aLink);
+            range.deleteContents();
+            range.insertNode(aLink);
 
-        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
+            databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-        const dataRiwayat = { idHalaman: indeksAktif, linkId: penandaId, isiTeks: teksTerpilih };
-        riwayatPenanda.push(dataRiwayat);
+            const dataRiwayat = { idHalaman: indeksAktif, linkId: penandaId, isiTeks: kataKunciSeleksi };
+            riwayatPenanda.push(dataRiwayat);
 
-        const opsiBaru = document.createElement('option');
-        opsiBaru.value = "riwayat-" + (riwayatPenanda.length - 1);
-        opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${teksTerpilih.substring(0, 18)}..."`;
-        elGrupRiwayat.appendChild(opsiBaru);
+            const opsiBaru = document.createElement('option');
+            opsiBaru.value = "riwayat-" + (riwayatPenanda.length - 1);
+            opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${kataKunciSeleksi.substring(0, 18)}..."`;
+            elGrupRiwayat.appendChild(opsiBaru);
 
-        seleksi.removeAllRanges();
-        alert("Sukses! Kalimat dijadikan hyperlink penanda.");
+            seleksi.removeAllRanges();
+            kataKunciSeleksi = "";
+            alert("Sukses! Kalimat dijadikan hyperlink penanda dan bersatu ke dropdown riwayat atas.");
+        }
     }
-
     function lompatKeRiwayatPenanda() {
         const nilaiPilihan = elMenu.value;
         if (!nilaiPilihan.startsWith("riwayat-")) return;
@@ -466,7 +482,7 @@
             const radio = document.createElement('input');
             radio.type = 'radio'; radio.name = 'anak-penanda'; radio.value = index;
             radio.checked = (index === indeksAktif);
-            radio.onchange = function() { muatHalaman(parseInt(this.value)); };
+            radio.onchange = function() { databaseBuku[indeksAktif].teks = elTextField.innerHTML; muatHalaman(parseInt(this.value)); };
             label.appendChild(radio);
             label.appendChild(document.createTextNode(`Halaman ${index + 1}`));
             elRadioContainer.appendChild(label);
@@ -478,7 +494,8 @@
     });
 
     function klikDuaKaliMajuLembar(event) {
-        if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO' || event.target.tagName === 'IMG') return;
+        if (modeAturGambarActive) return;
+        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
         if (indeksAktif < databaseBuku.length - 1) { indeksAktif++; } else { indeksAktif = 0; }
         muatHalaman(indeksAktif);
     }
@@ -496,7 +513,8 @@
         if (nilaiPilihan.startsWith("riwayat-")) { lompatKeRiwayatPenanda(); return; }
 
         if (nilaiPilihan === 'aksi-tambah') {
-            databaseBuku.push({ type: "text-only", src: "", mediaList: [], teks: "" });
+            databaseBuku[indeksAktif].teks = elTextField.innerHTML;
+            databaseBuku.push({ mediaList: [], teks: "", audioBase64: "" });
             muatHalaman(databaseBuku.length - 1);
             elMenu.value = 'default';
         }
@@ -507,9 +525,17 @@
         else if (nilaiPilihan === 'aksi-cari') {
             cariTeksBuku(); elMenu.value = 'default';
         }
+        else if (nilaiPilihan === 'aksi-mode-media') {
+            toggleModeAturGambar();
+            elMenu.value = 'default';
+        }
         else if (nilaiPilihan === 'aksi-wa') {
-            const teksMurni = elTextField.innerText || elTextField.textContent;
-            const teksKirim = encodeURIComponent(`Berikut update Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n"${teksMurni}"\n\nIkuti saluran KASY di WhatsApp: https://whatsapp.com`);
+            const clone = elTextField.cloneNode(true);
+            const extra = clone.querySelectorAll('.img-wrapper, .record-status, .audio-container');
+            extra.forEach(x => x.remove());
+            const teksMurni = clone.innerText || clone.textContent;
+            
+            const teksKirim = encodeURIComponent(`Berikut update Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n"${teksMurni.trim()}"\n\nIkuti saluran KASY di WhatsApp: https://whatsapp.com`);
             const linkWA = document.createElement('a'); linkWA.href = `https://wa.me{teksKirim}`; linkWA.target = '_blank';
             document.body.appendChild(linkWA); linkWA.click(); document.body.removeChild(linkWA);
             elMenu.value = 'default';
@@ -545,19 +571,18 @@
             if (!databaseBuku[indeksAktif].mediaList) {
                 databaseBuku[indeksAktif].mediaList = [];
             }
-            databaseBuku[indeksAktif].type = 'image';
 
             filesArray.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Penempatan letak acak bertingkat otomatis untuk setiap gambar baru yang diunggah
                     const hitung = databaseBuku[indeksAktif].mediaList.length;
                     databaseBuku[indeksAktif].mediaList.push({
-                        src: e.target.result,
-                        x: 15 + (hitung * 25), // Geser sedikit ke kanan otomatis agar tidak menumpuk rapat
-                        y: 15 + (hitung * 25), // Geser sedikit ke bawah otomatis
-                        w: 120,
-                        h: 120,
+                        type: type,
+                        src: e.target.result, 
+                        x: 20 + (hitung * 25), 
+                        y: 50 + (hitung * 25), 
+                        w: 150,
+                        h: 150,
                         z: 10 + hitung
                     });
                     counter++;
@@ -579,12 +604,15 @@
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                     mediaRecorder.onstop = () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                        const audioURL = URL.createObjectURL(audioBlob);
-                        databaseBuku[indeksAktif] = { type: 'audio', src: audioURL, teks: elTextField.innerHTML };
-                        muatHalaman(indeksAktif);
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            databaseBuku[indeksAktif].audioBase64 = e.target.result; 
+                            muatHalaman(indeksAktif);
+                        };
+                        reader.readAsDataURL(audioBlob);
                     };
                     mediaRecorder.start(); sedangMerekam = true; elRecordIndicator.style.display = 'block';
-                }).catch(err => alert("Gagal merekam!"));
+                }).catch(err => alert("Gagal merekam! Buka tautan HTTPS Pages resmi Anda."));
             }
         } else {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
