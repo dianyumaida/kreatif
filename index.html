@@ -191,43 +191,26 @@
 
     <div class="book-container">
         <!-- SATU DROPDOWN UTAMA DI ATAS -->
-        <div class="nav-header">
-            <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
-                <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
-                <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
-                <option value="aksi-bookmark">📌 Jadikan Teks Diblok Sebagai Penanda</option>
-                <option value="aksi-cari">🔍 Jalankan Pencarian Kata Kunci Catatan</option>
-                <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp KASY</option>
-                <option value="aksi-upload-img">🖼️ Upload Gambar Baru (Letak Kursor)</option>
-                <option value="aksi-upload-vid">🎥 Upload Video Baru (Letak Kursor)</option>
-                <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
-                <option value="aksi-rekan">🎙️ Mulai Perekaman Suara</option>
-                <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
-                
+        
 
 
 <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
-                <option value="aksi-bookmark">📌 Jadikan Teks Diblok Sebagai Penanda</option>
-                <option value="aksi-cari">🔍 Jalankan Pencarian Kata Kunci Catatan</option>
-                <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp KASY</option>
+                   <option value="aksi-cari">🔍  Pencarian </option>
+                <option value="aksi-wa">📲 kirim Saluran WhatsApp </option>
                 <option value="aksi-upload-img">🖼️ Upload Gambar Baru (Letak Kursor)</option>
                 <option value="aksi-upload-vid">🎥 Upload Video Baru (Letak Kursor)</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
                 <option value="aksi-rekan">🎙️ Mulai Perekaman Suara</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
-             
-        <!-- LEVEL 2: FOLDER  -->
-        <details class="dropdown-anak level-2">
+                <details class="dropdown-anak level-2">
             <summary>
-                <span>📁 -- DAFTAR RIWAYAT PENANDA TEKS"  --</span>
+                <span>📁 -- DAFTAR  hyperlink PENANDA--"  --</span>
                 <span class="panah-anak">▶</span>
             </summary>
-            
-            <!-- Item langsung di bawah folder Sudut -->
-            <ul class="list-akhir">
+             <ul class="list-akhir">
                 <li onclick="pilihOpsi Akhir('Sudut: sin', this, event)">
                     <input type="radio" name="pilihan_kalkulator" value="1">
                     <span>1</span>
