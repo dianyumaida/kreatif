@@ -93,7 +93,7 @@
         /* Area Gambar Utama */
         .content-area {
             width: 100%;
-            height: 280px;
+            height: 250px;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -112,35 +112,33 @@
             z-index: 5;
         }
 
-        /* Area Ruang Kerja Teks Catatan */
+        /* Area Ketik Catatan Baru (ContentEditable agar teks bisa di-bookmark/stabilo) */
         .text-work-space {
-            padding: 0;
-            background-color: #fdfcf7;
-            border-top: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            flex-grow: 1; 
-            position: relative;
-        }
-
-        .book-textarea {
-            width: 100%;
-            height: 100%; 
             padding: 15px;
-            border: none;
-            margin: 0;
-            resize: none;
+            background-color: #ffffff;
+            border-top: 1px solid #ddd;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            color: #333;
             font-size: 15px;
             line-height: 1.6;
-            box-sizing: border-box;
-            background-color: #ffffff;
-            color: #333;
+            overflow-y: auto;
             outline: none;
             flex-grow: 1;
         }
 
-        /* Panel Radio Button Khusus di dalam Dropdown Riwayat */
+        /* Efek Teks Penanda yang Berhasil Diblokir */
+        .marked-link {
+            background-color: #fff200; /* Warna penanda kuning stabilo */
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            padding: 0 2px;
+        }
+
+        /* Panel Radio Button */
         .radio-dropdown-panel {
             padding: 8px 15px;
             background: #f8f9fa;
@@ -170,12 +168,12 @@
 <body>
 
     <div class="book-container">
-        <!-- MENU DROPDOWN NAVIGASI UTAMA & DROPDOWN RIWAYAT PENANDA -->
+        <!-- MENU UTAMA & DROPDOWN RIWAYAT DI BAWAHNYA -->
         <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
-                <option value="default">-- KELOLA & MENU UTAMA --</option>
+                <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
-                <option value="aksi-bookmark">📌 Jadikan Blok Teks Sebagai Penanda Link</option>
+                <option value="aksi-bookmark">📌 Jadikan Kalimat Diblok Sebagai Penanda</option>
                 <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp</option>
                 <option value="aksi-upload-img">🖼️ Upload Gambar Baru</option>
                 <option value="aksi-upload-vid">🎥 Upload Video Baru</option>
@@ -184,16 +182,16 @@
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
             </select>
 
-            <!-- DROPDOWN RIWAYAT PENANDA (Tempat Menyimpan Anak Penanda Link) -->
+            <!-- DROPDOWN RIWAYAT DI BAWAH PENANDA -->
             <select class="dropdown-select" id="dropdown-riwayat" onchange="lompatKeRiwayatPenanda()" style="background-color: #34495e; border-color: #2c3e50;">
-                <option value="default">📂 -- LIHAT RIWAYAT PENANDA --</option>
+                <option value="default">📂 -- DAFTAR RIWAYAT PENANDA TEKS --</option>
             </select>
 
             <!-- Kolom Input Pencarian -->
             <input type="text" id="search-input" class="search-box" placeholder="🔍 Cari kata kunci catatan di buku ini..." oninput="cariTeksBuku()">
         </div>
 
-        <!-- PANEL RADIO BUTTON (Anak Penanda Halaman Aktif) -->
+        <!-- PANEL RADIO BUTTON (Anak Penanda) -->
         <div class="radio-dropdown-panel" id="radio-container">
             <!-- Diisi otomatis oleh JavaScript -->
         </div>
@@ -209,26 +207,20 @@
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
         </div>
 
-        <!-- AREA KETIK TEKS (Mendukung Double-Click) -->
-        <div class="text-work-space" ondblclick="klikDuaKaliMajuLembar(event)">
-            <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar baru di sini..."></textarea>
-        </div>
+        <!-- AREA KETIK TEKS BERGANTI MENJADI DIV CONTENTEDITABLE (Mendukung Double-Click) -->
+        <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Ketik kalimat catatan di sini..." ondblclick="pemicuKlikAreaTeks(event)"></div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 1</div>
     </div>
 
 <script>
-    localStorage.clear();
-
-    // Database Buku Utama (Membuka B.png pertama kali)
+    // Membuka file utama B.png pertama kali
     let databaseBuku = [
-        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "Ini catatan awal lembar B.png. Silakan ketik kalimat baru, lalu blok kalimat tersebut dan pilih menu penanda untuk membuat link riwayat." }
+        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "Ini catatan awal lembar B.png. Tulis kalimat di sini, blok kalimat tersebut, lalu buka menu utama dan pilih Jadikan Kalimat Diblok Sebagai Penanda." }
     ];
 
-    // Struktur Data Riwayat Penanda Teks Blok
     let riwayatPenanda = [];
-
     let indeksAktif = 0;
     let mediaRecorder;
     let audioChunks = [];
@@ -263,12 +255,11 @@
             }
         }
 
-        elTextField.value = data.teks || "";
+        elTextField.innerHTML = data.teks || "";
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
         
         renderRadioHalaman();
     }
-    // FUNGSI MEMBUAT ANAK PENANDA RADIO DI BAWAH NAVIGASI
     function renderRadioHalaman() {
         elRadioContainer.innerHTML = '';
         databaseBuku.forEach((item, index) => {
@@ -290,71 +281,83 @@
         });
     }
 
-    // FUNGSI MEMPROSES BLOK KALIMAT MENJADI LINK DI DROPDOWN RIWAYAT
+    // FIX FITUR PENANDA: Membuat teks terpilih terbungkus link penanda kuning stabilo secara fisik
     function buatPenandaDariBlokTeks() {
-        const areaTeks = elTextField;
-        const teksTerpilih = areaTeks.value.substring(areaTeks.selectionStart, areaTeks.selectionEnd);
+        const seleksi = window.getSelection();
+        const teksTerpilih = seleksi.toString();
 
         if (!teksTerpilih.trim()) {
-            alert("Gagal! Silakan blokir/sorot beberapa kata atau kalimat di dalam catatan terlebih dahulu.");
+            alert("Gagal! Silakan sorot/blok beberapa kalimat di area catatan terlebih dahulu.");
             return;
         }
 
-        // Menyimpan data link penanda ke dalam array riwayat
-        const dataBaru = {
-            idHalaman: indeksAktif,
-            potonganTeks: teksTerpilih.trim()
-        };
-        riwayatPenanda.push(dataBaru);
+        const range = seleksi.getRangeAt(0);
+        const spanPenanda = document.createElement('span');
+        spanPenanda.className = 'marked-link';
+        spanPenanda.textContent = teksTerpilih;
+        
+        // Simpan tanda penanda unik agar bisa dilacak di riwayat
+        const penandaId = "mark-" + Date.now();
+        spanPenanda.setAttribute('data-id', penandaId);
 
-        // Menambahkan opsi baru ke dalam Dropdown Riwayat
+        range.deleteContents();
+        range.insertNode(spanPenanda);
+
+        // Simpan teks terbaru ke dalam database buku
+        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
+
+        // Masukkan data ke array Riwayat
+        const dataRiwayat = {
+            idHalaman: indeksAktif,
+            tagId: penandaId,
+            isiTeks: teksTerpilih.trim()
+        };
+        riwayatPenanda.push(dataRiwayat);
+
+        // Update Dropdown Riwayat di bawahnya
         const opsiBaru = document.createElement('option');
         opsiBaru.value = riwayatPenanda.length - 1;
-        opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${teksTerpilih.trim().substring(0, 20)}..."`;
+        opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${teksTerpilih.trim().substring(0, 22)}..."`;
         elRiwayatDropdown.appendChild(opsiBaru);
 
-        alert(`Sukses! Kalimat berhasil diblog dan ditautkan ke Dropdown Riwayat.`);
+        seleksi.removeAllRanges();
     }
 
-    // FUNGSI LOMPAT HALAMAN SAAT OPSI RIWAYAT DIKLIK
+    // FUNGSI LOMPAT KE RIWAYAT PENANDA SAAT DROPDOWN DIKLIK
     function lompatKeRiwayatPenanda() {
         const indeksRiwayat = elRiwayatDropdown.value;
         if (indeksRiwayat === 'default') return;
 
-        const targetPenanda = riwayatPenanda[indeksRiwayat];
-        muatHalaman(targetPenanda.idHalaman);
+        const target = riwayatPenanda[indeksRiwayat];
+        muatHalaman(target.idHalaman);
         
-        // Memfokuskan kolom teks dan menyorot teks penanda secara otomatis
+        // Beri efek fokus kedip otomatis pada teks kuning penanda tersebut
         setTimeout(() => {
-            elTextField.focus();
-            const posisiMulai = elTextField.value.indexOf(targetPenanda.potonganTeks);
-            if (posisiMulai !== -1) {
-                elTextField.setSelectionRange(posisiMulai, posisiMulai + targetPenanda.potonganTeks.length);
+            const elemenTanda = elTextField.querySelector(`[data-id="${target.tagId}"]`);
+            if (elemenTanda) {
+                elemenTanda.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                elemenTanda.style.outline = "2px dashed #e74c3c";
+                setTimeout(() => elemenTanda.style.outline = "none", 1500);
             }
-        }, 200);
+        }, 300);
 
-        elRiwayatDropdown.value = 'default'; // Reset dropdown ke default setelah diklik
+        elRiwayatDropdown.value = 'default';
     }
 
-    // FUNGSI PENCARIAN TEKS CATATAN
-    function cariTeksBuku() {
-        const kataKunci = elSearchInput.value.toLowerCase().trim();
-        if (!kataKunci) return;
-
-        const indeksDitemukan = databaseBuku.findIndex(item => item.teks.toLowerCase().includes(kataKunci));
-        if (indeksDitemukan !== -1) {
-            muatHalaman(indeksDitemukan);
-        }
-    }
-
+    // LOGIKA MENYIMPAN CATATAN REALTIME SAAT DIKETIK
     elTextField.addEventListener('input', function() {
-        databaseBuku[indeksAktif].teks = elTextField.value;
+        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
     });
 
-    // NAVIGASI DOUBLE CLICK UNTUK LEMBAR BERIKUTNYA
+    // Mencegah gangguan double click saat mengetik/memblok teks catatan
+    function pemicuKlikAreaTeks(event) {
+        if (window.getSelection().toString().length > 0) return;
+        klikDuaKaliMajuLembar(event);
+    }
+
+    // NAVIGASI DOUBLE CLICK UTAMA
     function klikDuaKaliMajuLembar(event) {
         if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
-
         if (indeksAktif < databaseBuku.length - 1) {
             indeksAktif++;
         } else {
@@ -363,15 +366,21 @@
         muatHalaman(indeksAktif);
     }
 
+    function cariTeksBuku() {
+        const kataKunci = elSearchInput.value.toLowerCase().trim();
+        if (!kataKunci) return;
+        const indeksDitemukan = databaseBuku.findIndex(item => item.teks.toLowerCase().includes(kataKunci));
+        if (indeksDitemukan !== -1) { muatHalaman(indeksDitemukan); }
+    }
+
     function eksekusiPilihanMenu() {
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
 
         if (nilaiPilihan === 'aksi-tambah') {
             databaseBuku.push({
-                type: "text-only",
-                src: "",
-                teks: `Ini adalah lembar halaman baru ke-${databaseBuku.length + 1} yang berhasil Anda buat.`
+                type: "text-only", src: "",
+                teks: `Ini lembar halaman baru ke-${databaseBuku.length + 1}.`
             });
             muatHalaman(databaseBuku.length - 1);
             elMenu.value = 'default';
@@ -381,7 +390,7 @@
             elMenu.value = 'default';
         }
         else if (nilaiPilihan === 'aksi-wa') {
-            const teksKirim = encodeURIComponent(`Catatan Lembar ${indeksAktif + 1}:\n${elTextField.value}`);
+            const teksKirim = encodeURIComponent(`Catatan Lembar ${indeksAktif + 1}:\n${elTextField.innerText}`);
             window.open('https://whatsapp.com' + teksKirim, '_blank');
             elMenu.value = 'default';
         } 
@@ -398,20 +407,13 @@
             elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-rekan') {
-            toggleRekamSuara();
-            elMenu.value = 'default';
+            toggleRekamSuara(); elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-hapus') {
-            if (databaseBuku.length <= 1) {
-                alert("Gagal! Minimal harus menyisakan 1 halaman.");
-                elMenu.value = 'default';
-                return;
-            }
+            if (databaseBuku.length <= 1) { alert("Gagal! Sisa 1 halaman."); elMenu.value = 'default'; return; }
             if (confirm("Hapus lembar halaman ini?")) {
                 databaseBuku.splice(indeksAktif, 1);
-                if (indeksAktif >= databaseBuku.length) {
-                    indeksAktif = databaseBuku.length - 1;
-                }
+                if (indeksAktif >= databaseBuku.length) { indeksAktif = databaseBuku.length - 1; }
                 muatHalaman(indeksAktif);
             }
             elMenu.value = 'default';
@@ -422,23 +424,14 @@
         if (input.files && input.files[0]) {
             const file = input.files[0];
             const fileURL = URL.createObjectURL(file);
-            
-            databaseBuku[indeksAktif] = {
-                type: type,
-                src: fileURL,
-                teks: elTextField.value
-            };
+            databaseBuku[indeksAktif] = { type: type, src: fileURL, teks: elTextField.innerHTML };
             muatHalaman(indeksAktif);
         }
     }
 
     function toggleRekamSuara() {
         sedangMerekam = !sedangMerekam;
-        if (sedangMerekam) {
-            elRecordIndicator.style.display = 'block';
-        } else {
-            elRecordIndicator.style.display = 'none';
-        }
+        elRecordIndicator.style.display = sedangMerekam ? 'block' : 'none';
     }
 
     muatHalaman(0);
