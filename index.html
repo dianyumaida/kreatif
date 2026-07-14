@@ -56,7 +56,7 @@
         .media-tools-bar {
             background-color: #2c3e50;
             padding: 6px;
-            display: none; /* Hanya muncul jika ada gambar/video yang diklik */
+            display: none; 
             gap: 6px;
             border-bottom: 2px solid #27ae60;
             z-index: 200;
@@ -128,10 +128,10 @@
 
         /* FORMAT MEDIA INLINE: Wajib ikut turun ke bawah secara otomatis saat di-enter */
         .embedded-media-block {
-            display: block; /* Menjadikan satu blok baris penuh agar teks tidak menyamping berantakan */
+            display: block; 
             margin: 12px auto;
             max-width: 100%;
-            width: 180px; /* Ukuran default awal */
+            width: 180px; 
             border: 2px solid transparent;
             box-sizing: border-box;
             border-radius: 6px;
@@ -150,7 +150,6 @@
             height: auto;
             display: block;
             border-radius: 4px;
-            pointer-events: none; /* Mencegah bentrokan klik internal video/gambar di HP */
         }
 
         /* Penampung Pemutar Audio Rekaman */
@@ -221,7 +220,7 @@
             </select>
         </div>
 
-        <!-- FITUR BARU BAR TOMBOL KONTROL UKURAN MEDIA YANG DIKLIK -->
+        <!-- BAR TOMBOL KONTROL UKURAN MEDIA YANG DIKLIK -->
         <div class="media-tools-bar" id="media-tools">
             <button class="media-btn" onclick="ubahUkuranKlik(30)">➕ Perbesar Gambar/Video</button>
             <button class="media-btn" onclick="ubahUkuranKlik(-30)">➖ Perkecil Gambar/Video</button>
@@ -254,7 +253,7 @@
 
     let riwayatPenanda = [];
     let indeksAktif = 0;
-    let elemenMediaTerpilih = null; // Menyimpan objek gambar/video yang sedang diklik user
+    let elemenMediaTerpilih = null; 
     let mediaRecorder;
     let audioChunks = [];
     let sedangMerekam = false;
@@ -275,8 +274,10 @@
         elMediaTools.style.display = 'none';
         elemenMediaTerpilih = null;
 
-        // Memuat bodi teks catatan beserta blok medianya secara aman
         elTextField.innerHTML = data.teks || "";
+
+        // Mengembalikan fungsi interaksi khusus pada video agar bisa diputar ulang saat pindah lembar halaman
+        perbaruiElemenVideoHalaman();
 
         if (data.audioBase64) {
             fetch(data.audioBase64)
@@ -287,7 +288,6 @@
             });
         }
 
-        // Pastikan widget sistem tetap berada di tumpukan akhir elemen dokumen
         elTextField.appendChild(elRecordIndicator);
         elTextField.appendChild(elAudioPlacement);
 
@@ -295,23 +295,18 @@
         renderRadioHalaman();
     }
 
-    // FITUR UTAMA BARU: DETEKSI KLIK GAMBAR/VIDEO UNTUK MUNCULKAN TOMBOL BESAR-KECIL
     function deteksiKlikMedia(event) {
-        // Cari apakah target klik merupakan gambar/video atau pembungkusnya
         let targetBlock = event.target.closest('.embedded-media-block');
         
         if (targetBlock) {
             event.stopPropagation();
-            // Bersihkan fokus target lama jika ada
             const semuaM = elTextField.querySelectorAll('.embedded-media-block');
             semuaM.forEach(m => m.classList.remove('selected-target'));
 
-            // Tandai target aktif baru
             elemenMediaTerpilih = targetBlock;
             elemenMediaTerpilih.classList.add('selected-target');
-            elMediaTools.style.display = 'flex'; // Munculkan baris tombol pengatur ukuran
+            elMediaTools.style.display = 'flex'; 
         } else {
-            // Jika mengeklik layar kosong atau teks biasa, hilangkan baris tombol pengatur ukuran
             elemenMediaTerpilih = null;
             elMediaTools.style.display = 'none';
             const semuaM = elTextField.querySelectorAll('.embedded-media-block');
@@ -319,17 +314,16 @@
         }
     }
 
-    // FITUR UTAMA BARU: ATUR BESAR / KECIL LEWAT TOMBOL KLIK (100% RESPONSIVE DI HP)
     function ubahUkuranKlik(nilaiTambah) {
         if (!elemenMediaTerpilih) return;
         let lebarLama = elemenMediaTerpilih.offsetWidth;
         let lebarBaru = lebarLama + nilaiTambah;
 
-        if (lebarBaru < 60) lebarBaru = 60; // Batas terkecil
-        if (lebarBaru > 380) lebarBaru = 380; // Batas terbesar
+        if (lebarBaru < 60) lebarBaru = 60; 
+        if (lebarBaru > 380) lebarBaru = 380; 
 
         elemenMediaTerpilih.style.width = lebarBaru + 'px';
-        databaseBuku[indeksAktif].teks = elTextField.innerHTML; // Amankan perubahan ukuran ke memori
+        databaseBuku[indeksAktif].teks = elTextField.innerHTML; 
     }
 
     function hapusMediaKlik() {
@@ -419,7 +413,6 @@
     });
 
     function klikDuaKaliMajuLembar(event) {
-        // Cegah pindah halaman tidak sengaja jika yang diklik berulang-ulang kali adalah blok media gambar/video
         if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO' || event.target.tagName === 'IMG' || event.target.closest('.embedded-media-block')) return;
         databaseBuku[indeksAktif].teks = elTextField.innerHTML;
         if (indeksAktif < databaseBuku.length - 1) { indeksAktif++; } else { indeksAktif = 0; }
@@ -481,62 +474,79 @@
         }
     }
 
-    // METODE UPLOAD MEDIA BARU: TERTANAM SEBAGAI BLOK INLINE YANG MENGIKUTI ENTER TEKS
+    // MEMPERBAIKI CARA UNGGHA MEDIA AGAR DIJAMIN BISA DIPUTAR DI SEMUA HP & LAPTOP
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const file = input.files[0];
-            const reader = new FileReader();
+            const fileObj = input.files[0];
 
-            reader.onload = function(e) {
-                // Cari tahu posisi kursor ketikan kedip terakhir Anda
-                const selection = window.getSelection();
-                let range;
-                if (selection.rangeCount > 0) {
-                    range = selection.getRangeAt(0);
-                } else {
-                    range = document.createRange();
-                    range.selectNodeContents(elTextField);
-                    range.collapse(false);
-                }
+            // Ambil posisi koordinat letak kursor berkedip ketikan Anda
+            const selection = window.getSelection();
+            let range;
+            if (selection.rangeCount > 0) {
+                range = selection.getRangeAt(0);
+            } else {
+                range = document.createRange();
+                range.selectNodeContents(elTextField);
+                range.collapse(false);
+            }
 
-                // Buat kontainer pembungkus model blok aliran data teks inline
-                const mediaBlock = document.createElement('div');
-                mediaBlock.className = 'embedded-media-block';
-                mediaBlock.contentEditable = 'false'; // Agar kursor ketikan tidak masuk merusak bagian dalam gambar
+            const mediaBlock = document.createElement('div');
+            mediaBlock.className = 'embedded-media-block';
+            mediaBlock.contentEditable = 'false';
 
-                if (type === 'image') {
+            if (type === 'image') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     mediaBlock.appendChild(img);
-                } else if (type === 'video') {
-                    const video = document.createElement('video');
-                    video.src = e.target.result;
-                    video.controls = true;
-                    video.playsInline = true;
-                    video.setAttribute('crossorigin', 'anonymous');
-                    mediaBlock.appendChild(video);
-                }
-
-                // Masukkan blok media baru tepat di sela kursor aktif
-                range.insertNode(mediaBlock);
-                
-                // Beri spasi kosong baru otomatis di bawah media agar kursor siap mengetik teks baru
-                const brNode = document.createElement('br');
-                range.setStartAfter(mediaBlock);
-                range.insertNode(brNode);
-                range.setStartAfter(brNode);
-                range.collapse(true);
-                
-                selection.removeAllRanges();
-                selection.addRange(range);
-
-                // Sinkronisasi pembaruan isi bodi halaman dokumen
-                databaseBuku[indeksAktif].teks = elTextField.innerHTML;
-                elTextField.focus();
-            };
-            reader.readAsDataURL(file);
+                    prosesPenyisipanBlokMedia(range, mediaBlock);
+                };
+                reader.readAsDataURL(fileObj);
+            } 
+            else if (type === 'video') {
+                // SOLUSI MUTLAK VIDEO: Menggunakan Object URL murni (Bukan Base64) agar lolos proteksi decoder HP
+                const videoURL = URL.createObjectURL(fileObj);
+                const video = document.createElement('video');
+                video.src = videoURL;
+                video.controls = true;
+                video.playsInline = true;
+                video.muted = false;
+                video.setAttribute('webkit-playsinline', 'true');
+                mediaBlock.appendChild(video);
+                prosesPenyisipanBlokMedia(range, mediaBlock);
+            }
         }
-        input.value = ''; // Reset input agar bisa dipakai berulang kali
+        input.value = ''; 
+    }
+
+    function prosesPenyisipanBlokMedia(range, mediaBlock) {
+        range.insertNode(mediaBlock);
+        const brNode = document.createElement('br');
+        range.setStartAfter(mediaBlock);
+        range.insertNode(brNode);
+        range.setStartAfter(brNode);
+        range.collapse(true);
+        
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
+        elTextField.focus();
+    }
+
+    function perbaruiElemenVideoHalaman() {
+        // Memastikan tombol interaksi play/pause video bawaan HP aktif kembali setelah render HTML string
+        const semuaVid = elTextField.querySelectorAll('video');
+        semuaVid.forEach(vid => {
+            vid.controls = true;
+            vid.playsInline = true;
+            vid.onclick = (e) => {
+                e.stopPropagation(); // Mencegah bentrokan penutup bar kontrol ukuran
+                if (vid.paused) vid.play(); else vid.pause();
+            };
+        });
     }
 
     function toggleRekamSuara() {
@@ -556,7 +566,7 @@
                         reader.readAsDataURL(audioBlob);
                     };
                     mediaRecorder.start(); sedangMerekam = true; elRecordIndicator.style.display = 'block';
-                }).catch(err => alert("Gagal merekam! Pastikan menggunakan protokol HTTPS resmi."));
+                }).catch(err => alert("Gagal merekam! Buka via tautan HTTPS resmi Pages Anda."));
             }
         } else {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
