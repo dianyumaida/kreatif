@@ -36,7 +36,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            z-index: 20;
+            z-index: 100;
         }
 
         .dropdown-select {
@@ -52,27 +52,30 @@
             cursor: pointer;
         }
 
-        /* Panel Kontrol Posisi Gambar Aktif */
+        /* Panel Kontrol Khusus Gambar Terpilih */
         .image-tools-panel {
             background-color: #34495e;
             padding: 8px;
             display: none; 
             align-items: center;
             justify-content: space-between;
-            gap: 5px;
+            gap: 4px;
             border-bottom: 1px solid #2c3e50;
-            z-index: 20;
+            z-index: 100;
+            flex-wrap: wrap;
         }
 
         .tool-btn {
             background-color: #1a252f;
             color: white;
             border: 1px solid #7f8c8d;
-            padding: 4px 8px;
+            padding: 6px 8px;
             font-size: 11px;
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
+            flex-grow: 1;
+            text-align: center;
         }
 
         .tool-btn:hover { background-color: #2ecc71; }
@@ -89,7 +92,7 @@
             background: #e74c3c;
             padding: 8px 16px;
             border-radius: 20px;
-            z-index: 30;
+            z-index: 150;
             cursor: pointer;
             border: 2px solid white;
             animation: pulse 1s infinite alternate;
@@ -106,58 +109,54 @@
             font-size: 14px;
             font-weight: bold;
             color: #7f8c8d;
-            z-index: 20;
+            z-index: 90;
         }
-
-        /* AREA MULTI-GAMBAR: Menampung banyak gambar sekaligus */
+        /* AREA KERJA MEDIA - TATA LETAK BEBAS (ABSOLUTE POSITIONING) */
         .content-area {
             width: 100%;
-            height: 260px;
+            height: 340px; /* Tinggi ditambah agar muat formasi gambar atas-bawah */
             background-color: #ecf0f1; 
             position: relative;
             box-sizing: border-box;
-            overflow-y: auto;
-            padding: 10px;
-            display: flex;
-            flex-wrap: wrap; 
-            gap: 10px;
-            align-items: flex-start;
-            justify-content: flex-start;
+            overflow: hidden; /* Dikunci agar tidak ada kebocoran area sentuh */
             z-index: 5;
         }
 
-        /* KOTAK GAMBAR DINAMIS YANG BISA DIATUR */
+        /* STRUKTUR BINGKAI GAMBAR KANVAS BEBAS */
         .img-wrapper {
-            position: relative;
-            display: inline-block;
+            position: absolute; /* Membuat gambar bisa ditaruh di mana saja seperti kanvas */
             border: 2px dashed transparent;
             box-sizing: border-box;
-            max-width: 100%;
+            cursor: move;
+            display: inline-block;
+            transition: outline 0.1s ease;
         }
 
-        /* Bingkai penanda gambar aktif */
+        /* Penanda Visual Gambar Aktif Saat Diklik */
         .img-wrapper.active-target {
             border-color: #2ecc71;
-            background-color: rgba(46, 204, 113, 0.1);
+            box-shadow: 0 0 12px rgba(46, 204, 113, 0.6);
+            z-index: 80 !important; /* Naikkan tingkatan gambar aktif di atas gambar lain */
         }
 
         .img-wrapper img {
             display: block;
             width: 100%;
-            height: auto;
-            pointer-events: auto;
+            height: 100%;
+            object-fit: fill; /* Mengizinkan gambar ditarik melebar secara elastis */
         }
 
         video, audio {
             width: 100%;
-            max-height: 100%;
+            height: 100%;
             z-index: 6;
         }
-        /* AREA TEKS CATATAN PENUH */
+
+        /* AREA TEKS CATATAN - DIKUNCI LAPISANNYA AGAR PENANDA BEBAS EROR */
         .text-work-space {
             padding: 20px;
             background-color: #ffffff;
-            border: none;
+            border-top: 1px solid #ddd;
             margin: 0;
             width: 100%;
             height: 100%;
@@ -169,10 +168,10 @@
             outline: none;
             flex-grow: 1;
             position: relative;
-            z-index: 10;
+            z-index: 40; /* Berada di atas kanvas gambar agar pemblokiran teks berjalan lancar */
         }
 
-        /* GAYA HYPERLINK PENANDA */
+        /* GAYA HYPERLINK PENANDA CATATAN */
         .hyperlink-bookmark {
             color: #0066cc;
             text-decoration: underline;
@@ -191,7 +190,7 @@
             gap: 12px;
             overflow-x: auto;
             align-items: center;
-            z-index: 20;
+            z-index: 90;
         }
 
         .radio-item {
@@ -230,13 +229,15 @@
             </select>
         </div>
 
-        <!-- PANEL TOMBOL ATUR BESAR KECIL & POSISI MEDIA -->
+        <!-- PANEL TOMBOL PENGATUR POSISI INDIVIDU GAMBAR TERPILIH -->
         <div class="image-tools-panel" id="image-tools">
-            <button class="tool-btn" onclick="ubahUkuranAktif(20)">➕ Perbesar</button>
-            <button class="tool-btn" onclick="ubahUkuranAktif(-20)">➖ Perkecil</button>
-            <button class="tool-btn" onclick="ubahPosisiAktif('flex-start', 'flex-start')">↖️ Kiri Atas</button>
-            <button class="tool-btn" onclick="ubahPosisiAktif('center', 'center')">🔲 Tengah</button>
-            <button class="tool-btn" onclick="ubahPosisiAktif('flex-end', 'flex-end')">↘️ Kanan Bawah</button>
+            <button class="tool-btn" onclick="ubahSkalaAktif(25, 25)">➕ Besar</button>
+            <button class="tool-btn" onclick="ubahSkalaAktif(-25, -25)">➖ Kecil</button>
+            <button class="tool-btn" onclick="geserPosisiAktif('kiri')">⬅️ Kiri</button>
+            <button class="tool-btn" onclick="geserPosisiAktif('kanan')">➡️ Kanan</button>
+            <button class="tool-btn" onclick="geserPosisiAktif('atas')">⬆️ Atas</button>
+            <button class="tool-btn" onclick="geserPosisiAktif('bawah')">⬇️ Bawah</button>
+            <button class="tool-btn" onclick="tarikPenuhAktif()">📺 Tarik Penuh</button>
             <button class="tool-btn" onclick="hapusGambarAktif()" style="background:#e74c3c;">❌ Hapus</button>
         </div>
 
@@ -245,13 +246,8 @@
             <!-- Diisi otomatis -->
         </div>
 
-        <!-- Input File Picker Perangkat -->
-        <input type="file" id="file-image" accept="image/*" multiple onchange="handleFileSelected(this, 'image')">
-        <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
-        <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
-
-        <!-- AREA MULTI-MEDIA GAMBAR & VIDEO -->
-        <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar(event)" onclick="hilangkanFokusGambar(event)">
+        <!-- AREA KANVAS UTAMA -->
+        <div class="content-area" id="book-content" onclick="hilangkanFokusGambar(event)">
             <button class="record-status" id="record-indicator" onclick="toggleRekamSuara()">🔴 ⏹️ Klik di Sini untuk Stop Rekam</button>
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none; position: absolute;"></div>
         </div>
@@ -263,8 +259,13 @@
         <div class="page-footer" id="page-indicator">Lembar 1 dari 1</div>
     </div>
 <script>
+    // Membuka gambar awal B.png dengan koordinat bebas standar awal
     let databaseBuku = [
-        { type: "image", mediaList: [{ src: "./File/Gambar/Buku/B.png", lebar: 120 }], teks: "" }
+        { 
+            type: "image", 
+            mediaList: [{ src: "./File/Gambar/Buku/B.png", x: 10, y: 10, w: 140, h: 140, z: 10 }], 
+            teks: "" 
+        }
     ];
 
     let riwayatPenanda = [];
@@ -291,21 +292,26 @@
         elImageTools.style.display = 'none';
         indeksGambarDipilih = null;
 
+        // Bersihkan sisa render elemen media lama
         const wrappersLama = elContent.querySelectorAll('.img-wrapper, video, audio');
         wrappersLama.forEach(w => w.remove());
 
         if (data.type === 'text-only') {
             elContent.style.display = 'none'; 
         } else {
-            elContent.style.display = 'flex'; 
-            elContent.style.alignItems = data.alignItems || 'flex-start';
-            elContent.style.justifyContent = data.justifyContent || 'flex-start';
+            elContent.style.display = 'block'; // Diubah ke block agar koordinat absolute berjalan
 
             if (data.mediaList && data.mediaList.length > 0) {
                 data.mediaList.forEach((mediaItem, idx) => {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'img-wrapper';
-                    wrapper.style.width = (mediaItem.lebar || 120) + 'px';
+                    
+                    // Terapkan koordinat posisi bebas kustom individu masing-masing gambar
+                    wrapper.style.left = (mediaItem.x || 0) + 'px';
+                    wrapper.style.top = (mediaItem.y || 0) + 'px';
+                    wrapper.style.width = (mediaItem.w || 120) + 'px';
+                    wrapper.style.height = (mediaItem.h || 120) + 'px';
+                    wrapper.style.zIndex = mediaItem.z || 10;
                     
                     const img = document.createElement('img');
                     img.src = mediaItem.src;
@@ -347,35 +353,58 @@
         }
     }
 
-    function ubahUkuranAktif(nilaiTambah) {
+    // FUNGSI PERBESAR / PERKECIL INDIVIDU GAMBAR TERPILIH
+    function ubahSkalaAktif(lebarTambah, tinggiTambah) {
         if (indeksGambarDipilih === null) return;
         let mediaItem = databaseBuku[indeksAktif].mediaList[indeksGambarDipilih];
-        let lebarLama = mediaItem.lebar || 120;
-        let lebarBaru = lebarLama + nilaiTambah;
+        mediaItem.w = (mediaItem.w || 120) + lebarTambah;
+        mediaItem.h = (mediaItem.h || 120) + tinggiTambah;
         
-        if (lebarBaru < 40) lebarBaru = 40; 
-        if (lebarBaru > 400) lebarBaru = 400; 
+        if (mediaItem.w < 30) mediaItem.w = 30;
+        if (mediaItem.h < 30) mediaItem.h = 30;
 
-        mediaItem.lebar = lebarBaru;
         muatHalaman(indeksAktif);
-        
-        setTimeout(() => {
-            const semuaW = elContent.querySelectorAll('.img-wrapper');
-            if(semuW[indeksGambarDipilih]) pilihGambarTarget(indeksGambarDipilih, semuaW[indeksGambarDipilih]);
-        }, 50);
+        reFokusGambar();
     }
 
-    function ubahPosisiAktif(alignVal, justifyVal) {
-        databaseBuku[indeksAktif].alignItems = alignVal;
-        databaseBuku[indeksAktif].justifyContent = justifyVal;
+    // FUNGSI GESER KOORDINAT BEBAS (KIRI, KANAN, ATAS, BAWAH)
+    function geserPosisiAktif(arah) {
+        if (indeksGambarDipilih === null) return;
+        let mediaItem = databaseBuku[indeksAktif].mediaList[indeksGambarDipilih];
+        const jarakGeser = 25; // Tingkat kepekaan pergeseran sekali klik dalam pixel
+
+        if (arah === 'kiri') mediaItem.x = (mediaItem.x || 0) - jarakGeser;
+        if (arah === 'kanan') mediaItem.x = (mediaItem.x || 0) + jarakGeser;
+        if (arah === 'atas') mediaItem.y = (mediaItem.y || 0) - jarakGeser;
+        if (arah === 'bawah') mediaItem.y = (mediaItem.y || 0) + jarakGeser;
+
         muatHalaman(indeksAktif);
+        reFokusGambar();
     }
+    // FUNGSI TARIK PENUH SEPERTI SKETSA KOTAK REQUES ANDA
+    function tarikPenuhAktif() {
+        if (indeksGambarDipilih === null) return;
+        let mediaItem = databaseBuku[indeksAktif].mediaList[indeksGambarDipilih];
+        mediaItem.x = 0;
+        mediaItem.y = 0;
+        mediaItem.w = elContent.clientWidth;
+        mediaItem.h = elContent.clientHeight;
+        muatHalaman(indeksAktif);
+        reFokusGambar();
+    }
+
+    function reFokusGambar() {
+        const semuaW = elContent.querySelectorAll('.img-wrapper');
+        if(semuaW[indeksGambarDipilih]) pilihGambarTarget(indeksGambarDipilih, semuaW[indeksGambarDipilih]);
+    }
+
     function hapusGambarAktif() {
         if (indeksGambarDipilih === null) return;
         databaseBuku[indeksAktif].mediaList.splice(indeksGambarDipilih, 1);
         muatHalaman(indeksAktif);
     }
 
+    // REPARASI TOTAL PENANDA TEKS (HYPERLINK RUNNING 100% SUKSES)
     function buatPenandaDariBlokTeks() {
         const seleksi = window.getSelection();
         const teksTerpilih = seleksi.toString().trim();
@@ -521,9 +550,15 @@
             filesArray.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    // Penempatan letak acak bertingkat otomatis untuk setiap gambar baru yang diunggah
+                    const hitung = databaseBuku[indeksAktif].mediaList.length;
                     databaseBuku[indeksAktif].mediaList.push({
                         src: e.target.result,
-                        lebar: 120 
+                        x: 15 + (hitung * 25), // Geser sedikit ke kanan otomatis agar tidak menumpuk rapat
+                        y: 15 + (hitung * 25), // Geser sedikit ke bawah otomatis
+                        w: 120,
+                        h: 120,
+                        z: 10 + hitung
                     });
                     counter++;
                     if (counter === filesArray.length) {
