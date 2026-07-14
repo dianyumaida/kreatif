@@ -241,7 +241,7 @@
 <script>
     // Membuka file utama B.png pertama kali
     let databaseBuku = [
-        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "Ini catatan lembar B.png. Tulis kalimat di sini, lalu blok kalimat Anda menggunakan jari/mouse. Tombol hijau melayan akan muncul otomatis untuk membuat hyperlink penanda." }
+        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "Ini catatan lembar B.png. Tulis kalimat di sini, lalu blok kalimat Anda menggunakan jari/mouse. Tombol hijau melayang akan muncul otomatis untuk membuat hyperlink penanda." }
     ];
 
     let riwayatPenanda = [];
@@ -282,7 +282,7 @@
 
         elTextField.innerHTML = data.teks || "";
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
-        elFloatingBtn.style.display = 'none'; // Sembunyikan tombol saat pindah halaman
+        elFloatingBtn.style.display = 'none'; 
         
         renderRadioHalaman();
     }
@@ -307,7 +307,6 @@
         });
     }
 
-    // MEMANTAU SELEKSI TEKS SECARA REALTIME UNTUK MENAMPILKAN TOMBOL MELAYANG
     function periksaSeleksiTeks() {
         const seleksi = window.getSelection();
         const teksTerpilih = seleksi.toString().trim();
@@ -317,7 +316,6 @@
             const rect = range.getBoundingClientRect();
             const containerRect = document.querySelector('.book-container').getBoundingClientRect();
 
-            // Atur posisi koordinat tombol hijau tepat di atas teks yang diblok
             elFloatingBtn.style.top = (rect.top - containerRect.top - 35) + 'px';
             elFloatingBtn.style.left = (rect.left - containerRect.left + (rect.width / 2) - 50) + 'px';
             elFloatingBtn.style.display = 'block';
@@ -326,7 +324,6 @@
         }
     }
 
-    // MEMBUAT HYPERLINK BIRU DAN DAFTARKAN KE DROPDOWN RIWAYAT
     function buatPenandaDariBlokTeks() {
         const seleksi = window.getSelection();
         const teksTerpilih = seleksi.toString().trim();
@@ -344,10 +341,8 @@
         range.deleteContents();
         range.insertNode(aLink);
 
-        // Update database utama
         databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-        // Daftarkan link ke riwayat penanda
         const dataRiwayat = {
             idHalaman: indeksAktif,
             linkId: penandaId,
@@ -355,18 +350,15 @@
         };
         riwayatPenanda.push(dataRiwayat);
 
-        // Tambah opsi ke dalam Dropdown Riwayat di bawahnya
         const opsiBaru = document.createElement('option');
         opsiBaru.value = riwayatPenanda.length - 1;
         opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${teksTerpilih.substring(0, 20)}..."`;
         elRiwayatDropdown.appendChild(opsiBaru);
 
-        // Reset seleksi setelah selesai membuat hyperlink
         seleksi.removeAllRanges();
         elFloatingBtn.style.display = 'none';
     }
 
-    // FUNGSI LOMPAT DAN FOKUS KE TEKS HYPERLINK DI RIWAYAT SAAT DROPDOWN DIKLIK
     function lompatKeRiwayatPenanda() {
         const indeksRiwayat = elRiwayatDropdown.value;
         if (indeksRiwayat === 'default') return;
@@ -374,7 +366,6 @@
         const target = riwayatPenanda[indeksRiwayat];
         muatHalaman(target.idHalaman);
         
-        // Buat efek berkedip merah pada hyperlink target agar mudah dibaca
         setTimeout(() => {
             const elemenLink = elTextField.querySelector(`[data-link-id="${target.linkId}"]`);
             if (elemenLink) {
@@ -457,8 +448,8 @@
     }
 
     function handleFileSelected(input, type) {
-        if (input.files && input.files) {
-            const file = input.files;
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
             const fileURL = URL.createObjectURL(file);
             databaseBuku[indeksAktif] = { type: type, src: fileURL, teks: elTextField.innerHTML };
             muatHalaman(indeksAktif);
