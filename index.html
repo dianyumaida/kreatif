@@ -169,11 +169,11 @@
 <script>
     localStorage.clear();
 
-    // Mengembalikan data utama Anda menggunakan path lokal Github
+    // MENGGUNAKAN RAW LINK GITHUB AGAR GAMBAR DIJAMIN PASTI MUNCUL
     let databaseBuku = [
-        { type: "image", src: "./File/Gambar/Buku/A.png", teks: "" },
-        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" },
-        { type: "image", src: "./File/Gambar/Buku/C.png", teks: "" }
+        { type: "image", src: "https://githubusercontent.com", teks: "" },
+        { type: "image", src: "https://githubusercontent.com", teks: "" },
+        { type: "image", src: "https://githubusercontent.com", teks: "" }
     ];
 
     let indeksAktif = 0;
@@ -188,7 +188,6 @@
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
 
-    // PERBAIKAN LOGIKA: Sekarang mendeteksi kata 'text-only' dengan akurat
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
@@ -196,9 +195,9 @@
         elContent.style.backgroundImage = 'none';
 
         if (data.type === 'text-only') {
-            elContent.style.display = 'none'; // Sembunyikan gambar jika murni teks saja
+            elContent.style.display = 'none'; 
         } else {
-            elContent.style.display = 'flex'; // Tampilkan area media jika ada gambar/video/audio
+            elContent.style.display = 'flex'; 
             
             if (data.type === 'image' && data.src) {
                 elContent.style.backgroundImage = `url('${data.src}')`;
@@ -285,7 +284,6 @@
     }
 
     function toggleRekamSuara() {
-    function toggleRekamSuara() {
         sedangMerekam = !sedangMerekam;
         if (sedangMerekam) {
             elRecordIndicator.style.display = 'block';
@@ -294,9 +292,15 @@
         }
     }
 
-    // MEMUAT HALAMAN PERTAMA SAAT WEB DIBUKA
     muatHalaman(0);
 </script>
-
 </body>
 </html>
+
+
+
+
+        
+            
+
+    
