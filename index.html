@@ -192,13 +192,13 @@
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
             </select>
 
-            <!-- DROPDOWN DAFTAR RIWAYAT SEKARANG BERADA DI BAWAH PENANDA -->
+            <!-- DROPDOWN DAFTAR RIWAYAT -->
             <select class="dropdown-select" id="dropdown-riwayat" onchange="lompatKeRiwayatPenanda()" style="background-color: #34495e; border-color: #2c3e50;">
                 <option value="default">📂 -- DAFTAR RIWAYAT PENANDA TEKS --</option>
             </select>
         </div>
 
-        <!-- PANEL RADIO BUTTON (Anak Penanda) -->
+        <!-- PANEL RADIO BUTTON -->
         <div class="radio-dropdown-panel" id="radio-container">
             <!-- Diisi otomatis oleh JavaScript -->
         </div>
@@ -214,7 +214,7 @@
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
         </div>
 
-        <!-- AREA KETIK TEKS MELEBAR FULL PAGE DAN SUDAH DIKOSONGKAN TULISANNYA -->
+        <!-- AREA KETIK TEKS MELEBAR FULL PAGE -->
         <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Silakan ketik catatan lembar baru Anda di sini..." onmouseup="periksaSeleksiTeks()" onkeyup="periksaSeleksiTeks()" ondblclick="pemicuKlikAreaTeks(event)"></div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
@@ -405,12 +405,13 @@
         }
         else if (nilaiPilihan === 'aksi-wa') {
             const teksMurni = elTextField.innerText || elTextField.textContent;
+            const teksKirim = encodeURIComponent(`Berikut update Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n"${teksMurni}"\n\nIkuti saluran KASY di WhatsApp: https://whatsapp.com`);
             
-            // Format teks yang akan dikirim sekaligus mengarahkan tautan ke saluran WhatsApp KASY Anda
-            const teksKirim = encodeURIComponent(`Berikut update Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n"${teksMurni}"\n\nIkuti saluran KASY di WhatsApp: https://whatsapp.com/channel/0029Vabn5fy9WtBxWL35wy0S`);
-            
-            // Membuka tautan berbagi universal WhatsApp secara langsung
-            window.location.href = `https://wa.me{teksKirim}`;
+            // PERBAIKAN TIMEOUT WA HP: Menggunakan metode pembukaan tab murni cadangan
+            const waWindow = window.open(`https://wa.me{teksKirim}`, '_blank');
+            if(!waWindow || waWindow.closed) {
+                window.location.href = `https://wa.me{teksKirim}`;
+            }
             elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-upload-img') {
@@ -426,7 +427,8 @@
             elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-rekan') {
-            toggleRekamSuara(); elMenu.value = 'default';
+            toggleRekamSuara(); 
+            elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-hapus') {
             if (databaseBuku.length <= 1) { alert("Gagal! Sisa 1 halaman."); elMenu.value = 'default'; return; }
@@ -439,18 +441,58 @@
         }
     }
 
+    // PERBAIKAN FITUR UPLOAD FILE: Menggunakan FileReader Base64 ramah browser HP
     function handleFileSelected(input, type) {
-        if (input.files && input.files) {
-            const file = input.files;
-            const fileURL = URL.createObjectURL(file);
-            databaseBuku[indeksAktif] = { type: type, src: fileURL, teks: elTextField.innerHTML };
-            muatHalaman(indeksAktif);
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                databaseBuku[indeksAktif] = { 
+                    type: type, 
+                    src: e.target.result, // Data murni Base64
+                    teks: elTextField.innerHTML 
+                };
+                muatHalaman(indeksAktif);
+            };
+            reader.readAsDataURL(file);
         }
     }
 
+    // PERBAIKAN AUDIO MIC: Mengambil izin MediaStream browser HTTPS resmi
     function toggleRekamSuara() {
-        sedangMerekam = !sedangMerekam;
-        elRecordIndicator.style.display = sedangMerekam ? 'block' : 'none';
+        if (!sedangMerekam) {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        const audioURL = URL.createObjectURL(audioBlob);
+                        databaseBuku[indeksAktif] = { type: 'audio', src: audioURL, teks: elTextField.innerHTML };
+                        muatHalaman(indeksAktif);
+                    };
+                    
+                    mediaRecorder.start();
+                    sedangMerekam = true;
+                    elRecordIndicator.style.display = 'block';
+                })
+                .catch(err => alert("Gagal merekam! Pastikan Anda membuka web via tautan HTTPS resmi (bukan file lokal) dan mengizinkan izin mikrofon."));
+            } else {
+                alert("Browser HP Anda belum mendukung fitur perekam suara langsung.");
+            }
+        } else {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                // Matikan aliran mic agar ikon rekaman di HP mati
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            sedangMerekam = false;
+            elRecordIndicator.style.display = 'none';
+        }
     }
 
     muatHalaman(0);
