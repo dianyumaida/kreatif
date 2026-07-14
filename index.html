@@ -192,12 +192,11 @@
 <body>
 
     <div class="book-container">
-        <!-- MENU UTAMA DAN DROPDOWN RIWAYAT DI BAWAHNYA -->
+        <!-- SATU DROPDOWN UTAMA DI ATAS -->
         <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
-                <!-- BARU: Menu penanda dimasukkan kembali ke dropdown atas agar aman dari sensor HP -->
                 <option value="aksi-bookmark">📌 Jadikan Teks Diblok Sebagai Penanda</option>
                 <option value="aksi-cari">🔍 Jalankan Pencarian Kata Kunci Catatan</option>
                 <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp KASY</option>
@@ -206,11 +205,10 @@
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
                 <option value="aksi-rekan">🎙️ Mulai / Stop Rekam Suara</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
-            </select>
-
-            <!-- DROPDOWN DAFTAR RIWAYAT DI BAWAHNYA -->
-            <select class="dropdown-select" id="dropdown-riwayat" onchange="lompatKeRiwayatPenanda()" style="background-color: #34495e; border-color: #2c3e50;">
-                <option value="default">📂 -- DAFTAR RIWAYAT PENANDA TEKS --</option>
+                <!-- KELOMPOK BARU: Riwayat penanda disatukan di bawah dropdown ini -->
+                <optgroup label="📂 DAFTAR RIWAYAT PENANDA TEKS" id="grup-riwayat-penanda">
+                    <!-- Opsi link baru otomatis masuk ke sini -->
+                </optgroup>
             </select>
         </div>
 
@@ -226,7 +224,7 @@
             <!-- Diisi otomatis oleh JavaScript -->
         </div>
 
-        <!-- Input File Picker Perangkat -->
+        <!-- Input File Picker Perangkat resmi dengan parameter perbaikan -->
         <input type="file" id="file-image" accept="image/*" onchange="handleFileSelected(this, 'image')">
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
@@ -260,7 +258,7 @@
     const elPlaceholder = document.getElementById('media-placeholder');
     const elImageTarget = document.getElementById('image-target');
     const elMenu = document.getElementById('menu-navigasi');
-    const elRiwayatDropdown = document.getElementById('dropdown-riwayat');
+    const elGrupRiwayat = document.getElementById('grup-riwayat-penanda');
     const elIndikator = document.getElementById('page-indicator');
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
@@ -340,7 +338,7 @@
         });
     }
 
-    // FUNGSI MEMBUAT HYPERLINK KUNCI DAN MASUKKAN DAFTAR KE DROPDOWN RIWAYAT BAWAH
+    // FUNGSI MEMBUAT HYPERLINK KUNCI DAN MASUKKAN DAFTAR KE SATU DROPDOWN UTAMA
     function buatPenandaDariBlokTeks() {
         const seleksi = window.getSelection();
         const teksTerpilih = seleksi.toString().trim();
@@ -361,10 +359,8 @@
         range.deleteContents();
         range.insertNode(aLink);
 
-        // Simpan konten terbaru ke memori halaman aktif
         databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-        // Simpan ke array riwayat penanda
         const dataRiwayat = {
             idHalaman: indeksAktif,
             linkId: penandaId,
@@ -372,35 +368,14 @@
         };
         riwayatPenanda.push(dataRiwayat);
 
-        // Masukkan daftar baru secara dinamis ke dalam Dropdown Riwayat
+        // Masukkan daftar baru secara dinamis ke optgroup di dalam dropdown utama
         const opsiBaru = document.createElement('option');
-        opsiBaru.value = riwayatPenanda.length - 1;
-        opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${teksTerpilih.substring(0, 20)}..."`;
-        elRiwayatDropdown.appendChild(opsiBaru);
+        opsiBaru.value = "riwayat-" + (riwayatPenanda.length - 1);
+        opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${teksTerpilih.substring(0, 18)}..."`;
+        elGrupRiwayat.appendChild(opsiBaru);
 
         seleksi.removeAllRanges();
-        alert("Sukses! Kalimat dijadikan hyperlink dan masuk ke riwayat dropdown bawah.");
-    }
-
-    // FUNGSI LOMPAT KE STRUKTUR RIWAYAT JIKA OPSI DROPDOWN BAWAH DIKLIK
-    function lompatKeRiwayatPenanda() {
-        const indeksRiwayat = elRiwayatDropdown.value;
-        if (indeksRiwayat === 'default') return;
-
-        const target = riwayatPenanda[indeksRiwayat];
-        muatHalaman(target.idHalaman);
-        
-        // Beri efek animasi kedip kuning penanda
-        setTimeout(() => {
-            const elemenLink = elTextField.querySelector(`[data-link-id="${target.linkId}"]`);
-            if (elemenLink) {
-                elemenLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                elemenLink.style.backgroundColor = "#ffcc00";
-                setTimeout(() => elemenLink.style.backgroundColor = "rgba(0, 102, 204, 0.1)", 1500);
-            }
-        }, 300);
-
-        elRiwayatDropdown.value = 'default';
+        alert("Sukses! Kalimat dijadikan hyperlink dan masuk ke daftar riwayat dropdown atas.");
     }
 
     elTextField.addEventListener('input', function() {
@@ -432,6 +407,25 @@
     function eksekusiPilihanMenu() {
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
+
+        // JIKA YANG DIKLIK ADALAH OPSI DARI RIWAYAT PENANDA
+        if (nilaiPilihan.startsWith("riwayat-")) {
+            const indeksRiwayat = parseInt(nilaiPilihan.replace("riwayat-", ""));
+            const target = riwayatPenanda[indeksRiwayat];
+            muatHalaman(target.idHalaman);
+            
+            setTimeout(() => {
+                const elemenLink = elTextField.querySelector(`[data-link-id="${target.linkId}"]`);
+                if (elemenLink) {
+                    elemenLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    elemenLink.style.backgroundColor = "#ffcc00";
+                    setTimeout(() => elemenLink.style.backgroundColor = "rgba(0, 102, 204, 0.1)", 1500);
+                }
+            }, 300);
+
+            elMenu.value = 'default';
+            return;
+        }
 
         if (nilaiPilihan === 'aksi-tambah') {
             databaseBuku.push({ type: "text-only", src: "", teks: "", skala: 100 });
@@ -485,12 +479,18 @@
         }
     }
 
+    // MEMPERBAIKI CARA BACA FILE UNTUK BROWSER SMARTPHONE MODERN
     function handleFileSelected(input, type) {
-        if (input.files && input.files) {
+        if (input.files && input.files[0]) {
             const file = input.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
-                databaseBuku[indeksAktif] = { type: type, src: e.target.result, teks: elTextField.innerHTML, skala: 100 };
+                databaseBuku[indeksAktif] = { 
+                    type: type, 
+                    src: e.target.result, 
+                    teks: elTextField.innerHTML, 
+                    skala: 100 
+                };
                 muatHalaman(indeksAktif);
             };
             reader.readAsDataURL(file);
@@ -515,9 +515,9 @@
                     sedangMerekam = true;
                     elRecordIndicator.style.display = 'block';
                 })
-                .catch(err => alert("Gagal merekam! Pastikan menggunakan tautan HTTPS resmi dan memberi izin mikrofon."));
+                .catch(err => alert("Gagal merekam! Gunakan tautan HTTPS resmi."));
             } else {
-                alert("Browser belum mendukung fitur perekam suara langsung.");
+                alert("Browser belum mendukung perekam suara.");
             }
         } else {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
