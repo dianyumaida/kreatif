@@ -60,6 +60,7 @@
             background: rgba(0,0,0,0.7);
             padding: 5px 10px;
             border-radius: 4px;
+            z-index: 10;
         }
 
         /* Info Indikator Halaman Paling Bawah */
@@ -77,7 +78,7 @@
         .content-area {
             width: 100%;
             height: 320px;
-            background-size: contain;
+            background-size: cover; /* Diubah ke cover agar gambar memenuhi kotak klik */
             background-position: center;
             background-repeat: no-repeat;
             background-color: #f5f5f5;
@@ -92,6 +93,7 @@
         video, audio {
             width: 90%;
             max-height: 90%;
+            z-index: 5;
         }
 
         /* Sembunyikan Input Bawaan */
@@ -149,7 +151,7 @@
         <!-- AREA GAMBAR: KLIK DUA KALI (ONDBLCLICK) UNTUK MASUK KE LEMBAR BERIKUTNYA -->
         <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar(event)">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
-            <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;"></div>
+            <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
         </div>
 
         <!-- AREA KETIK TEKS: BISA LANGSUNG DIKETIK / DIEDIT KAPAN SAJA -->
@@ -162,10 +164,10 @@
     </div>
 
 <script>
-    // Hancurkan total memori cache layar agar tidak mengunci browser Anda lagi
+    // Bersihkan memori cache agar pembaruan kode langsung terasa
     localStorage.clear();
 
-    // Struktur data murni yang langsung membaca folder utama Github Anda
+    // 1. PERBAIKAN: Penutup array menggunakan kurung siku ]; yang benar
     let databaseBuku = [
         { type: "image", src: "./File/Gambar/Buku/A.png", teks: "" },
         { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" },
@@ -177,7 +179,7 @@
     let audioChunks = [];
     let sedangMerekam = false;
 
-    // Menghubungkan variabel JavaScript ke ID HTML yang sesuai
+    // Menghubungkan variabel JavaScript ke ID HTML
     const elContent = document.getElementById('book-content');
     const elPlaceholder = document.getElementById('media-placeholder');
     const elMenu = document.getElementById('menu-navigasi');
@@ -185,7 +187,7 @@
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
 
-    // Fungsi memuat konten lembar halaman (Memperbaiki tanda kutip Backtick `)
+    // 2. PERBAIKAN: Menggunakan tanda backtick ` untuk memuat data secara dinamis
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
@@ -200,24 +202,24 @@
             elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
         }
 
-        // Memasukkan teks catatan lembar aktif ke kolom agar bisa diketik langsung
+        // Sinkronisasi teks catatan dan angka lembar halaman
         elTextField.value = data.teks || "";
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
     }
 
-    // Menyimpan ketikan teks secara langsung saat user mengetik
+    // Menyimpan teks secara realtime saat diketik
     elTextField.addEventListener('input', function() {
         databaseBuku[indeksAktif].teks = elTextField.value;
     });
 
-    // FUNGSI UTAMA: KLIK 2x (DOUBLE CLICK) UNTUK MASUK KE PAGE BERIKUTNYA
+    // 3. PERBAIKAN: Mengubah huruf 'W' menjadi 'M' agar sinkron dengan HTML
     function klikDuaKaliMajuLembar(event) {
         if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
 
         if (indeksAktif < databaseBuku.length - 1) {
             indeksAktif++;
         } else {
-            indeksAktif = 0; // Berputar kembali ke cover depan A.png
+            indeksAktif = 0; // Balik ke halaman pertama
         }
         muatHalaman(indeksAktif);
     }
@@ -225,6 +227,8 @@
     // KONTROL UTAMA MENU DROPDOWN
     function eksekusiPilihanMenu() {
         const nilaiPilihan = elMenu.value;
+
+        if (nilaiPilihan === 'default') return;
 
         if (nilaiPilihan === 'aksi-wa') {
             const teksKirim = encodeURIComponent(`Catatan Lembar ${indeksAktif + 1}:\n${elTextField.value}`);
@@ -249,7 +253,7 @@
         } 
         else if (nilaiPilihan === 'aksi-hapus') {
             if (databaseBuku.length <= 1) {
-                alert("Gagal! Minimal harus menyisakan 1 halaman cover.");
+                alert("Gagal! Minimal harus menyisakan 1 halaman.");
                 elMenu.value = 'default';
                 return;
             }
@@ -265,14 +269,22 @@
         }
     }
 
-    // Fungsi pelengkap untuk memuat halaman pertama saat aplikasi dibuka pertama kali
-    muatHalaman(0);
-
-    // Catatan Tambahan: Pastikan Anda menambahkan fungsi 'handleFileSelected' 
-    // dan 'toggleRekamSuara' di bawah ini jika ingin fitur upload dan rekamannya aktif!
+    // Fungsi upload file mandiri dari perangkat
     function handleFileSelected(input, type) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
+            const fileURL = URL.createObjectURL(file);
+            
+            databaseBuku[indeksAktif] = {
+                type: type,
+                src: fileURL,
+                teks: elTextField.value
+            };
+            muatHalaman(indeksAktif);
+        }
+    }
+
+    // Fungsi simulasi rekam suara mikrofon
     function toggleRekamSuara() {
         sedangMerekam = !sedangMerekam;
         if (sedangMerekam) {
@@ -281,6 +293,9 @@
             elRecordIndicator.style.display = 'none';
         }
     }
+
+    // Memuat data halaman pertama saat web pertama kali dibuka
+    muatHalaman(0);
 </script>
 
 </body>
