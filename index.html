@@ -190,10 +190,6 @@
             cursor: pointer;
         }
 
-        .list-akhir li.terpilih {
-            background-color: #27ae60 !important;
-        }
-
         input[type="file"] { display: none; }
     </style>
 </head>
@@ -203,6 +199,7 @@
         <div class="nav-header">
             <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Sudut: sin</h3>
             
+            <!-- SATU DROPDOWN UTAMA: DAFTAR HYPERLINK SUDAH MASUK KE SINI -->
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
@@ -214,29 +211,14 @@
                 <option value="aksi-rekam">🎙️ Mulai Perekaman Suara</option>
                 <option value="aksi-penanda">🔗 Buat Hyperlink Penanda</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
-            </select>
-            <!-- KEMBALI KE STRUKTUR ASLI GAMBAR PERTAMA ANDA -->
-            <details class="dropdown-anak level-2" id="menu-folder-penanda">
-                <summary style="color: white; cursor: pointer; font-size: 12px; font-weight: bold; padding: 4px 0; outline: none; list-style: none;">
-                    <span>➡ DAFTAR Hyperlink PENANDA... --</span>
-                    <span class="panah-anak"></span>
-                </summary>
                 
-                <ul class="list-akhir" id="daftar-link-penanda-ul" style="background: #1a252f; color: white; padding: 5px; list-style: none; margin: 5px 0 0 0; max-height: 150px; overflow-y: auto;">
-                    <li onclick="pilihOpsiAkhir('Sudut: sin', this, event)" style="padding: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;" class="terpilih">
-                        <input type="radio" name="pilihan_kalkulator" value="1" checked>
-                        <span>Sudut: sin</span>
-                    </li>
-                    <li onclick="pilihOpsiAkhir('Sudut: cos', this, event)" style="padding: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <input type="radio" name="pilihan_kalkulator" value="2">
-                        <span>Sudut: cos</span>
-                    </li>
-                    <li onclick="pilihOpsiAkhir('Sudut: tan', this, event)" style="padding: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <input type="radio" name="pilihan_kalkulator" value="3">
-                        <span>Sudut: tan</span>
-                    </li>
-                </ul>
-            </details>
+                <!-- BAGIAN DAFTAR HYPERLINK PENANDA YANG SUDAH DIPINDAHKAN KE DALAM DROPDOWN -->
+                <optgroup label="➡ DAFTAR Hyperlink PENANDA...">
+                    <option value="wadah-sin">⚪ Sudut: sin</option>
+                    <option value="wadah-cos">⚪ Sudut: cos</option>
+                    <option value="wadah-tan">⚪ Sudut: tan</option>
+                </optgroup>
+            </select>
         </div>
         
         <!-- BAR TOMBOL KONTROL UKURAN MEDIA YANG DIKLIK -->
@@ -272,13 +254,13 @@
     let sedangMerekam = false;
     let streamSuara = null;
 
-    // Menyimpan data hyperlink berdasarkan kategori wadah aktif
+    // Menyimpan data hyperlink teks berdasarkan kategori wadah aktif
     let dataPenandaKategori = {
-        "Sudut: sin": [],
-        "Sudut: cos": [],
-        "Sudut: tan": []
+        "wadah-sin": { nama: "Sudut: sin", listLink: [] },
+        "wadah-cos": { nama: "Sudut: cos", listLink: [] },
+        "wadah-tan": { nama: "Sudut: tan", listLink: [] }
     };
-    let kategoriWadahAktif = "Sudut: sin"; // Sesuai pilihan awal default
+    let wadahTerpilihSaatIni = "wadah-sin"; // Default wadah aktif penanda baru
 
     const elMenu = document.getElementById('menu-navigasi');
     const elIndikator = document.getElementById('page-indicator');
@@ -287,30 +269,19 @@
     const elRadioContainer = document.getElementById('radio-container');
     const elMediaTools = document.getElementById('media-tools');
     const textHeaderUtama = document.getElementById('textHeaderUtama');
-    const elFolderPenanda = document.getElementById('menu-folder-penanda');
-    const elDaftarUl = document.getElementById('daftar-link-penanda-ul');
-    // Mengembalikan fungsi gabung nama tanpa spasi agar tidak crash
-    function pilihOpsiAkhir(namaTerpilih, elemenAktif, event) {
-        event.stopPropagation();
-        
-        document.querySelectorAll('.list-akhir li').forEach(li => {
-            li.classList.remove('terpilih');
+
+    // Menangani sinkronisasi teks visual lingkaran penanda (radio imitasi) di dalam dropdown select
+    function perbaruiSimbolRadioDropdown() {
+        const opsiGrup = elMenu.querySelectorAll('optgroup[label="➡ DAFTAR Hyperlink PENANDA..."] option');
+        opsiGrup.forEach(opt => {
+            const cleanText = opt.text.replace(/[🔵⚪] /, '');
+            if (opt.value === wadahTerpilihSaatIni) {
+                opt.text = "🔵 " + cleanText;
+            } else {
+                opt.text = "⚪ " + cleanText;
+            }
         });
-
-        elemenAktif.classList.add('terpilih');
-
-        const radioAsli = elemenAktif.querySelector('input[type="radio"]');
-        if (radioAsli) {
-            radioAsli.checked = true;
-        }
-
-        kategoriWadahAktif = namaTerpilih;
-        textHeaderUtama.innerText = namaTerpilih;
-
-        // Tutup total dropdown folder details setelah memilih wadah
-        elFolderPenanda.removeAttribute('open');
     }
-
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
@@ -379,63 +350,17 @@
             range.insertNode(aLink);
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            // Masukkan data ke kategori wadah yang aktif (sin / cos / tan)
-            dataPenandaKategori[kategoriWadahAktif].push({
+            // Memasukkan data link teks ke dalam array kategori yang sedang diaktifkan
+            dataPenandaKategori[wadahTerpilihSaatIni].listLink.push({
                 idHalaman: indeksAktif,
                 linkId: penandaId,
                 isiTeks: kataKunciSeleksi
             });
 
-            // Buat elemen visual li baru di bawah wadah penanda yang sesuai
-            renderUlangListPenandaDinamis();
-
             seleksi.removeAllRanges();
             kataKunciSeleksi = "";
-            alert(`Sukses! Kalimat dimasukkan ke kelompok wadah: ${kategoriWadahAktif}`);
+            alert(`Sukses! Kalimat dijadikan hyperlink penanda di kelompok wadah: ${dataPenandaKategori[wadahTerpilihSaatIni].nama}`);
         }
-    }
-
-    // Merender ulang isi list ul agar sub-link tersusun rapi di bawah sin/cos/tan masing-masing
-    function renderUlangListPenandaDinamis() {
-        elDaftarUl.innerHTML = "";
-        
-        Object.keys(dataPenandaKategori).forEach(key => {
-            const isChecked = (key === kategoriWadahAktif) ? "checked" : "";
-            const isClass = (key === kategoriWadahAktif) ? 'class="terpilih"' : '';
-            
-            const liKategori = document.createElement('li');
-            liKategori.innerHTML = `<input type="radio" name="pilihan_kalkulator" ${isChecked}> <span>${key}</span>`;
-            liKategori.style.padding = "6px";
-            liKategori.style.cursor = "pointer";
-            liKategori.style.fontWeight = "bold";
-            liKategori.style.display = "flex";
-            liKategori.style.alignItems = "center";
-            liKategori.style.gap = "8px";
-            if (key === kategoriWadahAktif) liKategori.classList.add('terpilih');
-            
-            liKategori.onclick = function(event) {
-                pilihOpsiAkhir(key, liKategori, event);
-                renderUlangListPenandaDinamis();
-            };
-            elDaftarUl.appendChild(liKategori);
-
-            // Render anak/sub-link di bawahnya
-            dataPenandaKategori[key].forEach(linkItem => {
-                const liLink = document.createElement('li');
-                liLink.style.padding = "4px 4px 4px 25px";
-                liLink.style.fontSize = "11px";
-                liLink.style.color = "#bdc3c7";
-                liLink.style.cursor = "pointer";
-                liLink.innerText = `🔗 [Hlm ${linkItem.idHalaman + 1}] "${linkItem.isiTeks.substring(0, 14)}..."`;
-                
-                liLink.onclick = function(event) {
-                    event.stopPropagation();
-                    lompatKeTargetHyperlink(linkItem.idHalaman, linkItem.linkId);
-                    elFolderPenanda.removeAttribute('open');
-                };
-                elDaftarUl.appendChild(liLink);
-            });
-        });
     }
 
     function lompatKeTargetHyperlink(idHalaman, linkId) {
@@ -484,6 +409,15 @@
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
 
+        // Handler pendeteksi pilihan wadah (sin, cos, tan) di dalam dropdown tunggal
+        if (nilaiPilihan === 'wadah-sin' || nilaiPilihan === 'wadah-cos' || nilaiPilihan === 'wadah-tan') {
+            wadahTerpilihSaatIni = nilaiPilihan;
+            textHeaderUtama.innerText = dataPenandaKategori[nilaiPilihan].nama;
+            perbaruiSimbolRadioDropdown();
+            elMenu.value = 'default';
+            return;
+        }
+
         if (nilaiPilihan === 'aksi-tambah') {
             databaseBuku.push({ teks: "" });
             muatHalaman(databaseBuku.length - 1);
@@ -520,7 +454,7 @@
 
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const fileObj = input.files[0]; // FIX: Mengambil file pertama agar gambar/video muncul rapi
+            const fileObj = input.files[0]; // FIX: Mengambil file index ke-0 agar media sukses ter-upload masuk ke halaman
             
             let selection = window.getSelection();
             let range;
@@ -587,7 +521,7 @@
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                     
                     mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); // FIX: format didukung browser
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); // Menggunakan webm standar browser
                         const audioURL = URL.createObjectURL(audioBlob);
                         
                         let selection = window.getSelection();
@@ -615,7 +549,6 @@
                 }).catch(err => alert('Gagal merekam! Pastikan izin mikrofon diberikan.'));
             }
         } else {
-            // FIX: Tombol melayang merah sekarang berfungsi menghentikan/stop rekaman
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }
@@ -627,6 +560,8 @@
         }
     }
 
+    // Inisialisasi visual status radio awal aplikasi
+    perbaruiSimbolRadioDropdown();
     muatHalaman(0);
 </script>
 </body>
