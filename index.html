@@ -199,7 +199,7 @@
         <div class="nav-header">
             <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Sudut: sin</h3>
             
-            <!-- SATU DROPDOWN UTAMA: DAFTAR HYPERLINK SUDAH MASUK KE SINI -->
+            <!-- SATU-SATUNYA DROPDOWN UTAMA (TIDAK ADA TOMBOL / DETAILS LAIN LAGI DI BAWAHNYA) -->
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
@@ -212,11 +212,15 @@
                 <option value="aksi-penanda">🔗 Buat Hyperlink Penanda</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
                 
-                <!-- BAGIAN DAFTAR HYPERLINK PENANDA YANG SUDAH DIPINDAHKAN KE DALAM DROPDOWN -->
-                <optgroup label="➡ DAFTAR Hyperlink PENANDA...">
-                    <option value="wadah-sin">⚪ Sudut: sin</option>
-                    <option value="wadah-cos">⚪ Sudut: cos</option>
-                    <option value="wadah-tan">⚪ Sudut: tan</option>
+                <!-- WADAH DAFTAR HYPERLINK PENANDA UTAMA DI DALAM SATU SELECT DROPDOWN -->
+                <optgroup id="grup-penanda-sin" label="➡ DAFTAR HYPERLINK PENANDA: SIN">
+                    <option value="wadah-sin">🔵 Sudut: sin (Klik untuk Aktifkan)</option>
+                </optgroup>
+                <optgroup id="grup-penanda-cos" label="➡ DAFTAR HYPERLINK PENANDA: COS">
+                    <option value="wadah-cos">⚪ Sudut: cos (Klik untuk Aktifkan)</option>
+                </optgroup>
+                <optgroup id="grup-penanda-tan" label="➡ DAFTAR HYPERLINK PENANDA: TAN">
+                    <option value="wadah-tan">⚪ Sudut: tan (Klik untuk Aktifkan)</option>
                 </optgroup>
             </select>
         </div>
@@ -254,13 +258,13 @@
     let sedangMerekam = false;
     let streamSuara = null;
 
-    // Menyimpan data hyperlink teks berdasarkan kategori wadah aktif
+    // Struktur penyimpanan dinamis sub-link hyperlink
     let dataPenandaKategori = {
         "wadah-sin": { nama: "Sudut: sin", listLink: [] },
         "wadah-cos": { nama: "Sudut: cos", listLink: [] },
         "wadah-tan": { nama: "Sudut: tan", listLink: [] }
     };
-    let wadahTerpilihSaatIni = "wadah-sin"; // Default wadah aktif penanda baru
+    let wadahTerpilihSaatIni = "wadah-sin"; 
 
     const elMenu = document.getElementById('menu-navigasi');
     const elIndikator = document.getElementById('page-indicator');
@@ -270,16 +274,41 @@
     const elMediaTools = document.getElementById('media-tools');
     const textHeaderUtama = document.getElementById('textHeaderUtama');
 
-    // Menangani sinkronisasi teks visual lingkaran penanda (radio imitasi) di dalam dropdown select
-    function perbaruiSimbolRadioDropdown() {
-        const opsiGrup = elMenu.querySelectorAll('optgroup[label="➡ DAFTAR Hyperlink PENANDA..."] option');
-        opsiGrup.forEach(opt => {
-            const cleanText = opt.text.replace(/[🔵⚪] /, '');
-            if (opt.value === wadahTerpilihSaatIni) {
-                opt.text = "🔵 " + cleanText;
-            } else {
-                opt.text = "⚪ " + cleanText;
-            }
+    // Mengupdate susunan sub-link agar masuk rapi di dalam optgroup select tunggal
+    function renderUlangOpsiDropdownTunggal() {
+        const grupSin = document.getElementById('grup-penanda-sin');
+        const grupCos = document.getElementById('grup-penanda-cos');
+        const grupTan = document.getElementById('grup-penanda-tan');
+
+        if (!grupSin || !grupCos || !grupTan) return;
+
+        // Reset isi lama optgroup
+        grupSin.innerHTML = `<option value="wadah-sin">${wadahTerpilihSaatIni === 'wadah-sin' ? '🔵' : '⚪'} Sudut: sin (Klik untuk Aktifkan)</option>`;
+        grupCos.innerHTML = `<option value="wadah-cos">${wadahTerpilihSaatIni === 'wadah-cos' ? '🔵' : '⚪'} Sudut: cos (Klik untuk Aktifkan)</option>`;
+        grupTan.innerHTML = `<option value="wadah-tan">${wadahTerpilihSaatIni === 'wadah-tan' ? '🔵' : '⚪'} Sudut: tan (Klik untuk Aktifkan)</option>`;
+
+        // Render sub-link sin
+        dataPenandaKategori["wadah-sin"].listLink.forEach((item, index) => {
+            const opt = document.createElement('option');
+            opt.value = `lompat-wadah-sin-${index}`;
+            opt.text = `   🔗 [Hlm ${item.idHalaman + 1}] "${item.isiTeks.substring(0, 15)}..."`;
+            grupSin.appendChild(opt);
+        });
+
+        // Render sub-link cos
+        dataPenandaKategori["wadah-cos"].listLink.forEach((item, index) => {
+            const opt = document.createElement('option');
+            opt.value = `lompat-wadah-cos-${index}`;
+            opt.text = `   🔗 [Hlm ${item.idHalaman + 1}] "${item.isiTeks.substring(0, 15)}..."`;
+            grupCos.appendChild(opt);
+        });
+
+        // Render sub-link tan
+        dataPenandaKategori["wadah-tan"].listLink.forEach((item, index) => {
+            const opt = document.createElement('option');
+            opt.value = `lompat-wadah-tan-${index}`;
+            opt.text = `   🔗 [Hlm ${item.idHalaman + 1}] "${item.isiTeks.substring(0, 15)}..."`;
+            grupTan.appendChild(opt);
         });
     }
     function muatHalaman(indeks) {
@@ -350,16 +379,19 @@
             range.insertNode(aLink);
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            // Memasukkan data link teks ke dalam array kategori yang sedang diaktifkan
+            // Masukkan data sub-link ke wadah yang sedang aktif saat ini
             dataPenandaKategori[wadahTerpilihSaatIni].listLink.push({
                 idHalaman: indeksAktif,
                 linkId: penandaId,
                 isiTeks: kataKunciSeleksi
             });
 
+            // Perbarui visual opsi di dalam select tunggal
+            renderUlangOpsiDropdownTunggal();
+
             seleksi.removeAllRanges();
             kataKunciSeleksi = "";
-            alert(`Sukses! Kalimat dijadikan hyperlink penanda di kelompok wadah: ${dataPenandaKategori[wadahTerpilihSaatIni].nama}`);
+            alert(`Sukses! Teks dimasukkan ke sub-menu Kategori: ${dataPenandaKategori[wadahTerpilihSaatIni].nama}`);
         }
     }
 
@@ -409,11 +441,22 @@
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
 
-        // Handler pendeteksi pilihan wadah (sin, cos, tan) di dalam dropdown tunggal
+        // Handler klik ganti wadah target aktif (sin, cos, tan) di dalam select tunggal
         if (nilaiPilihan === 'wadah-sin' || nilaiPilihan === 'wadah-cos' || nilaiPilihan === 'wadah-tan') {
             wadahTerpilihSaatIni = nilaiPilihan;
             textHeaderUtama.innerText = dataPenandaKategori[nilaiPilihan].nama;
-            perbaruiSimbolRadioDropdown();
+            renderUlangOpsiDropdownTunggal();
+            elMenu.value = 'default';
+            return;
+        }
+
+        // Handler klik aksi melompat ke target sub-link teks halaman tertentu
+        if (nilaiPilihan.startsWith("lompat-")) {
+            const parts = nilaiPilihan.split("-"); // [lompat, wadah, kat, idx]
+            const keyKat = "wadah-" + parts[2];
+            const idxLink = parseInt(parts[3]);
+            const target = dataPenandaKategori[keyKat].listLink[idxLink];
+            lompatKeTargetHyperlink(target.idHalaman, target.linkId);
             elMenu.value = 'default';
             return;
         }
@@ -454,14 +497,10 @@
 
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const fileObj = input.files[0]; // FIX: Mengambil file index ke-0 agar media sukses ter-upload masuk ke halaman
-            
+            const fileObj = input.files[0]; // FIX: Pembacaan file index-0 agar gambar sukses masuk halaman
             let selection = window.getSelection();
-            let range;
-            if (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
-                range = selection.getRangeAt(0);
-            } else {
-                range = document.createRange();
+            let range = (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) ? selection.getRangeAt(0) : document.createRange();
+            if (selection.rangeCount === 0 || !elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
                 range.selectNodeContents(elTextField);
                 range.collapse(false);
             }
@@ -469,7 +508,6 @@
             const mediaBlock = document.createElement('div');
             mediaBlock.className = 'embedded-media-block';
             mediaBlock.contentEditable = 'false';
-            
             const mediaURL = URL.createObjectURL(fileObj);
 
             if (type === 'image') {
@@ -521,9 +559,8 @@
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                     
                     mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); // Menggunakan webm standar browser
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         const audioURL = URL.createObjectURL(audioBlob);
-                        
                         let selection = window.getSelection();
                         let range = (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) ? selection.getRangeAt(0) : document.createRange();
                         if (selection.rangeCount === 0 || !elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
@@ -534,11 +571,8 @@
                         const mediaBlock = document.createElement('div');
                         mediaBlock.className = 'embedded-media-block';
                         mediaBlock.contentEditable = 'false';
-                        
                         const audio = document.createElement('audio');
-                        audio.src = audioURL;
-                        audio.controls = true;
-                        
+                        audio.src = audioURL; audio.controls = true;
                         mediaBlock.appendChild(audio);
                         prosesPenyisipanBlokMedia(range, mediaBlock);
                     };
@@ -546,7 +580,7 @@
                     mediaRecorder.start();
                     sedangMerekam = true;
                     elRecordIndicator.style.display = 'block';
-                }).catch(err => alert('Gagal merekam! Pastikan izin mikrofon diberikan.'));
+                }).catch(err => alert('Gagal merekam! Periksa izin mikrofon perangkat Anda.'));
             }
         } else {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
@@ -560,8 +594,6 @@
         }
     }
 
-    // Inisialisasi visual status radio awal aplikasi
-    perbaruiSimbolRadioDropdown();
     muatHalaman(0);
 </script>
 </body>
