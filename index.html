@@ -51,6 +51,26 @@
             cursor: pointer;
         }
 
+        /* PANEL PENGATUR UKURAN MEDIA */
+        .size-control-panel {
+            background-color: #34495e;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-bottom: 1px solid #2c3e50;
+        }
+
+        .size-slider {
+            flex-grow: 1;
+            cursor: pointer;
+            accent-color: #2ecc71;
+        }
+
         /* Status Perekaman Suara */
         .record-status {
             font-weight: bold;
@@ -75,13 +95,10 @@
             color: #7f8c8d;
         }
 
-        /* Area Gambar Utama */
+        /* Area Bingkai Penampung Media */
         .content-area {
             width: 100%;
             height: 250px;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
             background-color: #ecf0f1; 
             cursor: pointer;
             position: relative;
@@ -89,12 +106,25 @@
             justify-content: center;
             align-items: center;
             box-sizing: border-box;
+            overflow: hidden;
         }
 
+        /* Elemen Gambar Utama */
+        .display-image {
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: width 0.1s ease, height 0.1s ease;
+        }
+
+        /* Elemen Video & Audio */
         video, audio {
-            width: 90%;
-            max-height: 90%;
+            width: 100%;
+            max-height: 100%;
             z-index: 5;
+            transition: width 0.1s ease, height 0.1s ease;
         }
 
         /* AREA TEKS PENUH */
@@ -139,10 +169,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             cursor: pointer;
             z-index: 999;
-        }
-
-        .floating-menu-btn:hover {
-            background-color: #27ae60;
         }
 
         /* Panel Radio Button */
@@ -198,6 +224,13 @@
             </select>
         </div>
 
+        <!-- PANEL SLIDER UNTUK MENGATUR BESAR KECIL GAMBAR/VIDEO -->
+        <div class="size-control-panel" id="size-panel">
+            <span>🔎 Ukuran Media:</span>
+            <input type="range" id="media-size-slider" class="size-slider" min="20" max="100" value="100" oninput="aturUkuranMedia(this.value)">
+            <span id="size-percentage">100%</span>
+        </div>
+
         <!-- PANEL RADIO BUTTON -->
         <div class="radio-dropdown-panel" id="radio-container">
             <!-- Diisi otomatis oleh JavaScript -->
@@ -212,6 +245,7 @@
         <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar(event)">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
+            <div id="image-target" class="display-image" style="display: none;"></div>
         </div>
 
         <!-- AREA KETIK TEKS MELEBAR FULL PAGE -->
@@ -223,7 +257,7 @@
 
 <script>
     let databaseBuku = [
-        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" }
+        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "", skala: 100 }
     ];
 
     let riwayatPenanda = [];
@@ -234,6 +268,7 @@
 
     const elContent = document.getElementById('book-content');
     const elPlaceholder = document.getElementById('media-placeholder');
+    const elImageTarget = document.getElementById('image-target');
     const elMenu = document.getElementById('menu-navigasi');
     const elRiwayatDropdown = document.getElementById('dropdown-riwayat');
     const elIndikator = document.getElementById('page-indicator');
@@ -241,23 +276,38 @@
     const elRecordIndicator = document.getElementById('record-indicator');
     const elRadioContainer = document.getElementById('radio-container');
     const elFloatingBtn = document.getElementById('floating-btn');
+    const elSizeSlider = document.getElementById('media-size-slider');
+    const elSizePercentage = document.getElementById('size-percentage');
+    const elSizePanel = document.getElementById('size-panel');
 
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
         elPlaceholder.innerHTML = '';
-        elContent.style.backgroundImage = 'none';
+        elImageTarget.style.backgroundImage = 'none';
+        elImageTarget.style.display = 'none';
 
         if (data.type === 'text-only') {
             elContent.style.display = 'none'; 
+            elSizePanel.style.display = 'none';
         } else {
             elContent.style.display = 'flex'; 
+            elSizePanel.style.display = 'flex';
+
+            const skalaSkrg = data.skala || 100;
+            elSizeSlider.value = skalaSkrg;
+            elSizePercentage.innerText = skalaSkrg + "%";
+            
             if (data.type === 'image' && data.src) {
-                elContent.style.backgroundImage = `url('${data.src}')`;
+                elImageTarget.style.display = 'block';
+                elImageTarget.style.backgroundImage = `url('${data.src}')`;
+                elImageTarget.style.width = skalaSkrg + "%";
+                elImageTarget.style.height = skalaSkrg + "%";
             } else if (data.type === 'video') {
-                elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
+                elPlaceholder.innerHTML = `<video id="video-target" src="${data.src}" controls style="width: ${skalaSkrg}%"></video>`;
             } else if (data.type === 'audio') {
                 elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
+                elSizePanel.style.display = 'none';
             }
         }
 
@@ -267,6 +317,20 @@
         
         renderRadioHalaman();
     }
+    function aturUkuranMedia(persen) {
+        elSizePercentage.innerText = persen + "%";
+        databaseBuku[indeksAktif].skala = parseInt(persen);
+
+        const data = databaseBuku[indeksAktif];
+        if (data.type === 'image') {
+            elImageTarget.style.width = persen + "%";
+            elImageTarget.style.height = persen + "%";
+        } else if (data.type === 'video') {
+            const elVid = document.getElementById('video-target');
+            if (elVid) { elVid.style.width = persen + "%"; }
+        }
+    }
+
     function renderRadioHalaman() {
         elRadioContainer.innerHTML = '';
         databaseBuku.forEach((item, index) => {
@@ -395,7 +459,7 @@
         if (nilaiPilihan === 'default') return;
 
         if (nilaiPilihan === 'aksi-tambah') {
-            databaseBuku.push({ type: "text-only", src: "", teks: "" });
+            databaseBuku.push({ type: "text-only", src: "", teks: "", skala: 100 });
             muatHalaman(databaseBuku.length - 1);
             elMenu.value = 'default';
         }
@@ -407,11 +471,14 @@
             const teksMurni = elTextField.innerText || elTextField.textContent;
             const teksKirim = encodeURIComponent(`Berikut update Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n"${teksMurni}"\n\nIkuti saluran KASY di WhatsApp: https://whatsapp.com`);
             
-            // PERBAIKAN TIMEOUT WA HP: Menggunakan metode pembukaan tab murni cadangan
-            const waWindow = window.open(`https://wa.me{teksKirim}`, '_blank');
-            if(!waWindow || waWindow.closed) {
-                window.location.href = `https://wa.me{teksKirim}`;
-            }
+            // FIX REDIRECT POPUP: Membuat jangkar klik virtual agar lolos sensor pop-up HP
+            const linkWA = document.createElement('a');
+            linkWA.href = `https://wa.me{teksKirim}`;
+            linkWA.target = '_blank';
+            document.body.appendChild(linkWA);
+            linkWA.click();
+            document.body.removeChild(linkWA);
+            
             elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-upload-img') {
@@ -427,8 +494,7 @@
             elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-rekan') {
-            toggleRekamSuara(); 
-            elMenu.value = 'default';
+            toggleRekamSuara(); elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-hapus') {
             if (databaseBuku.length <= 1) { alert("Gagal! Sisa 1 halaman."); elMenu.value = 'default'; return; }
@@ -441,25 +507,18 @@
         }
     }
 
-    // PERBAIKAN FITUR UPLOAD FILE: Menggunakan FileReader Base64 ramah browser HP
     function handleFileSelected(input, type) {
-        if (input.files && input.files[0]) {
+        if (input.files && input.files) {
             const file = input.files[0];
             const reader = new FileReader();
-            
             reader.onload = function(e) {
-                databaseBuku[indeksAktif] = { 
-                    type: type, 
-                    src: e.target.result, // Data murni Base64
-                    teks: elTextField.innerHTML 
-                };
+                databaseBuku[indeksAktif] = { type: type, src: e.target.result, teks: elTextField.innerHTML, skala: 100 };
                 muatHalaman(indeksAktif);
             };
             reader.readAsDataURL(file);
         }
     }
 
-    // PERBAIKAN AUDIO MIC: Mengambil izin MediaStream browser HTTPS resmi
     function toggleRekamSuara() {
         if (!sedangMerekam) {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -467,7 +526,6 @@
                 .then(stream => {
                     mediaRecorder = new MediaRecorder(stream);
                     audioChunks = [];
-                    
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                     mediaRecorder.onstop = () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
@@ -475,19 +533,17 @@
                         databaseBuku[indeksAktif] = { type: 'audio', src: audioURL, teks: elTextField.innerHTML };
                         muatHalaman(indeksAktif);
                     };
-                    
                     mediaRecorder.start();
                     sedangMerekam = true;
                     elRecordIndicator.style.display = 'block';
                 })
-                .catch(err => alert("Gagal merekam! Pastikan Anda membuka web via tautan HTTPS resmi (bukan file lokal) dan mengizinkan izin mikrofon."));
+                .catch(err => alert("Gagal merekam! Pastikan menggunakan tautan HTTPS resmi dan memberi izin mikrofon."));
             } else {
-                alert("Browser HP Anda belum mendukung fitur perekam suara langsung.");
+                alert("Browser belum mendukung fitur perekam suara langsung.");
             }
         } else {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
-                // Matikan aliran mic agar ikon rekaman di HP mati
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
             sedangMerekam = false;
