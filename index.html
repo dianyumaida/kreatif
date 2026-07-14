@@ -82,7 +82,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-color: #f5f5f5;
+            background-color: #ecf0f1; /* Menggunakan warna abu-abu agar area klik tidak menghilang */
             cursor: pointer;
             position: relative;
             display: flex;
@@ -95,6 +95,15 @@
             width: 90%;
             max-height: 90%;
             z-index: 5;
+        }
+
+        /* Teks Indikator Cadangan Jika Gambar Mengalami Masalah Folder */
+        .placeholder-text {
+            color: #7f8c8d;
+            font-size: 16px;
+            font-weight: bold;
+            pointer-events: none;
+            text-align: center;
         }
 
         /* Sembunyikan Input Bawaan */
@@ -151,10 +160,12 @@
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA GAMBAR -->
+        <!-- AREA GAMBAR (Diberikan penampung teks jika file lokal tidak terbaca) -->
         <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar(event)">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
-            <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
+            <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;">
+                <span class="placeholder-text" id="fallback-text">Memuat Gambar...</span>
+            </div>
         </div>
 
         <!-- AREA KETIK TEKS -->
@@ -169,11 +180,11 @@
 <script>
     localStorage.clear();
 
-    // PERBAIKAN RAW LINK UTUH (TIDAK BOLEH TERPOTONG):
+    // DIKEMBALIKAN KE JALUR LOKAL GITHUB ANDA DENGAN TULISAN JUDUL CADANGAN
     let databaseBuku = [
-        { type: "image", src: "https://githubusercontent.com", teks: "" },
-        { type: "image", src: "https://githubusercontent.com", teks: "" },
-        { type: "image", src: "https://githubusercontent.com", teks: "" }
+        { type: "image", src: "./File/Gambar/Buku/A.png", judul: "Lembar Gambar A", teks: "" },
+        { type: "image", src: "./File/Gambar/Buku/B.png", judul: "Lembar Gambar B", teks: "" },
+        { type: "image", src: "./File/Gambar/Buku/C.png", judul: "Lembar Gambar C", teks: "" }
     ];
 
     let indeksAktif = 0;
@@ -191,7 +202,6 @@
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
-        elPlaceholder.innerHTML = '';
         elContent.style.backgroundImage = 'none';
 
         if (data.type === 'text-only') {
@@ -199,8 +209,12 @@
         } else {
             elContent.style.display = 'flex'; 
             
-            if (data.type === 'image' && data.src) {
-                elContent.style.backgroundImage = `url('${data.src}')`;
+            if (data.type === 'image') {
+                // Menampilkan judul cadangan di tengah kotak agar area tetap bisa di-klik jika gambar lokal diblokir browser
+                elPlaceholder.innerHTML = `<span class="placeholder-text">${data.judul || 'Lembar Gambar'}</span>`;
+                if (data.src) {
+                    elContent.style.backgroundImage = `url('${data.src}')`;
+                }
             } else if (data.type === 'video') {
                 elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
             } else if (data.type === 'audio') {
@@ -276,6 +290,7 @@
             databaseBuku[indeksAktif] = {
                 type: type,
                 src: fileURL,
+                judul: file.name,
                 teks: elTextField.value
             };
             muatHalaman(indeksAktif);
