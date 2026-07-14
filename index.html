@@ -39,7 +39,7 @@
             z-index: 200;
         }
 
-        /* STRUKTUR ARSITEKTUR KUSTOM DROPDOWN MULTI-LEVEL TREE */
+        /* STRUKTUR CUSTOM TREE ACCORDION DROPDOWN COMPONENT */
         .custom-dropdown-wrapper {
             position: relative;
             width: 100%;
@@ -70,7 +70,7 @@
             border: 1px solid #bdc3c7;
             border-radius: 0 0 6px 6px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-            max-height: 380px;
+            max-height: 420px;
             overflow-y: auto;
             z-index: 300;
         }
@@ -92,7 +92,7 @@
             background-color: #f8f9fa;
         }
 
-        /* Desain Baris Folder Kategori Sesuai Link Contoh Anda */
+        /* Desain Baris Folder Kategori Sesuai Permintaan */
         .folder-toggle-bar {
             background-color: #f5f6fa;
             padding: 10px 15px;
@@ -112,15 +112,15 @@
             gap: 8px;
         }
 
-        /* Kontainer Akordion Isi Sub Folder (Collapsible content) */
+        /* Kontainer Akordion Isi Sub Folder */
         .folder-sub-content {
-            display: none; /* Tertutup secara default */
+            display: none; 
             background-color: #ffffff;
         }
         .folder-sub-content.folder-terbuka {
             display: block;
         }
-        /* Item Baris Pilihan Parameter Utama (sin, cos, tan) */
+        /* Item Baris Pilihan Bertingkat/Anak di dalam Folder */
         .parameter-select-row {
             padding: 10px 15px 10px 35px;
             font-size: 13px;
@@ -135,7 +135,20 @@
             background-color: #fcfcfc;
         }
 
-        /* Tombol Bundar Radio Kustom Sisi Kanan */
+        /* Gaya Baris Khusus Anak Tanpa Radio (Untuk Kelompok 1 & Kelompok 2) */
+        .folder-child-no-radio {
+            padding: 9px 15px 9px 40px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #2c3e50;
+            background-color: #fcfcfc;
+            border-bottom: 1px solid #f1f2f6;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Tombol Bundar Radio Kustom Sisi Kanan (Hanya di anak penanda) */
         .radio-dot-marker {
             width: 15px;
             height: 15px;
@@ -162,9 +175,9 @@
             transform: translate(-50%, -50%);
         }
 
-        /* Tampilan Anak Hyperlink Hasil Pembuatan Penanda */
+        /* Tampilan Anak Hyperlink Dinamis */
         .child-link-bookmark-row {
-            padding: 8px 15px 8px 55px;
+            padding: 8px 15px 8px 60px;
             font-size: 11px;
             color: #718093;
             background-color: #fdfefe;
@@ -179,7 +192,7 @@
             color: #0984e3;
         }
 
-        /* PANEL TOMBOL HP PENGATUR MEDIA */
+        /* PANEL HP PENGATUR MEDIA */
         .media-tools-bar {
             background-color: #2c3e50;
             padding: 6px;
@@ -203,7 +216,7 @@
         }
         .media-btn:hover { background-color: #2ecc71; }
         
-        /* Status Perekaman Suara melayang dengan tombol stop */
+        /* Status Perekaman Suara */
         .record-status {
             font-weight: bold;
             color: white;
@@ -321,9 +334,9 @@
 <body>
     <div class="book-container">
         <div class="nav-header">
-            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target: Sudut: sin</h3>
+            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target: Buat Hyperlink Penanda</h3>
             
-            <!-- IMPLEMENTASI TREE DROPDOWN COMPONENT AKORDION TUNGGAL -->
+            <!-- DROPDOWN COMPONENT STRUKTUR AKORDION TUNGGAL -->
             <div class="custom-dropdown-wrapper">
                 <div class="dropdown-main-button" id="main-dropdown-btn" onclick="toggleMainTreePanel(event)">
                     <span id="label-dropdown-text">-- Pilih Menu --</span>
@@ -331,7 +344,7 @@
                 </div>
                 
                 <div class="dropdown-tree-panel" id="tree-panel-box">
-                    <!-- Menu Operasional Sistem -->
+                    <!-- Menu Operasional Atas -->
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-tambah')">➕ Tambah Halaman Baru</div>
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-cari')">🔍 Pencarian</div>
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-wa')">📲 Kirim Saluran WhatsApp</div>
@@ -339,34 +352,30 @@
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-upload-vid')">📹 Upload Video Baru (Letak Kursor)</div>
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-upload-mp3')">🎵 Upload Lagu MP3</div>
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-rekam')">🎙️ Mulai Perekaman Suara</div>
-                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-penanda')">🔗 Buat Hyperlink Penanda</div>
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-hapus')">❌ Hapus Lembar Ini</div>
                     
-                    <!-- FOLDER GRUP AKORDION UTAMA SEPERTI CONTOH WEB ANDA -->
-                    <div class="folder-toggle-bar" onclick="toggleFolderContent('folder-sudut-box', event)">
-                        <div class="folder-left-info">📁 <span>-- sudut --</span></div>
-                        <span id="panah-folder-sudut-box">▼</span>
+                    <!-- RESTRUKTURISASI FOLDER: NAMA DIGANTI DAFTAR HYPERLINK -->
+                    <div class="folder-toggle-bar" onclick="toggleFolderContent('folder-hyperlink-box', event)">
+                        <div class="folder-left-info">📂 <span>-- daftar hyperlink --</span></div>
+                        <span id="panah-folder-hyperlink-box">▼</span>
                     </div>
                     
-                    <!-- Isi Konten di Dalam Folder (Bisa dilipat naik-turun saat diklik) -->
-                    <div class="folder-sub-content folder-terbuka" id="folder-sudut-box">
-                        <!-- Item Sin -->
-                        <div class="parameter-select-row aktif-target-wadah" id="row-wadah-sin" onclick="gantiTargetWadahAktif('wadah-sin', event)">
-                            <span>sin</span> <span class="radio-dot-marker"></span>
+                    <!-- Isi Konten di Dalam Folder daftar hyperlink -->
+                    <div class="folder-sub-content folder-terbuka" id="folder-hyperlink-box">
+                        
+                        <!-- 1. Menu Buat Hyperlink Dipindah Kesini Sebagai Anak Utama Sesuai Gambar Panah -->
+                        <div class="parameter-select-row aktif-target-wadah" id="row-wadah-penanda" onclick="gantiTargetWadahAktif('wadah-penanda', event)">
+                            <span>🔗 Buat Hyperlink Penanda</span> <span class="radio-dot-marker"></span>
                         </div>
-                        <div id="links-box-sin"></div> <!-- Tempat render link sin halaman -->
+                        <div id="links-box-penanda"></div>
 
-                        <!-- Item Cos -->
-                        <div class="parameter-select-row" id="row-wadah-cos" onclick="gantiTargetWadahAktif('wadah-cos', event)">
-                            <span>cos</span> <span class="radio-dot-marker"></span>
-                        </div>
-                        <div id="links-box-cos"></div> <!-- Tempat render link cos halaman -->
+                        <!-- 2. Tambah Anak Baru Pertama Tanpa Radio -->
+                        <div class="folder-child-no-radio">📁 Kelompok Wadah A</div>
+                        <div id="links-box-grupA"></div> <!-- Tempat Tampung Hyperlink Teks Kelompok A -->
 
-                        <!-- Item Tan -->
-                        <div class="parameter-select-row" id="row-wadah-tan" onclick="gantiTargetWadahAktif('wadah-tan', event)">
-                            <span>tan</span> <span class="radio-dot-marker"></span>
-                        </div>
-                        <div id="links-box-tan"></div> <!-- Tempat render link tan halaman -->
+                        <!-- 3. Tambah Anak Baru Kedua Tanpa Radio -->
+                        <div class="folder-child-no-radio">📁 Kelompok Wadah B</div>
+                        <div id="links-box-grupB"></div> <!-- Tempat Tampung Hyperlink Teks Kelompok B -->
                     </div>
                 </div>
             </div>
@@ -405,13 +414,13 @@
     let sedangMerekam = false;
     let streamSuara = null;
 
-    // Database penyimpanan data array sub-link di bawah sin/cos/tan
+    // Struktur Distribusi Penyimpanan Hyperlink ke Masing-Masing Anak Folder
     let dataPenandaKategori = {
-        "wadah-sin": { nama: "Sudut: sin", domBoxId: "links-box-sin", listLink: [] },
-        "wadah-cos": { nama: "Sudut: cos", domBoxId: "links-box-cos", listLink: [] },
-        "wadah-tan": { nama: "Sudut: tan", domBoxId: "links-box-tan", listLink: [] }
+        "wadah-penanda": { nama: "Buat Hyperlink Penanda", domBoxId: "links-box-penanda", listLink: [] },
+        "wadah-grupA": { nama: "Kelompok Wadah A", domBoxId: "links-box-grupA", listLink: [] },
+        "wadah-grupB": { nama: "Kelompok Wadah B", domBoxId: "links-box-grupB", listLink: [] }
     };
-    let wadahTerpilihSaatIni = "wadah-sin";
+    let wadahTerpilihSaatIni = "wadah-penanda";
     const elDropdownLabel = document.getElementById('label-dropdown-text');
     const elTreePanelBox = document.getElementById('tree-panel-box');
     const elIndikator = document.getElementById('page-indicator');
@@ -421,18 +430,15 @@
     const elMediaTools = document.getElementById('media-tools');
     const textHeaderUtama = document.getElementById('textHeaderUtama');
 
-    // 1. Membuka/Menutup Panel Induk Dropdown Utama
     function toggleMainTreePanel(event) {
         if (event) event.stopPropagation();
         elTreePanelBox.classList.toggle('show-panel');
     }
 
-    // Menutup paksa panel dropdown jika user melakukan klik di area luar component
     document.addEventListener('click', function() {
         elTreePanelBox.classList.remove('show-panel');
     });
 
-    // 2. Fungsi Akordion Naik Turun: Menutup/membuka isi folder kategori (-- sudut --) sesuai link contoh
     function toggleFolderContent(boxId, event) {
         if (event) event.stopPropagation();
         const targetBox = document.getElementById(boxId);
@@ -446,7 +452,7 @@
         }
     }
 
-    // 3. Memilih target wadah aktif dan mengaktifkan tanda radio lingkaran dot biru di sisi kanan
+    // Mengganti target alur wadah penanda aktif (bisa memindahkan dot radio biru)
     function gantiTargetWadahAktif(idWadah, event) {
         if (event) event.stopPropagation();
 
@@ -454,22 +460,23 @@
         textHeaderUtama.innerText = "Target: " + dataPenandaKategori[idWadah].nama;
         elDropdownLabel.innerText = dataPenandaKategori[idWadah].nama;
 
-        // Reset semua tanda titik biru lama
         document.querySelectorAll('.parameter-select-row').forEach(row => row.classList.remove('aktif-target-wadah'));
-        // Berikan tanda titik biru pada yang baru saja diklik
-        document.getElementById(`row-${idWadah}`).classList.add('aktif-target-wadah');
+        
+        // Proteksi jika wadah memiliki elemen baris radio, aktifkan visual lingkaran birunya
+        const elRow = document.getElementById(`row-${idWadah}`);
+        if(elRow) elRow.classList.add('aktif-target-wadah');
 
-        elTreePanelBox.classList.remove('show-panel'); // Otomatis lipat menutup panel dropdown induk
+        elTreePanelBox.classList.remove('show-panel');
     }
 
-    // 4. Merender baris sub-link secara berurutan dan menjorok ke dalam di bawah folder sin/cos/tan
+    // Fungsi Pengisi Link: Merender anak sub-link teks kustom secara berurutan di bawah masing-masing kontainer wadah
     function renderSubLinksTreeDropdown() {
         Object.keys(dataPenandaKategori).forEach(key => {
             const dataKat = dataPenandaKategori[key];
             const boxContainer = document.getElementById(dataKat.domBoxId);
             if (!boxContainer) return;
 
-            boxContainer.innerHTML = ""; // Bersihkan list lama
+            boxContainer.innerHTML = ""; 
 
             dataKat.listLink.forEach((link, index) => {
                 const childRow = document.createElement('div');
@@ -479,12 +486,13 @@
                 childRow.onclick = function(event) {
                     event.stopPropagation();
                     lompatKeTargetHyperlink(link.idHalaman, link.linkId);
-                    elTreePanelBox.classList.remove('show-panel'); // Tutup dropdown
+                    elTreePanelBox.classList.remove('show-panel'); 
                 };
                 boxContainer.appendChild(childRow);
             });
         });
     }
+
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
@@ -496,7 +504,6 @@
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
         renderRadioHalaman();
     }
-
     function deteksiKlikMedia(event) {
         let targetBlock = event.target.closest('.embedded-media-block');
         if (targetBlock) {
@@ -537,11 +544,20 @@
         kataKunciSeleksi = window.getSelection().toString().trim();
     }
 
-    function buatPenandaDariBlokTeks() {
+    // Fungsi mendeteksi blok tulisan dan memisahkannya secara dinamis ke target wadah pilihan aktif
+    function triggerMenuBuatPenandaCatatan() {
         if (!kataKunciSeleksi) {
-            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu.");
+            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu sebelum memilih menu ini.");
             return;
         }
+        
+        // Pilihan Alur Penempatan Kustom: User bisa memilih mau dimasukkan ke wadah Utama, Kelompok A, atau Kelompok B
+        const targetWadahPrompt = prompt("Masukkan tujuan wadah teks penanda ini:\n1 = Wadah Utama\n2 = Kelompok Wadah A\n3 = Kelompok Wadah B", "1");
+        
+        let targetKey = "wadah-penanda";
+        if (targetWadahPrompt === "2") targetKey = "wadah-grupA";
+        if (targetWadahPrompt === "3") targetKey = "wadah-grupB";
+
         const seleksi = window.getSelection();
         if (seleksi.rangeCount > 0) {
             const range = seleksi.getRangeAt(0);
@@ -554,19 +570,18 @@
             range.insertNode(aLink);
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            // Masukkan data sub-link ke wadah yang lingkaran dot birunya sedang menyala aktif
-            dataPenandaKategori[wadahTerpilihSaatIni].listLink.push({
+            // Masukkan data sub-link ke folder penampung target terpilih
+            dataPenandaKategori[targetKey].listLink.push({
                 idHalaman: indeksAktif,
                 linkId: penandaId,
                 isiTeks: kataKunciSeleksi
             });
 
-            // Perbarui susunan rendering pohon daftar penanda kustom dropdown
             renderSubLinksTreeDropdown();
 
             seleksi.removeAllRanges();
             kataKunciSeleksi = "";
-            alert(`Sukses! Teks ditambahkan di bawah sub-kategori: ${dataPenandaKategori[wadahTerpilihSaatIni].nama}`);
+            alert(`Sukses! Teks disimpan di bawah: ${dataPenandaKategori[targetKey].nama}`);
         }
     }
 
@@ -612,9 +627,8 @@
         if (indeksDitemukan !== -1) { muatHalaman(indeksDitemukan); } else { alert("Kata kunci tidak ditemukan."); }
     }
 
-    // Fungsi jembatan penangkap eksekusi klik baris menu aksi utama
     function eksekusiAksiKelola(nilaiAksi) {
-        elTreePanelBox.classList.remove('show-panel'); // Tutup panel induk dropdown
+        elTreePanelBox.classList.remove('show-panel'); 
 
         if (nilaiAksi === 'aksi-tambah') {
             databaseBuku.push({ teks: "" });
@@ -636,7 +650,6 @@
         else if (nilaiAksi === 'aksi-upload-vid') { document.getElementById('file-video').click(); }
         else if (nilaiAksi === 'aksi-upload-mp3') { document.getElementById('file-audio').click(); }
         else if (nilaiAksi === 'aksi-rekam') { toggleRekamSuara(); }
-        else if (nilaiAksi === 'aksi-penanda') { buatPenandaDariBlokTeks(); }
         else if (nilaiAksi === 'aksi-hapus') {
             if (databaseBuku.length <= 1) { alert("Gagal! Minimal harus ada 1 halaman."); return; }
             if (confirm("Hapus lembar halaman ini?")) {
@@ -647,9 +660,16 @@
         }
     }
 
+    // Pemicu rute khusus untuk menu penanda teks yang berada di dalam folder kustom
+    document.getElementById('row-wadah-penanda').addEventListener('click', function(e) {
+        e.stopPropagation();
+        elTreePanelBox.classList.remove('show-panel');
+        triggerMenuBuatPenandaCatatan();
+    });
+
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const fileObj = input.files[0]; // Sukses memanggil indeks pertama berkas picker
+            const fileObj = input.files[0]; 
             let selection = window.getSelection();
             let range = (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) ? selection.getRangeAt(0) : document.createRange();
             if (selection.rangeCount === 0 || !elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
@@ -746,6 +766,7 @@
         }
     }
 
+    renderSubLinksTreeDropdown();
     muatHalaman(0);
 </script>
 </body>
