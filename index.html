@@ -169,13 +169,12 @@
 <script>
     localStorage.clear();
 
-    // LINK RAW REPOSITORI GITHUB DIANYUMAIDA (STRUKTUR VALID & LENGKAP)
-        let databaseBuku = [
-        { type: "image", src: "https://picsum.photos", teks: "" },
-        { type: "image", src: "https://picsum.photos", teks: "" },
-        { type: "image", src: "https://picsum.photos", teks: "" }
+    // PERBAIKAN RAW LINK UTUH (TIDAK BOLEH TERPOTONG):
+    let databaseBuku = [
+        { type: "image", src: "https://githubusercontent.com", teks: "" },
+        { type: "image", src: "https://githubusercontent.com", teks: "" },
+        { type: "image", src: "https://githubusercontent.com", teks: "" }
     ];
-
 
     let indeksAktif = 0;
     let mediaRecorder;
@@ -212,8 +211,7 @@
         elTextField.value = data.teks || "";
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
     }
-
-        elTextField.addEventListener('input', function() {
+    elTextField.addEventListener('input', function() {
         databaseBuku[indeksAktif].teks = elTextField.value;
     });
 
