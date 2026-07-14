@@ -73,17 +73,26 @@
             accent-color: #2ecc71;
         }
 
-        /* Status Perekaman Suara */
+        /* Tombol Stop Rekaman Interaktif Baru */
         .record-status {
             font-weight: bold;
-            color: #e74c3c;
+            color: white;
             position: absolute;
-            top: 10px;
+            top: 15px;
             display: none;
-            background: rgba(0,0,0,0.7);
-            padding: 5px 10px;
-            border-radius: 4px;
+            background: #e74c3c;
+            padding: 8px 16px;
+            border-radius: 20px;
             z-index: 30;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
         }
 
         /* Info Indikator Halaman Paling Bawah */
@@ -101,7 +110,7 @@
         /* Area Bingkai Penampung Media */
         .content-area {
             width: 100%;
-            max-height: 220px;
+            height: 250px;
             background-color: #ecf0f1; 
             cursor: pointer;
             position: relative;
@@ -116,7 +125,7 @@
         /* Elemen Gambar Utama */
         .display-image {
             width: 100%;
-            height: 220px;
+            height: 250px;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
@@ -203,11 +212,10 @@
                 <option value="aksi-upload-img">🖼️ Upload Gambar Baru</option>
                 <option value="aksi-upload-vid">🎥 Upload Video Baru</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
-                <option value="aksi-rekan">🎙️ Mulai / Stop Rekam Suara</option>
+                <option value="aksi-rekan">🎙️ Mulai Rekam Suara</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
-                <!-- KELOMPOK BARU: Riwayat penanda disatukan di bawah dropdown ini -->
                 <optgroup label="📂 DAFTAR RIWAYAT PENANDA TEKS" id="grup-riwayat-penanda">
-                    <!-- Opsi link baru otomatis masuk ke sini -->
+                    <!-- Diisi otomatis -->
                 </optgroup>
             </select>
         </div>
@@ -221,17 +229,17 @@
 
         <!-- PANEL RADIO BUTTON -->
         <div class="radio-dropdown-panel" id="radio-container">
-            <!-- Diisi otomatis oleh JavaScript -->
+            <!-- Diisi otomatis -->
         </div>
 
-        <!-- Input File Picker Perangkat resmi dengan parameter perbaikan -->
+        <!-- Input File Picker Perangkat -->
         <input type="file" id="file-image" accept="image/*" onchange="handleFileSelected(this, 'image')">
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA GAMBAR (Mendukung Double-Click) -->
+        <!-- AREA GAMBAR (Tombol stop rekam interaktif dimasukkan di sini) -->
         <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar(event)">
-            <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
+            <button class="record-status" id="record-indicator" onclick="toggleRekamSuara()">🔴 ⏹️ Klik di Sini untuk Stop Rekam</button>
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
             <div id="image-target" class="display-image" style="display: none;"></div>
         </div>
@@ -338,7 +346,6 @@
         });
     }
 
-    // FUNGSI MEMBUAT HYPERLINK KUNCI DAN MASUKKAN DAFTAR KE SATU DROPDOWN UTAMA
     function buatPenandaDariBlokTeks() {
         const seleksi = window.getSelection();
         const teksTerpilih = seleksi.toString().trim();
@@ -368,7 +375,6 @@
         };
         riwayatPenanda.push(dataRiwayat);
 
-        // Masukkan daftar baru secara dinamis ke optgroup di dalam dropdown utama
         const opsiBaru = document.createElement('option');
         opsiBaru.value = "riwayat-" + (riwayatPenanda.length - 1);
         opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${teksTerpilih.substring(0, 18)}..."`;
@@ -408,7 +414,6 @@
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
 
-        // JIKA YANG DIKLIK ADALAH OPSI DARI RIWAYAT PENANDA
         if (nilaiPilihan.startsWith("riwayat-")) {
             const indeksRiwayat = parseInt(nilaiPilihan.replace("riwayat-", ""));
             const target = riwayatPenanda[indeksRiwayat];
@@ -479,24 +484,29 @@
         }
     }
 
-    // MEMPERBAIKI CARA BACA FILE UNTUK BROWSER SMARTPHONE MODERN
+    // FIX UPLOAD MEDIA UTK SMARTPHONE
     function handleFileSelected(input, type) {
         if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                databaseBuku[indeksAktif] = { 
-                    type: type, 
-                    src: e.target.result, 
-                    teks: elTextField.innerHTML, 
-                    skala: 100 
-                };
+            const fileBaru = input.files[0]; // Perbaikan mutlak penangkapan objek berkas tunggal
+            
+            // JALUR KHUSUS VIDEO/AUDIO AGAR BISA DIPUTAR TUNTAS DI HP
+            if (type === 'video' || type === 'audio') {
+                const mediaURL = URL.createObjectURL(fileBaru);
+                databaseBuku[indeksAktif] = { type: type, src: mediaURL, teks: elTextField.innerHTML, skala: 100 };
                 muatHalaman(indeksAktif);
-            };
-            reader.readAsDataURL(file);
+            } else {
+                // JALUR KHUSUS GAMBAR BASE64
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    databaseBuku[indeksAktif] = { type: type, src: e.target.result, teks: elTextField.innerHTML, skala: 100 };
+                    muatHalaman(indeksAktif);
+                };
+                reader.readAsDataURL(fileBaru);
+            }
         }
     }
 
+    // FIX TOMBOL STOP REKAM SUARA
     function toggleRekamSuara() {
         if (!sedangMerekam) {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -513,9 +523,9 @@
                     };
                     mediaRecorder.start();
                     sedangMerekam = true;
-                    elRecordIndicator.style.display = 'block';
+                    elRecordIndicator.style.display = 'block'; // Menampilkan tombol stop merah melayang
                 })
-                .catch(err => alert("Gagal merekam! Gunakan tautan HTTPS resmi."));
+                .catch(err => alert("Gagal merekam! Pastikan menggunakan tautan HTTPS resmi."));
             } else {
                 alert("Browser belum mendukung perekam suara.");
             }
@@ -525,7 +535,7 @@
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
             sedangMerekam = false;
-            elRecordIndicator.style.display = 'none';
+            elRecordIndicator.style.display = 'none'; // Menyembunyikan kembali tombol stop merah
         }
     }
 
