@@ -9,7 +9,7 @@
             background-color: #1a252f;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0; /* Dibuat 0 agar nempel ke tepi layar HP */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -17,15 +17,12 @@
             justify-content: center;
         }
 
-        /* Kontainer Utama Buku */
+        /* Kontainer Utama Buku - FULL PAGE KIRI KANAN */
         .book-container {
             width: 100%;
             max-width: 440px;
-            height: 680px; 
+            height: 100vh; /* Menggunakan tinggi penuh layar */
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            overflow: hidden;
             display: flex;
             flex-direction: column;
             position: relative;
@@ -54,20 +51,7 @@
             cursor: pointer;
         }
 
-        /* Kotak Pencarian */
-        .search-box {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #7f8c8d;
-            background-color: #ffffff;
-            color: #333;
-            font-size: 14px;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        /* Status Rekaman */
+        /* Status Perekaman Suara */
         .record-status {
             font-weight: bold;
             color: #e74c3c;
@@ -113,23 +97,24 @@
             z-index: 5;
         }
 
-        /* Area Catatan dengan ContentEditable */
+        /* AREA TEKS PENUH - MENGHAPUS BINGKAI DAN MARGIN KIRI KANAN */
         .text-work-space {
-            padding: 15px;
+            padding: 20px; /* Jarak ketikan bagian dalam agar nyaman dibaca */
             background-color: #ffffff;
-            border-top: 1px solid #ddd;
+            border: none;
+            margin: 0;
             width: 100%;
             height: 100%;
             box-sizing: border-box;
             color: #333;
-            font-size: 15px;
+            font-size: 16px;
             line-height: 1.6;
             overflow-y: auto;
             outline: none;
             flex-grow: 1;
         }
 
-        /* GAYA HYPERLINK PENANDA UTAMA */
+        /* GAYA HYPERLINK PENANDA */
         .hyperlink-bookmark {
             color: #0066cc;
             text-decoration: underline;
@@ -140,7 +125,7 @@
             border-radius: 3px;
         }
 
-        /* TOMBOL MELAYANG OTOMATIS SAAT BLOK TEKS */
+        /* TOMBOL MELAYANG */
         .floating-menu-btn {
             position: absolute;
             display: none;
@@ -193,11 +178,12 @@
         <!-- TOMBOL POP-UP MELAYANG KHUSUS PENANDA -->
         <button id="floating-btn" class="floating-menu-btn" onclick="buatPenandaDariBlokTeks()">📌 Buat Penanda</button>
 
-        <!-- MENU UTAMA & DROPDOWN RIWAYAT DI BAWAHNYA -->
+        <!-- MENU UTAMA DAN DROPDOWN RIWAYAT DI BAWAHNYA -->
         <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
+                <option value="aksi-cari">🔍 Jalankan Pencarian Kata Kunci Catatan</option>
                 <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp</option>
                 <option value="aksi-upload-img">🖼️ Upload Gambar Baru</option>
                 <option value="aksi-upload-vid">🎥 Upload Video Baru</option>
@@ -206,13 +192,10 @@
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
             </select>
 
-            <!-- DROPDOWN DAFTAR RIWAYAT DI BAWAH PENANDA -->
+            <!-- 2 DAN 3: DROPDOWN DAFTAR RIWAYAT SEKARANG BERADA DI BAWAH PENANDA -->
             <select class="dropdown-select" id="dropdown-riwayat" onchange="lompatKeRiwayatPenanda()" style="background-color: #34495e; border-color: #2c3e50;">
                 <option value="default">📂 -- DAFTAR RIWAYAT PENANDA TEKS --</option>
             </select>
-
-            <!-- Kolom Input Pencarian -->
-            <input type="text" id="search-input" class="search-box" placeholder="🔍 Cari kata kunci catatan di buku ini..." oninput="cariTeksBuku()">
         </div>
 
         <!-- PANEL RADIO BUTTON (Anak Penanda) -->
@@ -231,17 +214,17 @@
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
         </div>
 
-        <!-- AREA KETIK TEKS -->
-        <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Ketik kalimat catatan di sini..." onmouseup="periksaSeleksiTeks()" onkeyup="periksaSeleksiTeks()" ondblclick="pemicuKlikAreaTeks(event)"></div>
+        <!-- 1: AREA KETIK TEKS MELEBAR FULL PAGE DAN SUDAH DIKOSONGKAN TULISANNYA -->
+        <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Silakan ketik catatan lembar baru Anda di sini..." onmouseup="periksaSeleksiTeks()" onkeyup="periksaSeleksiTeks()" ondblclick="pemicuKlikAreaTeks(event)"></div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 1</div>
     </div>
 
 <script>
-    // Membuka file utama B.png pertama kali
+    // PERBAIKAN: Isi teks di halaman utama pertama B.png sekarang sudah kosong bersih
     let databaseBuku = [
-        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "Ini catatan lembar B.png. Tulis kalimat di sini, lalu blok kalimat Anda menggunakan jari/mouse. Tombol hijau melayang akan muncul otomatis untuk membuat hyperlink penanda." }
+        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" }
     ];
 
     let riwayatPenanda = [];
@@ -258,7 +241,6 @@
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
     const elRadioContainer = document.getElementById('radio-container');
-    const elSearchInput = document.getElementById('search-input');
     const elFloatingBtn = document.getElementById('floating-btn');
 
     function muatHalaman(indeks) {
@@ -397,11 +379,17 @@
         muatHalaman(indeksAktif);
     }
 
+    // PENCARIAN DIUBAH MENJADI MODEL PROMPT POP-UP AGAR TIDAK MEMENUHI NAVIGASI
     function cariTeksBuku() {
-        const kataKunci = elSearchInput.value.toLowerCase().trim();
-        if (!kataKunci) return;
-        const indeksDitemukan = databaseBuku.findIndex(item => item.teks.toLowerCase().includes(kataKunci));
-        if (indeksDitemukan !== -1) { muatHalaman(indeksDitemukan); }
+        const kataKunci = prompt("Masukkan kata kunci catatan yang ingin dicari:");
+        if (!kataKunci || !kataKunci.trim()) return;
+        
+        const indeksDitemukan = databaseBuku.findIndex(item => item.teks.toLowerCase().includes(kataKunci.toLowerCase().trim()));
+        if (indeksDitemukan !== -1) { 
+            muatHalaman(indeksDitemukan); 
+        } else {
+            alert("Kata kunci tidak ditemukan di catatan halaman manapun.");
+        }
     }
 
     function eksekusiPilihanMenu() {
@@ -411,9 +399,13 @@
         if (nilaiPilihan === 'aksi-tambah') {
             databaseBuku.push({
                 type: "text-only", src: "",
-                teks: `Ini lembar halaman baru ke-${databaseBuku.length + 1}.`
+                teks: "" /* Otomatis kosong saat membuat halaman baru */
             });
             muatHalaman(databaseBuku.length - 1);
+            elMenu.value = 'default';
+        }
+        else if (nilaiPilihan === 'aksi-cari') {
+            cariTeksBuku();
             elMenu.value = 'default';
         }
         else if (nilaiPilihan === 'aksi-wa') {
@@ -448,8 +440,8 @@
     }
 
     function handleFileSelected(input, type) {
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
+        if (input.files && input.files) {
+            const file = input.files;
             const fileURL = URL.createObjectURL(file);
             databaseBuku[indeksAktif] = { type: type, src: fileURL, teks: elTextField.innerHTML };
             muatHalaman(indeksAktif);
