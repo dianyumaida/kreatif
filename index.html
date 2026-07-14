@@ -29,13 +29,13 @@
             flex-direction: column;
         }
 
-        /* Area Menu Navigasi Atas (Gaya Kalkulator Multi) */
+        /* Area Menu Navigasi Atas */
         .nav-header {
             background-color: #2c3e50;
             padding: 12px;
             border-bottom: 2px solid #34495e;
         }
-        
+
         .dropdown-select {
             width: 100%;
             padding: 12px;
@@ -48,51 +48,6 @@
             outline: none;
             cursor: pointer;
             text-align: center;
-        }
-
-        /* Area Gambar Utama (Double Click Murni HTML Dasar) */
-        .content-area {
-            width: 100%;
-            height: 320px; 
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-color: #f5f5f5;
-            cursor: pointer;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-sizing: border-box;
-        }
-
-        video, audio {
-            width: 90%;
-            max-height: 90%;
-        }
-
-        /* AREA TEMPAT MENGETIK CATATAN (Selalu Terbuka & Bebas Diketik) */
-        .text-work-space {
-            padding: 15px;
-            background-color: #fdfcf7;
-            border-top: 1px solid #ddd;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .book-textarea {
-            width: 100%;
-            height: 140px;
-            padding: 12px;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            resize: none;
-            font-size: 15px;
-            line-height: 1.6;
-            box-sizing: border-box;
-            background-color: #ffffff;
-            color: #333;
-            outline: none;
         }
 
         /* Status Rekaman */
@@ -118,9 +73,55 @@
             color: #7f8c8d;
         }
 
+        /* Area Gambar Utama */
+        .content-area {
+            width: 100%;
+            height: 320px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #f5f5f5;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        video, audio {
+            width: 90%;
+            max-height: 90%;
+        }
+
         /* Sembunyikan Input Bawaan */
         input[type="file"] {
             display: none;
+        }
+
+        /* Area Tempat Mengetik Catatan */
+        .text-work-space {
+            padding: 15px;
+            background-color: #fdfcf7;
+            border-top: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .book-textarea {
+            width: 100%;
+            height: 140px;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 8px;
+            margin: 0;
+            resize: none;
+            font-size: 15px;
+            line-height: 1.6;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: #333;
+            outline: none;
         }
     </style>
 </head>
@@ -130,13 +131,13 @@
         <!-- MENU DROPDOWN KELOLA UTAMA -->
         <div class="nav-header">
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
-                <option value="default">⚙️ -- MENU KELOLA BUKU --</option>
+                <option value="default">-- MENU KELOLA BUKU --</option>
                 <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp</option>
                 <option value="aksi-upload-img">🖼️ Upload Gambar Baru</option>
-                <option value="aksi-upload-vid">📹 Upload Video Baru</option>
+                <option value="aksi-upload-vid">🎥 Upload Video Baru</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
-                <option value="aksi-rekam">🎙️ Mulai / Stop Rekam Suara</option>
-                <option value="aksi-hapus">🗑️ Hapus Lembar Ini</option>
+                <option value="aksi-rekan">🎙️ Mulai / Stop Rekam Suara</option>
+                <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
             </select>
         </div>
 
@@ -146,119 +147,141 @@
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
         <!-- AREA GAMBAR: KLIK DUA KALI (ONDBLCLICK) UNTUK MASUK KE LEMBAR BERIKUTNYA -->
-        <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar()">
+        <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar(event)">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
-            <div id="media-placeholder" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;"></div>
+            <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;"></div>
         </div>
 
         <!-- AREA KETIK TEKS: BISA LANGSUNG DIKETIK / DIEDIT KAPAN SAJA -->
         <div class="text-work-space">
-            <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar buku di sini..."></textarea>
+            <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar baru di sini..."></textarea>
         </div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 3</div>
     </div>
 
-    <script>
-        // Hancurkan total memori cache lama agar tidak mengunci browser Anda lagi
-        localStorage.clear();
+<script>
+    // Hancurkan total memori cache layar agar tidak mengunci browser Anda lagi
+    localStorage.clear();
 
-        // Struktur data murni yang langsung membaca folder utama GitHub Anda
-        let databaseBuku = [
-            { type: "image", src: "./File/Gambar/Buku/A.png", teks: "" }, 
-            { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" }, 
-            { type: "image", src: "./File/Gambar/Buku/C.png", teks: "" }  
-        ];
+    // Struktur data murni yang langsung membaca folder utama Github Anda
+    let databaseBuku = [
+        { type: "image", src: "./File/Gambar/Buku/A.png", teks: "" },
+        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" },
+        { type: "image", src: "./File/Gambar/Buku/C.png", teks: "" }
+    ];
 
-        let indeksAktif = 0;
-        let mediaRecorder;
-        let audioChunks = [];
-        let sedangMerekam = false;
+    let indeksAktif = 0;
+    let mediaRecorder;
+    let audioChunks = [];
+    let sedangMerekam = false;
 
-        const elContent = document.getElementById('book-content');
-        const elPlaceholder = document.getElementById('media-placeholder');
-        const elMenu = document.getElementById('menu-navigasi');
-        const elIndikator = document.getElementById('page-indicator');
-        const elTextField = document.getElementById('text-input-field');
-        const elRecordIndicator = document.getElementById('record-indicator');
+    // Menghubungkan variabel JavaScript ke ID HTML yang sesuai
+    const elContent = document.getElementById('book-content');
+    const elPlaceholder = document.getElementById('media-placeholder');
+    const elMenu = document.getElementById('menu-navigasi');
+    const elIndikator = document.getElementById('page-indicator');
+    const elTextField = document.getElementById('text-input-field');
+    const elRecordIndicator = document.getElementById('record-indicator');
 
-        // Fungsi memuat konten lembar halaman
-        function muatHalaman(indeks) {
-            indeksAktif = indeks;
-            const data = databaseBuku[indeksAktif];
-            elPlaceholder.innerHTML = '';
-            elContent.style.backgroundImage = 'none';
+    // Fungsi memuat konten lembar halaman (Memperbaiki tanda kutip Backtick `)
+    function muatHalaman(indeks) {
+        indeksAktif = indeks;
+        const data = databaseBuku[indeksAktif];
+        elPlaceholder.innerHTML = '';
+        elContent.style.backgroundImage = 'none';
 
-            if (data.type === 'image') {
-                elContent.style.backgroundImage = `url('${data.src}')`;
-            } else if (data.type === 'video') {
-                elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
-            } else if (data.type === 'audio') {
-                elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
-            }
-
-            // Memasukkan teks catatan lembar aktif ke kolom agar bisa diketik langsung
-            elTextField.value = data.teks || "";
-            elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
+        if (data.type === 'image') {
+            elContent.style.backgroundImage = `url('${data.src}')`;
+        } else if (data.type === 'video') {
+            elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
+        } else if (data.type === 'audio') {
+            elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
         }
 
-        // Menyimpan ketikan teks secara langsung saat user mengetik
-        elTextField.addEventListener('input', function() {
-            databaseBuku[indeksAktif].teks = elTextField.value;
-        });
+        // Memasukkan teks catatan lembar aktif ke kolom agar bisa diketik langsung
+        elTextField.value = data.teks || "";
+        elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
+    }
 
-        // FUNGSI UTAMA: KLIK 2x (DOUBLE CLICK) UNTUK MASUK KE PAGE BERIKUTNYA
-        function klikDuaKaliMajuLembar() {
-            if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
+    // Menyimpan ketikan teks secara langsung saat user mengetik
+    elTextField.addEventListener('input', function() {
+        databaseBuku[indeksAktif].teks = elTextField.value;
+    });
 
-            if (indeksAktif < databaseBuku.length - 1) {
-                indeksAktif++;
-            } else {
-                indeksAktif = 0; // Berputar kembali ke cover depan A.png
-            }
-            muatHalaman(indeksAktif);
+    // FUNGSI UTAMA: KLIK 2x (DOUBLE CLICK) UNTUK MASUK KE PAGE BERIKUTNYA
+    function klikDuaKaliMajuLembar(event) {
+        if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
+
+        if (indeksAktif < databaseBuku.length - 1) {
+            indeksAktif++;
+        } else {
+            indeksAktif = 0; // Berputar kembali ke cover depan A.png
         }
+        muatHalaman(indeksAktif);
+    }
 
-        // KONTROL UTAMA MENU DROPDOWN
-        function eksekusiPilihanMenu() {
-            const nilaiPilihan = elMenu.value;
+    // KONTROL UTAMA MENU DROPDOWN
+    function eksekusiPilihanMenu() {
+        const nilaiPilihan = elMenu.value;
 
-            if (nilaiPilihan === 'aksi-wa') {
-                const teksKirim = encodeURIComponent(`*Catatan Lembar ${indeksAktif + 1}:*\n${elTextField.value}`);
-                window.open(`https://whatsapp.com{teksKirim}`, '_blank');
+        if (nilaiPilihan === 'aksi-wa') {
+            const teksKirim = encodeURIComponent(`Catatan Lembar ${indeksAktif + 1}:\n${elTextField.value}`);
+            window.open(`https://whatsapp.com{teksKirim}`, '_blank');
+            elMenu.value = 'default';
+        } 
+        else if (nilaiPilihan === 'aksi-upload-img') {
+            document.getElementById('file-image').click();
+            elMenu.value = 'default';
+        } 
+        else if (nilaiPilihan === 'aksi-upload-vid') {
+            document.getElementById('file-video').click();
+            elMenu.value = 'default';
+        } 
+        else if (nilaiPilihan === 'aksi-upload-mp3') {
+            document.getElementById('file-audio').click();
+            elMenu.value = 'default';
+        } 
+        else if (nilaiPilihan === 'aksi-rekan') {
+            toggleRekamSuara();
+            elMenu.value = 'default';
+        } 
+        else if (nilaiPilihan === 'aksi-hapus') {
+            if (databaseBuku.length <= 1) {
+                alert("Gagal! Minimal harus menyisakan 1 halaman cover.");
                 elMenu.value = 'default';
-            } 
-            else if (nilaiPilihan === 'aksi-upload-img') {
-                document.getElementById('file-image').click();
-                elMenu.value = 'default';
-            } 
-            else if (nilaiPilihan === 'aksi-upload-vid') {
-                document.getElementById('file-video').click();
-                elMenu.value = 'default';
-            } 
-            else if (nilaiPilihan === 'aksi-upload-mp3') {
-                document.getElementById('file-audio').click();
-                elMenu.value = 'default';
-            } 
-            else if (nilaiPilihan === 'aksi-rekam') {
-                toggleRekamSuara();
-                elMenu.value = 'default';
+                return;
             }
-            else if (nilaiPilihan === 'aksi-hapus') {
-                if (databaseBuku.length <= 1) {
-                    alert("Gagal! Minimal harus menyisakan 1 halaman cover.");
-                    elMenu.value = 'default';
-                    return;
+
+            if (confirm("Hapus lembar halaman ini?")) {
+                databaseBuku.splice(indeksAktif, 1);
+                if (indeksAktif >= databaseBuku.length) {
+                    indeksAktif = databaseBuku.length - 1;
                 }
-                if (confirm("Hapus lembar halaman ini?")) {
-                    databaseBuku.splice(indeksAktif, 1);
-                    if (indeksAktif >= databaseBuku.length) indeksAktif = databaseBuku.length - 1;
-                    muatHalaman(indeksAktif);
-                }
-                elMenu.value = 'default';
+                muatHalaman(indeksAktif);
             }
+            elMenu.value = 'default';
         }
+    }
+
+    // Fungsi pelengkap untuk memuat halaman pertama saat aplikasi dibuka pertama kali
+    muatHalaman(0);
+
+    // Catatan Tambahan: Pastikan Anda menambahkan fungsi 'handleFileSelected' 
+    // dan 'toggleRekamSuara' di bawah ini jika ingin fitur upload dan rekamannya aktif!
+    function handleFileSelected(input, type) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+    function toggleRekamSuara() {
+        sedangMerekam = !sedangMerekam;
+        if (sedangMerekam) {
+            elRecordIndicator.style.display = 'block';
+        } else {
+            elRecordIndicator.style.display = 'none';
+        }
+    }
+</script>
 
 </body>
-    </html>
+</html>
