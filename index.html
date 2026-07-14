@@ -206,8 +206,10 @@
                 <option value="aksi-upload-vid">📹 Upload Video Baru (Letak Kursor)</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
                 <option value="aksi-rekam">🎙️ Mulai Perekaman Suara</option>
+                <option value="aksi-penanda">🔗 Buat Hyperlink Penanda</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
-                <optgroup id="grup-riwayat-penanda" label="📌 Riwayat Penanda"></optgroup>
+                <!-- DIGANTI MENJADI DAFTAR HYPERLINK PENANDA -->
+                <optgroup id="grup-daftar-hyperlink" label="📌 Daftar Hyperlink Penanda"></optgroup>
             </select>
             <details class="dropdown-anak level-2">
                 <summary style="color: white; cursor: pointer; font-size: 12px;">
@@ -253,7 +255,7 @@
 
 <script>
     let databaseBuku = [{ teks: "" }];
-    let riwayatPenanda = [];
+    let daftarHyperlink = [];
     let indeksAktif = 0;
     let elemenMediaTerpilih = null;
     let mediaRecorder;
@@ -262,7 +264,7 @@
     let streamSuara = null;
 
     const elMenu = document.getElementById('menu-navigasi');
-    const elGrupRiwayat = document.getElementById('grup-riwayat-penanda');
+    const elGrupHyperlink = document.getElementById('grup-daftar-hyperlink');
     const elIndikator = document.getElementById('page-indicator');
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
@@ -349,24 +351,24 @@
             range.insertNode(aLink);
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            const dataRiwayat = { idHalaman: indeksAktif, linkId: penandaId, isiTeks: kataKunciSeleksi };
-            riwayatPenanda.push(dataRiwayat);
+            const dataHyperlink = { idHalaman: indeksAktif, linkId: penandaId, isiTeks: kataKunciSeleksi };
+            daftarHyperlink.push(dataHyperlink);
 
             const opsiBaru = document.createElement('option');
-            opsiBaru.value = "riwayat-" + (riwayatPenanda.length - 1);
-            opsiBaru.text = `📑 [Hlm ${indeksAktif + 1}] "${kataKunciSeleksi.substring(0, 18)}..."`;
-            elGrupRiwayat.appendChild(opsiBaru);
+            opsiBaru.value = "hyperlink-" + (daftarHyperlink.length - 1);
+            opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${kataKunciSeleksi.substring(0, 18)}..."`;
+            elGrupHyperlink.appendChild(opsiBaru);
 
             seleksi.removeAllRanges();
             kataKunciSeleksi = "";
             alert("Sukses! Kalimat dijadikan hyperlink penanda.");
         }
     }
-    function lompatKeRiwayatPenanda() {
+    function lompatKeDaftarHyperlink() {
         const nilaiPilihan = elMenu.value;
-        if (!nilaiPilihan.startsWith("riwayat-")) return;
-        const indeksRiwayat = parseInt(nilaiPilihan.replace("riwayat-", ""));
-        const target = riwayatPenanda[indeksRiwayat];
+        if (!nilaiPilihan.startsWith("hyperlink-")) return;
+        const indeksLink = parseInt(nilaiPilihan.replace("hyperlink-", ""));
+        const target = daftarHyperlink[indeksLink];
         muatHalaman(target.idHalaman);
         setTimeout(() => {
             const elemenLink = elTextField.querySelector(`[data-link-id="${target.linkId}"]`);
@@ -413,7 +415,7 @@
     function eksekusiPilihanMenu() {
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
-        if (nilaiPilihan.startsWith("riwayat-")) { lompatKeRiwayatPenanda(); return; }
+        if (nilaiPilihan.startsWith("hyperlink-")) { lompatKeDaftarHyperlink(); return; }
 
         if (nilaiPilihan === 'aksi-tambah') {
             databaseBuku.push({ teks: "" });
@@ -437,6 +439,7 @@
         else if (nilaiPilihan === 'aksi-upload-vid') { document.getElementById('file-video').click(); elMenu.value = 'default'; }
         else if (nilaiPilihan === 'aksi-upload-mp3') { document.getElementById('file-audio').click(); elMenu.value = 'default'; }
         else if (nilaiPilihan === 'aksi-rekam') { toggleRekamSuara(); elMenu.value = 'default'; }
+        else if (nilaiPilihan === 'aksi-penanda') { buatPenandaDariBlokTeks(); elMenu.value = 'default'; }
         else if (nilaiPilihan === 'aksi-hapus') {
             if (databaseBuku.length <= 1) { alert("Gagal! Minimal harus ada 1 halaman."); elMenu.value = 'default'; return; }
             if (confirm("Hapus lembar halaman ini?")) {
@@ -449,18 +452,25 @@
     }
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const fileObj = input.files[0];
-            const selection = window.getSelection();
-            let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : document.createRange();
-            if (selection.rangeCount === 0) {
+            const fileObj = input.files;
+            
+            // PERBAIKAN: Fokuskan kursor ke dalam halaman utama jika tidak ada seleksi aktif
+            let selection = window.getSelection();
+            let range;
+            if (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
+                range = selection.getRangeAt(0);
+            } else {
+                range = document.createRange();
                 range.selectNodeContents(elTextField);
-                range.collapse(false);
+                range.collapse(false); // Letakkan di paling akhir halaman
             }
 
             const mediaBlock = document.createElement('div');
             mediaBlock.className = 'embedded-media-block';
             mediaBlock.contentEditable = 'false';
-            const mediaURL = URL.createObjectURL(fileObj);
+            
+            // PERBAIKAN FATAL: Membaca berkas pertama [0] dari file picker agar tidak error
+            const mediaURL = URL.createObjectURL(fileObj[0]);
 
             if (type === 'image') {
                 const img = document.createElement('img'); img.src = mediaURL;
@@ -509,11 +519,18 @@
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                     
                     mediaRecorder.onstop = () => {
-                        // FIX: Menggunakan audio/webm standar browser agar aman diputar kembali
                         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         const audioURL = URL.createObjectURL(audioBlob);
-                        const selection = window.getSelection();
-                        let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : document.createRange();
+                        
+                        let selection = window.getSelection();
+                        let range;
+                        if (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
+                            range = selection.getRangeAt(0);
+                        } else {
+                            range = document.createRange();
+                            range.selectNodeContents(elTextField);
+                            range.collapse(false);
+                        }
                         
                         const mediaBlock = document.createElement('div');
                         mediaBlock.className = 'embedded-media-block';
