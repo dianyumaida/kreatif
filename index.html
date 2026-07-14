@@ -190,6 +190,10 @@
             cursor: pointer;
         }
 
+        .list-akhir li.terpilih {
+            background-color: #27ae60 !important;
+        }
+
         input[type="file"] { display: none; }
     </style>
 </head>
@@ -197,7 +201,7 @@
 
     <div class="book-container">
         <div class="nav-header">
-            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target Penanda: Sudut: sin</h3>
+            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Sudut: sin</h3>
             
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
@@ -210,16 +214,29 @@
                 <option value="aksi-rekam">🎙️ Mulai Perekaman Suara</option>
                 <option value="aksi-penanda">🔗 Buat Hyperlink Penanda</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
-                
-                <optgroup id="grup-target-kategori" label="🎯 PILIH WADAH PENANDA AKTIF">
-                    <option value="set-kategori-sin">📐 Wadah Aktif: Sudut: sin</option>
-                    <option value="set-kategori-cos">📐 Wadah Aktif: Sudut: cos</option>
-                    <option value="set-kategori-tan">📐 Wadah Aktif: Sudut: tan</option>
-                </optgroup>
-
-                <!-- DISATUKAN DALAM SATU FOLDER DROPDOWN UTAMA KELOLA PENANDA -->
-                <optgroup id="grup-folder-penanda" label="📂 DAFTAR HYPERLINK PENANDA"></optgroup>
             </select>
+            <!-- KEMBALI KE STRUKTUR ASLI GAMBAR PERTAMA ANDA -->
+            <details class="dropdown-anak level-2" id="menu-folder-penanda">
+                <summary style="color: white; cursor: pointer; font-size: 12px; font-weight: bold; padding: 4px 0; outline: none; list-style: none;">
+                    <span>➡ DAFTAR Hyperlink PENANDA... --</span>
+                    <span class="panah-anak"></span>
+                </summary>
+                
+                <ul class="list-akhir" id="daftar-link-penanda-ul" style="background: #1a252f; color: white; padding: 5px; list-style: none; margin: 5px 0 0 0; max-height: 150px; overflow-y: auto;">
+                    <li onclick="pilihOpsiAkhir('Sudut: sin', this, event)" style="padding: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;" class="terpilih">
+                        <input type="radio" name="pilihan_kalkulator" value="1" checked>
+                        <span>Sudut: sin</span>
+                    </li>
+                    <li onclick="pilihOpsiAkhir('Sudut: cos', this, event)" style="padding: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="pilihan_kalkulator" value="2">
+                        <span>Sudut: cos</span>
+                    </li>
+                    <li onclick="pilihOpsiAkhir('Sudut: tan', this, event)" style="padding: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="pilihan_kalkulator" value="3">
+                        <span>Sudut: tan</span>
+                    </li>
+                </ul>
+            </details>
         </div>
         
         <!-- BAR TOMBOL KONTROL UKURAN MEDIA YANG DIKLIK -->
@@ -255,13 +272,13 @@
     let sedangMerekam = false;
     let streamSuara = null;
 
-    // Struktur Data Kategori Manajemen Link
-    let kategoriMaster = {
-        "sin": { nama: "Sudut: sin", listLink: [] },
-        "cos": { nama: "Sudut: cos", listLink: [] },
-        "tan": { nama: "Sudut: tan", listLink: [] }
+    // Menyimpan data hyperlink berdasarkan kategori wadah aktif
+    let dataPenandaKategori = {
+        "Sudut: sin": [],
+        "Sudut: cos": [],
+        "Sudut: tan": []
     };
-    let kategoriTerpilihSaatIni = "sin"; 
+    let kategoriWadahAktif = "Sudut: sin"; // Sesuai pilihan awal default
 
     const elMenu = document.getElementById('menu-navigasi');
     const elIndikator = document.getElementById('page-indicator');
@@ -270,45 +287,30 @@
     const elRadioContainer = document.getElementById('radio-container');
     const elMediaTools = document.getElementById('media-tools');
     const textHeaderUtama = document.getElementById('textHeaderUtama');
-    const elFolderPenanda = document.getElementById('grup-folder-penanda');
-
-    // Menggabungkan seluruh list kategori dan sub-link ke dalam satu folder grup menu utama
-    function updateDropdownPenandaTunggal() {
-        if (!elFolderPenanda) return;
-        elFolderPenanda.innerHTML = "";
-
-        let totalLink = 0;
-
-        Object.keys(kategoriMaster).forEach(key => {
-            const itemKat = kategoriMaster[key];
-            
-            // Buat pembatas judul kategori sebagai option non-aktif (sebagai label penanda sub folder)
-            const optLabelKategori = document.createElement('option');
-            optLabelKategori.disabled = true;
-            optLabelKategori.style.fontWeight = "bold";
-            optLabelKategori.style.color = "#2ecc71";
-            optLabelKategori.text = `--- ${itemKat.nama.toUpperCase()} ---`;
-            elFolderPenanda.appendChild(optLabelKategori);
-
-            if (itemKat.listLink.length === 0) {
-                const optKosong = document.createElement('option');
-                optKosong.disabled = true;
-                optKosong.text = "    (Belum ada data penanda)";
-                elFolderPenanda.appendChild(optKosong);
-            } else {
-                itemKat.listLink.forEach((item, index) => {
-                    const opt = document.createElement('option');
-                    opt.value = `lompat-${key}-${index}`;
-                    opt.text = `    🔗 [Hlm ${item.idHalaman + 1}] "${item.isiTeks.substring(0, 14)}..."`;
-                    elFolderPenanda.appendChild(opt);
-                    totalLink++;
-                });
-            }
+    const elFolderPenanda = document.getElementById('menu-folder-penanda');
+    const elDaftarUl = document.getElementById('daftar-link-penanda-ul');
+    // Mengembalikan fungsi gabung nama tanpa spasi agar tidak crash
+    function pilihOpsiAkhir(namaTerpilih, elemenAktif, event) {
+        event.stopPropagation();
+        
+        document.querySelectorAll('.list-akhir li').forEach(li => {
+            li.classList.remove('terpilih');
         });
 
-        // Update label folder utama agar menampilkan info jumlah total data penanda aktif
-        elFolderPenanda.label = `📂 DAFTAR HYPERLINK PENANDA (${totalLink})`;
+        elemenAktif.classList.add('terpilih');
+
+        const radioAsli = elemenAktif.querySelector('input[type="radio"]');
+        if (radioAsli) {
+            radioAsli.checked = true;
+        }
+
+        kategoriWadahAktif = namaTerpilih;
+        textHeaderUtama.innerText = namaTerpilih;
+
+        // Tutup total dropdown folder details setelah memilih wadah
+        elFolderPenanda.removeAttribute('open');
     }
+
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
@@ -360,10 +362,9 @@
     function periksaSeleksiTeks() {
         kataKunciSeleksi = window.getSelection().toString().trim();
     }
-
     function buatPenandaDariBlokTeks() {
         if (!kataKunciSeleksi) {
-            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu sebelum memilih menu ini.");
+            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu.");
             return;
         }
         const seleksi = window.getSelection();
@@ -378,20 +379,65 @@
             range.insertNode(aLink);
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            // Masukkan data ke sub list kategori aktif saat ini
-            kategoriMaster[kategoriTerpilihSaatIni].listLink.push({
+            // Masukkan data ke kategori wadah yang aktif (sin / cos / tan)
+            dataPenandaKategori[kategoriWadahAktif].push({
                 idHalaman: indeksAktif,
                 linkId: penandaId,
                 isiTeks: kataKunciSeleksi
             });
 
-            updateDropdownPenandaTunggal();
+            // Buat elemen visual li baru di bawah wadah penanda yang sesuai
+            renderUlangListPenandaDinamis();
 
             seleksi.removeAllRanges();
             kataKunciSeleksi = "";
-            alert(`Sukses! Dimasukkan ke Folder Penanda Kelompok Kategori: ${kategoriMaster[kategoriTerpilihSaatIni].nama}`);
+            alert(`Sukses! Kalimat dimasukkan ke kelompok wadah: ${kategoriWadahAktif}`);
         }
     }
+
+    // Merender ulang isi list ul agar sub-link tersusun rapi di bawah sin/cos/tan masing-masing
+    function renderUlangListPenandaDinamis() {
+        elDaftarUl.innerHTML = "";
+        
+        Object.keys(dataPenandaKategori).forEach(key => {
+            const isChecked = (key === kategoriWadahAktif) ? "checked" : "";
+            const isClass = (key === kategoriWadahAktif) ? 'class="terpilih"' : '';
+            
+            const liKategori = document.createElement('li');
+            liKategori.innerHTML = `<input type="radio" name="pilihan_kalkulator" ${isChecked}> <span>${key}</span>`;
+            liKategori.style.padding = "6px";
+            liKategori.style.cursor = "pointer";
+            liKategori.style.fontWeight = "bold";
+            liKategori.style.display = "flex";
+            liKategori.style.alignItems = "center";
+            liKategori.style.gap = "8px";
+            if (key === kategoriWadahAktif) liKategori.classList.add('terpilih');
+            
+            liKategori.onclick = function(event) {
+                pilihOpsiAkhir(key, liKategori, event);
+                renderUlangListPenandaDinamis();
+            };
+            elDaftarUl.appendChild(liKategori);
+
+            // Render anak/sub-link di bawahnya
+            dataPenandaKategori[key].forEach(linkItem => {
+                const liLink = document.createElement('li');
+                liLink.style.padding = "4px 4px 4px 25px";
+                liLink.style.fontSize = "11px";
+                liLink.style.color = "#bdc3c7";
+                liLink.style.cursor = "pointer";
+                liLink.innerText = `🔗 [Hlm ${linkItem.idHalaman + 1}] "${linkItem.isiTeks.substring(0, 14)}..."`;
+                
+                liLink.onclick = function(event) {
+                    event.stopPropagation();
+                    lompatKeTargetHyperlink(linkItem.idHalaman, linkItem.linkId);
+                    elFolderPenanda.removeAttribute('open');
+                };
+                elDaftarUl.appendChild(liLink);
+            });
+        });
+    }
+
     function lompatKeTargetHyperlink(idHalaman, linkId) {
         muatHalaman(idHalaman);
         setTimeout(() => {
@@ -434,26 +480,9 @@
         const indeksDitemukan = databaseBuku.findIndex(item => item.teks.toLowerCase().includes(kataKunci.toLowerCase()));
         if (indeksDitemukan !== -1) { muatHalaman(indeksDitemukan); } else { alert("Kata kunci tidak ditemukan."); }
     }
-
     function eksekusiPilihanMenu() {
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
-
-        // Aksi pengatur penentu wadah kategori aktif
-        if (nilaiPilihan === 'set-kategori-sin') { kategoriTerpilihSaatIni = "sin"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.sin.nama; elMenu.value = 'default'; return; }
-        if (nilaiPilihan === 'set-kategori-cos') { kategoriTerpilihSaatIni = "cos"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.cos.nama; elMenu.value = 'default'; return; }
-        if (nilaiPilihan === 'set-kategori-tan') { kategoriTerpilihSaatIni = "tan"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.tan.nama; elMenu.value = 'default'; return; }
-
-        // Aksi deteksi melompat klik target sub link di dalam folder grup select utama
-        if (nilaiPilihan.startsWith("lompat-")) {
-            const parts = nilaiPilihan.split("-");
-            const keyKat = parts[1];
-            const idxLink = parseInt(parts[2]);
-            const target = kategoriMaster[keyKat].listLink[idxLink];
-            lompatKeTargetHyperlink(target.idHalaman, target.linkId);
-            elMenu.value = 'default';
-            return;
-        }
 
         if (nilaiPilihan === 'aksi-tambah') {
             databaseBuku.push({ teks: "" });
@@ -488,9 +517,10 @@
             elMenu.value = 'default';
         }
     }
+
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const fileObj = input.files[0]; 
+            const fileObj = input.files[0]; // FIX: Mengambil file pertama agar gambar/video muncul rapi
             
             let selection = window.getSelection();
             let range;
@@ -557,15 +587,12 @@
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                     
                     mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); // FIX: format didukung browser
                         const audioURL = URL.createObjectURL(audioBlob);
                         
                         let selection = window.getSelection();
-                        let range;
-                        if (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
-                            range = selection.getRangeAt(0);
-                        } else {
-                            range = document.createRange();
+                        let range = (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) ? selection.getRangeAt(0) : document.createRange();
+                        if (selection.rangeCount === 0 || !elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
                             range.selectNodeContents(elTextField);
                             range.collapse(false);
                         }
@@ -585,9 +612,10 @@
                     mediaRecorder.start();
                     sedangMerekam = true;
                     elRecordIndicator.style.display = 'block';
-                }).catch(err => alert('Gagal merekam! Pastikan akses mikrofon diizinkan.'));
+                }).catch(err => alert('Gagal merekam! Pastikan izin mikrofon diberikan.'));
             }
         } else {
+            // FIX: Tombol melayang merah sekarang berfungsi menghentikan/stop rekaman
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }
@@ -599,8 +627,6 @@
         }
     }
 
-    // Inisialisasi awal struktur folder gabungan tunggal
-    updateDropdownPenandaTunggal();
     muatHalaman(0);
 </script>
 </body>
