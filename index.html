@@ -77,7 +77,7 @@
 
         .media-btn:hover { background-color: #2ecc71; }
         
-        /* Status Perekaman Suara */
+        /* Status Perekaman Suara melayang dengan tombol stop */
         .record-status {
             font-weight: bold;
             color: white;
@@ -87,11 +87,12 @@
             transform: translateX(-50%);
             display: none;
             background: #e74c3c;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 20px;
             z-index: 250;
             cursor: pointer;
             border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             animation: pulse 1s infinite alternate;
         }
 
@@ -189,16 +190,6 @@
             cursor: pointer;
         }
 
-        /* Style list sub-menu dinamis */
-        .list-akhir li.terpilih {
-            background-color: #27ae60 !important;
-        }
-        .sub-link-item {
-            padding-left: 20px !important;
-            font-size: 11px;
-            color: #bdc3c7;
-        }
-
         input[type="file"] { display: none; }
     </style>
 </head>
@@ -206,7 +197,8 @@
 
     <div class="book-container">
         <div class="nav-header">
-            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Sistem Catatan</h3>
+            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target Penanda: Sudut sin</h3>
+            <!-- SATU DROPDOWN UTAMA YANG DIGABUNGKAN -->
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
@@ -218,16 +210,19 @@
                 <option value="aksi-rekam">🎙️ Mulai Perekaman Suara</option>
                 <option value="aksi-penanda">🔗 Buat Hyperlink Penanda</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
+                
+                <!-- GRUP PILIHAN KATEGORI AKTIF -->
+                <optgroup id="grup-target-kategori" label="🎯 PILIH TARGET KATEGORI PENANDA">
+                    <option value="set-kategori-sin">📐 Aktifkan Wadah: Sudut sin</option>
+                    <option value="set-kategori-cos">📐 Aktifkan Wadah: Sudut cos</option>
+                    <option value="set-kategori-tan">📐 Aktifkan Wadah: Sudut tan</option>
+                </optgroup>
+
+                <!-- GRUP DAFTAR SUB-LINK HASIL REKAMAN PENANDA TEKS -->
+                <optgroup id="grup-sub-penanda-sin" label="📂 DAFTAR PENANDA - SUDUT SIN"></optgroup>
+                <optgroup id="grup-sub-penanda-cos" label="📂 DAFTAR PENANDA - SUDUT COS"></optgroup>
+                <optgroup id="grup-sub-penanda-tan" label="📂 DAFTAR PENANDA - SUDUT TAN"></optgroup>
             </select>
-            <!-- DROPDOWN DIBAWAHNYA SEBAGAI STRUKTUR WADAH KATEGORI YANG AKAN DIISI SUB-LINK SECARA DINAMIS -->
-            <details class="dropdown-anak level-2" id="wadah-dropdown-penanda">
-                <summary style="color: white; cursor: pointer; font-size: 12px; font-weight: bold; padding: 4px 0;">
-                    <span>➡ DAFTAR HYPERLINK PENANDA...</span>
-                </summary>
-                <ul class="list-akhir" id="konten-kategori-list" style="background: #1a252f; color: white; padding: 5px; list-style: none; margin: 5px 0 0 0;">
-                    <!-- Diisi otomatis oleh JavaScript (sin, cos, tan beserta sub-item-nya) -->
-                </ul>
-            </details>
         </div>
         
         <!-- BAR TOMBOL KONTROL UKURAN MEDIA YANG DIKLIK -->
@@ -247,7 +242,8 @@
 
         <!-- KANVAS UTAMA TEMPAT MENGETIK & MENYUSUN MEDIA -->
         <div id="text-input-field" class="text-work-space" contenteditable="true" onclick="deteksiKlikMedia(event)" onkeyup="periksaSeleksiTeks()" onmouseup="periksaSeleksiTeks()">
-            <button class="record-status" id="record-indicator" onclick="toggleRekamSuara()">🔴 Merekam... Klik untuk Berhenti</button>
+            <!-- TOMBOL LAYANG DENGAN PERBAIKAN TEKS DAN AKSI STOP JELAS -->
+            <button class="record-status" id="record-indicator" onclick="toggleRekamSuara(event)">🔴 Merekam... Klik di Sini Untuk Stop</button>
         </div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
@@ -263,13 +259,13 @@
     let sedangMerekam = false;
     let streamSuara = null;
 
-    // Data Master Kategori Utama dan Sub-Link hasil penandaan teks
+    // Struktur Data Manajemen Kategori Tunggal di Dropdown
     let kategoriMaster = {
-        "sin": { nama: "Sudut: sin", listLink: [] },
-        "cos": { nama: "Sudut: cos", listLink: [] },
-        "tan": { nama: "Sudut: tan", listLink: [] }
+        "sin": { nama: "Sudut: sin", elGrup: document.getElementById('grup-sub-penanda-sin'), listLink: [] },
+        "cos": { nama: "Sudut: cos", elGrup: document.getElementById('grup-sub-penanda-cos'), listLink: [] },
+        "tan": { nama: "Sudut: tan", elGrup: document.getElementById('grup-sub-penanda-tan'), listLink: [] }
     };
-    let kategoriTerpilihSaatIni = "sin"; // Default kategori penempatan awal
+    let kategoriTerpilihSaatIni = "sin"; // Default wadah aktif penanda baru
 
     const elMenu = document.getElementById('menu-navigasi');
     const elIndikator = document.getElementById('page-indicator');
@@ -278,59 +274,35 @@
     const elRadioContainer = document.getElementById('radio-container');
     const elMediaTools = document.getElementById('media-tools');
     const textHeaderUtama = document.getElementById('textHeaderUtama');
-    const elWadahListKategori = document.getElementById('konten-kategori-list');
 
-    // Fungsi merender list kategori (sin, cos, tan) dan mendeteksi klik penempatan
-    function renderDropdownKategoriDinamis() {
-        elWadahListKategori.innerHTML = "";
-        
+    // Fungsi memperbarui list sub-menu hyperlink langsung di dalam dropdown select tunggal
+    function updateDropdownPenandaTunggal() {
+        // Link elemen dom terbaru setelah page dimuat
+        kategoriMaster.sin.elGrup = document.getElementById('grup-sub-penanda-sin');
+        kategoriMaster.cos.elGrup = document.getElementById('grup-sub-penanda-cos');
+        kategoriMaster.tan.elGrup = document.getElementById('grup-sub-penanda-tan');
+
+        // Bersihkan isi grup sub-penanda lama terlebih dahulu
         Object.keys(kategoriMaster).forEach(key => {
-            const itemKat = kategoriMaster[key];
-            const liKat = document.createElement('li');
-            liKat.style.padding = "6px 5px";
-            liKat.style.cursor = "pointer";
-            liKat.style.fontWeight = "bold";
-            if(key === kategoriTerpilihSaatIni) {
-                liKat.classList.add('terpilih');
-            }
-
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = 'pilihan_kalkulator';
-            radio.value = key;
-            radio.checked = (key === kategoriTerpilihSaatIni);
-            radio.style.marginRight = "8px";
-
-            const spanName = document.createElement('span');
-            spanName.innerText = itemKat.nama;
-
-            liKat.appendChild(radio);
-            liKat.appendChild(spanName);
-            
-            // Klik untuk memindah target penempatan kategori aktif
-            liKat.onclick = function(event) {
-                event.stopPropagation();
-                kategoriTerpilihSaatIni = key;
-                textHeaderUtama.innerText = itemKat.nama;
-                renderDropdownKategoriDinamis();
-            };
-
-            elWadahListKategori.appendChild(liKat);
-
-            // Tampilkan sub-link yang terdaftar di bawah kategori ini jika ada
-            itemKat.listLink.forEach(subItem => {
-                const liSub = document.createElement('li');
-                liSub.className = "sub-link-item";
-                liSub.style.padding = "4px 5px 4px 25px";
-                liSub.style.cursor = "pointer";
-                liSub.innerText = `🔗 [Hlm ${subItem.idHalaman + 1}] "${subItem.isiTeks.substring(0, 15)}..."`;
+            if(kategoriMaster[key].elGrup) {
+                kategoriMaster[key].elGrup.innerHTML = "";
                 
-                liSub.onclick = function(event) {
-                    event.stopPropagation();
-                    lompatKeTargetHyperlink(subItem.idHalaman, subItem.linkId);
-                };
-                elWadahListKategori.appendChild(liSub);
-            });
+                // Jika tidak ada isinya, buat baris keterangan kosong
+                if(kategoriMaster[key].listLink.length === 0) {
+                    const optKosong = document.createElement('option');
+                    optKosong.disabled = true;
+                    optKosong.text = "   (Belum ada data penanda)";
+                    kategoriMaster[key].elGrup.appendChild(optKosong);
+                }
+
+                // Render list link sub-item jika ada data
+                kategoriMaster[key].listLink.forEach((item, index) => {
+                    const opt = document.createElement('option');
+                    opt.value = `lompat-${key}-${index}`;
+                    opt.text = `   🔗 [Hlm ${item.idHalaman + 1}] "${item.isiTeks.substring(0, 15)}..."`;
+                    kategoriMaster[key].elGrup.appendChild(opt);
+                });
+            }
         });
     }
     function muatHalaman(indeks) {
@@ -402,19 +374,19 @@
             range.insertNode(aLink);
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            // MASUKKAN SUB-LINK KE KATEGORI YANG SEDANG AKTIF SAAT INI (Misal: sin)
+            // MASUKKAN DATA KE WADAH KATEGORI YANG SEDANG AKTIF SAAT INI
             kategoriMaster[kategoriTerpilihSaatIni].listLink.push({
                 idHalaman: indeksAktif,
                 linkId: penandaId,
                 isiTeks: kataKunciSeleksi
             });
 
-            // Perbarui visual isi dropdown
-            renderDropdownKategoriDinamis();
+            // Perbarui susunan sub-item dropdown utama tunggal
+            updateDropdownPenandaTunggal();
 
             seleksi.removeAllRanges();
             kataKunciSeleksi = "";
-            alert(`Sukses! Dimasukkan ke dalam kelompok Kategori: ${kategoriMaster[kategoriTerpilihSaatIni].nama}`);
+            alert(`Sukses! Kalimat dimasukkan sebagai sub-link Kategori: ${kategoriMaster[kategoriTerpilihSaatIni].nama}`);
         }
     }
     function lompatKeTargetHyperlink(idHalaman, linkId) {
@@ -464,6 +436,22 @@
         const nilaiPilihan = elMenu.value;
         if (nilaiPilihan === 'default') return;
 
+        // Handler aksi ubah target wadah kategori penanda aktif
+        if (nilaiPilihan === 'set-kategori-sin') { kategoriTerpilihSaatIni = "sin"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.sin.nama; elMenu.value = 'default'; return; }
+        if (nilaiPilihan === 'set-kategori-cos') { kategoriTerpilihSaatIni = "cos"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.cos.nama; elMenu.value = 'default'; return; }
+        if (nilaiPilihan === 'set-kategori-tan') { kategoriTerpilihSaatIni = "tan"; textHeaderUtama.innerText = "Target Penanda: " + kategoriMaster.tan.nama; elMenu.value = 'default'; return; }
+
+        // Handler aksi deteksi lompat klik sub-item penanda di dalam dropdown tunggal
+        if (nilaiPilihan.startsWith("lompat-")) {
+            const parts = nilaiPilihan.split("-");
+            const keyKat = parts[1];
+            const idxLink = parseInt(parts[2]);
+            const target = kategoriMaster[keyKat].listLink[idxLink];
+            lompatKeTargetHyperlink(target.idHalaman, target.linkId);
+            elMenu.value = 'default';
+            return;
+        }
+
         if (nilaiPilihan === 'aksi-tambah') {
             databaseBuku.push({ teks: "" });
             muatHalaman(databaseBuku.length - 1);
@@ -499,7 +487,7 @@
     }
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const fileObj = input.files[0]; // FIX: Membaca index ke-0 file objek tunggal picker
+            const fileObj = input.files[0]; // FIX: Membaca index berkas pertama tunggal picker agar sukses tampil
             
             let selection = window.getSelection();
             let range;
@@ -554,7 +542,9 @@
         });
     }
 
-    function toggleRekamSuara() {
+    function toggleRekamSuara(event) {
+        if(event) event.stopPropagation(); // Mencegah bentrok klik area edit teks
+
         if (!sedangMerekam) {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
@@ -595,6 +585,7 @@
                 }).catch(err => alert('Gagal merekam! Pastikan akses mikrofon diizinkan dan berjalan di protokol HTTPS/localhost.'));
             }
         } else {
+            // JIKA SEDANG MEREKAM, KLIK TOMBOL MERAH INI AKAN BERFUNGSI SEBAGAI TOMBOL STOP
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
             }
@@ -606,9 +597,8 @@
         }
     }
 
-    // Eksekusi inisialisasi awal aplikasi
-    textHeaderUtama.innerText = kategoriMaster[kategoriTerpilihSaatIni].nama;
-    renderDropdownKategoriDinamis();
+    // Eksekusi render awal struktur data tunggal
+    updateDropdownPenandaTunggal();
     muatHalaman(0);
 </script>
 </body>
