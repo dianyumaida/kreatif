@@ -52,11 +52,11 @@
             cursor: pointer;
         }
 
-        /* PANEL TOMBOL PENGATUR UKURAN MEDIA RAMAH HP */
+        /* PANEL TOMBOL PENGATUR UKURAN MEDIA BAWAH HP */
         .media-tools-bar {
             background-color: #2c3e50;
             padding: 6px;
-            display: none; 
+            display: none;
             gap: 6px;
             border-bottom: 2px solid #27ae60;
             z-index: 200;
@@ -76,6 +76,7 @@
         }
 
         .media-btn:hover { background-color: #2ecc71; }
+        
         /* Status Perekaman Suara */
         .record-status {
             font-weight: bold;
@@ -94,8 +95,10 @@
             animation: pulse 1s infinite alternate;
         }
 
-        @keyframes pulse { from { transform: scale(1) translateX(-50%); } to { transform: scale(1.05) translateX(-50%); } }
-
+        @keyframes pulse { 
+            from { transform: scale(1) translateX(-50%); } 
+            to { transform: scale(1.05) translateX(-50%); } 
+        }
         /* Info Indikator Halaman Paling Bawah */
         .page-footer {
             text-align: center;
@@ -108,7 +111,7 @@
             z-index: 190;
         }
 
-        /* AREA KETIK TEKS UTAMA - SEMUA MEDIA MENYATU DI SINI AGAR BISA DI-ENTER */
+        /* AREA KETIK TEKS UTAMA */
         .text-work-space {
             padding: 20px;
             background-color: #ffffff;
@@ -126,12 +129,12 @@
             z-index: 10;
         }
 
-        /* FORMAT MEDIA INLINE: Wajib ikut turun ke bawah secara otomatis saat di-enter */
+        /* FORMAT MEDIA INLINE */
         .embedded-media-block {
-            display: block; 
+            display: block;
             margin: 12px auto;
             max-width: 100%;
-            width: 180px; 
+            width: 180px;
             border: 2px solid transparent;
             box-sizing: border-box;
             border-radius: 6px;
@@ -139,13 +142,14 @@
             transition: border 0.1s ease;
         }
 
-        /* Beri indikator jika media sedang dipilih untuk diubah ukurannya */
         .embedded-media-block.selected-target {
             border-color: #2ecc71;
             box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
         }
 
-        .embedded-media-block img, .embedded-media-block video, .embedded-media-block audio {
+        .embedded-media-block img, 
+        .embedded-media-block video, 
+        .embedded-media-block audio {
             width: 100%;
             height: auto;
             display: block;
@@ -162,7 +166,8 @@
             padding: 0 2px;
             border-radius: 3px;
         }
-        .radio-dropdown-panel {
+
+        .audio-dropdown-panel {
             padding: 8px 15px;
             background: #f8f9fa;
             border-bottom: 1px solid #ddd;
@@ -173,7 +178,7 @@
             z-index: 190;
         }
 
-        .radio-item {
+        .audio-item {
             display: flex;
             align-items: center;
             gap: 4px;
@@ -183,81 +188,45 @@
             white-space: nowrap;
             cursor: pointer;
         }
-        
+
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
     <div class="book-container">
-        <!-- SATU DROPDOWN UTAMA DI ATAS -->
-        
-
-
-<div class="nav-header">
+        <div class="nav-header">
+            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Sistem Catatan</h3>
             <select class="dropdown-select" id="menu-navigasi" onchange="eksekusiPilihanMenu()">
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
-                   <option value="aksi-cari">🔍  Pencarian </option>
-                <option value="aksi-wa">📲 kirim Saluran WhatsApp </option>
-                <option value="aksi-upload-img">🖼️ Upload Gambar Baru (Letak Kursor)</option>
-                <option value="aksi-upload-vid">🎥 Upload Video Baru (Letak Kursor)</option>
+                <option value="aksi-cari">🔍 Pencarian</option>
+                <option value="aksi-wa">📲 Kirim Saluran WhatsApp</option>
+                <option value="aksi-upload-img">📸 Upload Gambar Baru (Letak Kursor)</option>
+                <option value="aksi-upload-vid">📹 Upload Video Baru (Letak Kursor)</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
-                <option value="aksi-rekan">🎙️ Mulai Perekaman Suara</option>
+                <option value="aksi-rekam">🎙️ Mulai Perekaman Suara</option>
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
-                <details class="dropdown-anak level-2">
-            <summary>
-                <span>📁 -- DAFTAR  hyperlink PENANDA--"  --</span>
-                <span class="panah-anak">▶</span>
-            </summary>
-             <ul class="list-akhir">
-                <li onclick="pilihOpsi Akhir('Sudut: sin', this, event)">
-                    <input type="radio" name="pilihan_kalkulator" value="1">
-                    <span>1</span>
-                </li>
-                <li onclick="pilihOpsi Akhir('Sudut: cos', this, event)">
-                    <input type="radio" name="pilihan_kalkulator" value="2">
-                    <span>2</span>
-                </li>
-                <li onclick="pilihOpsi Akhir('Sudut: tan', this, event)">
-                    <input type="radio" name="pilihan_kalkulator" value="3">
-                    <span>3</span>
-                </li>
-            </ul></details>
-    <script>
-        const indukMenu = document.getElementById('menuUtama');
-        const textHeaderUtama = document.getElementById('textHeaderUtama');
-
-        // Fungsi ketika item radio di level paling akhir diklik
-        function pilihOpsi Akhir(namaTerpilih, elemenAktif, event) {
-            // Stop propagasi agar folder pembungkusnya tidak ikut menutup/kacau
-            event.stopPropagation(); 
-            event.preventDefault();
-
-            // Matikan status terpilih dari semua list item yang ada di dokumen
-            document.querySelectorAll('.list-akhir li').forEach(li => {
-                li.classList.remove('terpilih');
-            });
- 
-            // Tandai item yang baru saja diklik
-            elemenAktif.classList.add('terpilih');
- 
-            // Centang radio button kustom di dalamnya
-            const radioAsli = elemenAktif.querySelector('input[type="radio"]');
-            if (radioAsli) {
-                radioAsli.checked = true;
-            }
-
-            // Set teks header paling atas sesuai item yang dipilih
-            textHeaderUtama.innerText = namaTerpilih;
-
-            // Tutup total dropdown induk utama
-            indukMenu.removeAttribute('open');
-        }
-                </optgroup>
+                <optgroup id="grup-riwayat-penanda" label="📌 Riwayat Penanda"></optgroup>
             </select>
+            <details class="dropdown-anak level-2">
+                <summary style="color: white; cursor: pointer; font-size: 12px;">
+                    <span>➡ DAFTAR Hyperlink PENANDA...</span>
+                </summary>
+                <ul class="list-akhir" style="background: #1a252f; color: white; padding: 5px; list-style: none; margin: 5px 0 0 0;">
+                    <li onclick="pilihOpsiAkhir('Sudut: sin', this, event)" style="padding: 5px; cursor: pointer;">
+                        <input type="radio" name="pilihan_kalkulator" value="1"> <span>Sudut: sin</span>
+                    </li>
+                    <li onclick="pilihOpsiAkhir('Sudut: cos', this, event)" style="padding: 5px; cursor: pointer;">
+                        <input type="radio" name="pilihan_kalkulator" value="2"> <span>Sudut: cos</span>
+                    </li>
+                    <li onclick="pilihOpsiAkhir('Sudut: tan', this, event)" style="padding: 5px; cursor: pointer;">
+                        <input type="radio" name="pilihan_kalkulator" value="3"> <span>Sudut: tan</span>
+                    </li>
+                </ul>
+            </details>
         </div>
-
+        
         <!-- BAR TOMBOL KONTROL UKURAN MEDIA YANG DIKLIK -->
         <div class="media-tools-bar" id="media-tools">
             <button class="media-btn" onclick="ubahUkuranKlik(30)">➕ Perbesar</button>
@@ -265,10 +234,8 @@
             <button class="media-btn" onclick="hapusMediaKlik()" style="background:#e74c3c;">❌ Hapus</button>
         </div>
 
-        <!-- PANEL RADIO BUTTON -->
-        <div class="radio-dropdown-panel" id="radio-container">
-            <!-- Diisi otomatis -->
-        </div>
+        <!-- PANEL RADIO BUTTON HALAMAN -->
+        <div class="audio-dropdown-panel" id="radio-container"></div>
 
         <!-- Input File Picker Perangkat -->
         <input type="file" id="file-image" accept="image/*" onchange="handleFileSelected(this, 'image')">
@@ -276,21 +243,19 @@
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
         <!-- KANVAS UTAMA TEMPAT MENGETIK & MENYUSUN MEDIA -->
-        <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Silakan ketik catatan lembar baru Anda di sini..." onmouseup="periksaSeleksiTeks()" onkeyup="periksaSeleksiTeks()" onclick="deteksiKlikMedia(event)" intent="field" ondblclick="klikDuaKaliMajuLembar(event)">
-            <button class="record-status" id="record-indicator" onclick="toggleRekamSuara()">🔴 ⏹️ Klik di Sini untuk Stop Rekam</button>
+        <div id="text-input-field" class="text-work-space" contenteditable="true" onclick="deteksiKlikMedia(event)" onkeyup="periksaSeleksiTeks()" onmouseup="periksaSeleksiTeks()">
+            <button class="record-status" id="record-indicator" onclick="toggleRekamSuara()">🔴 Merekam... Klik untuk Berhenti</button>
         </div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 1</div>
     </div>
-<script>
-    let databaseBuku = [
-        { teks: "" }
-    ];
 
+<script>
+    let databaseBuku = [{ teks: "" }];
     let riwayatPenanda = [];
     let indeksAktif = 0;
-    let elemenMediaTerpilih = null; 
+    let elemenMediaTerpilih = null;
     let mediaRecorder;
     let audioChunks = [];
     let sedangMerekam = false;
@@ -303,39 +268,44 @@
     const elRecordIndicator = document.getElementById('record-indicator');
     const elRadioContainer = document.getElementById('radio-container');
     const elMediaTools = document.getElementById('media-tools');
+    const textHeaderUtama = document.getElementById('textHeaderUtama');
+    const indukMenu = document.getElementById('menu-navigasi');
 
+    function pilihOpsiAkhir(namaTerpilih, elemenAktif, event) {
+        event.stopPropagation();
+        event.preventDefault();
+        document.querySelectorAll('.list-akhir li').forEach(li => li.classList.remove('terpilih'));
+        elemenAktif.classList.add('terpilih');
+        const radioAsli = elemenAktif.querySelector('input[type="radio"]');
+        if (radioAsli) radioAsli.checked = true;
+        textHeaderUtama.innerText = namaTerpilih;
+    }
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
         elMediaTools.style.display = 'none';
         elemenMediaTerpilih = null;
-
         elTextField.innerHTML = data.teks || "";
-
-        // Pastikan widget bawaan sistem dan fungsionalitas pemutar media dikembalikan
         perbaruiElemenVideoHalaman();
         elTextField.appendChild(elRecordIndicator);
-
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
         renderRadioHalaman();
     }
 
     function deteksiKlikMedia(event) {
         let targetBlock = event.target.closest('.embedded-media-block');
-        
         if (targetBlock) {
             event.stopPropagation();
             const semuaM = elTextField.querySelectorAll('.embedded-media-block');
-            semuM.forEach(m => m.classList.remove('selected-target'));
-
+            semuaM.forEach(m => m.classList.remove('selected-target'));
             elemenMediaTerpilih = targetBlock;
             elemenMediaTerpilih.classList.add('selected-target');
-            elMediaTools.style.display = 'flex'; 
+            elMediaTools.style.display = 'flex';
         } else {
             elemenMediaTerpilih = null;
             elMediaTools.style.display = 'none';
             const semuaM = elTextField.querySelectorAll('.embedded-media-block');
-            semuM.forEach(m => m.classList.remove('selected-target'));
+            semuaM.forEach(m => m.classList.remove('selected-target'));
         }
     }
 
@@ -343,12 +313,10 @@
         if (!elemenMediaTerpilih) return;
         let lebarLama = elemenMediaTerpilih.offsetWidth;
         let lebarBaru = lebarLama + nilaiTambah;
-
-        if (lebarBaru < 60) lebarBaru = 60; 
-        if (lebarBaru > 380) lebarBaru = 380; 
-
+        if (lebarBaru < 60) lebarBaru = 60;
+        if (lebarBaru > 380) lebarBaru = 380;
         elemenMediaTerpilih.style.width = lebarBaru + 'px';
-        databaseBuku[indeksAktif].teks = elTextField.innerHTML; 
+        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
     }
 
     function hapusMediaKlik() {
@@ -358,7 +326,7 @@
         elMediaTools.style.display = 'none';
         databaseBuku[indeksAktif].teks = elTextField.innerHTML;
     }
-    // FIX PENANDA LINK CATATAN
+
     let kataKunciSeleksi = "";
     function periksaSeleksiTeks() {
         kataKunciSeleksi = window.getSelection().toString().trim();
@@ -366,23 +334,19 @@
 
     function buatPenandaDariBlokTeks() {
         if (!kataKunciSeleksi) {
-            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu sebelum memilih menu ini.");
+            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu.");
             return;
         }
-
         const seleksi = window.getSelection();
         if (seleksi.rangeCount > 0) {
             const range = seleksi.getRangeAt(0);
             const aLink = document.createElement('span');
             aLink.className = 'hyperlink-bookmark';
             aLink.textContent = kataKunciSeleksi;
-            
             const penandaId = "link-" + Date.now();
             aLink.setAttribute('data-link-id', penandaId);
-
             range.deleteContents();
             range.insertNode(aLink);
-
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
             const dataRiwayat = { idHalaman: indeksAktif, linkId: penandaId, isiTeks: kataKunciSeleksi };
@@ -390,7 +354,7 @@
 
             const opsiBaru = document.createElement('option');
             opsiBaru.value = "riwayat-" + (riwayatPenanda.length - 1);
-            opsiBaru.text = `🔗 [Hlm ${indeksAktif + 1}] "${kataKunciSeleksi.substring(0, 18)}..."`;
+            opsiBaru.text = `📑 [Hlm ${indeksAktif + 1}] "${kataKunciSeleksi.substring(0, 18)}..."`;
             elGrupRiwayat.appendChild(opsiBaru);
 
             seleksi.removeAllRanges();
@@ -398,15 +362,12 @@
             alert("Sukses! Kalimat dijadikan hyperlink penanda.");
         }
     }
-
     function lompatKeRiwayatPenanda() {
         const nilaiPilihan = elMenu.value;
         if (!nilaiPilihan.startsWith("riwayat-")) return;
-        
         const indeksRiwayat = parseInt(nilaiPilihan.replace("riwayat-", ""));
         const target = riwayatPenanda[indeksRiwayat];
         muatHalaman(target.idHalaman);
-        
         setTimeout(() => {
             const elemenLink = elTextField.querySelector(`[data-link-id="${target.linkId}"]`);
             if (elemenLink) {
@@ -414,19 +375,24 @@
                 elemenLink.style.backgroundColor = "#ffcc00";
                 setTimeout(() => elemenLink.style.backgroundColor = "rgba(0, 102, 204, 0.1)", 1500);
             }
-        }, 300);
+        }, 350);
         elMenu.value = 'default';
     }
 
     function renderRadioHalaman() {
-        elRadioContainer.innerHTML = '';
+        elRadioContainer.innerHTML = "";
         databaseBuku.forEach((item, index) => {
             const label = document.createElement('label');
-            label.className = 'radio-item';
+            label.className = 'audio-item';
             const radio = document.createElement('input');
-            radio.type = 'radio'; radio.name = 'anak-penanda'; radio.value = index;
+            radio.type = 'radio';
+            radio.name = 'anak-penanda';
+            radio.value = index;
             radio.checked = (index === indeksAktif);
-            radio.onchange = function() { databaseBuku[indeksAktif].teks = elTextField.innerHTML; muatHalaman(parseInt(this.value)); };
+            radio.onchange = function() {
+                databaseBuku[indeksAktif].teks = elTextField.innerHTML;
+                muatHalaman(parseInt(radio.value));
+            };
             label.appendChild(radio);
             label.appendChild(document.createTextNode(`Halaman ${index + 1}`));
             elRadioContainer.appendChild(label);
@@ -437,16 +403,10 @@
         databaseBuku[indeksAktif].teks = elTextField.innerHTML;
     });
 
-    function klikDuaKaliMajuLembar(event) {
-        if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO' || event.target.tagName === 'IMG' || event.target.closest('.embedded-media-block')) return;
-        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
-        if (indeksAktif < databaseBuku.length - 1) { indeksAktif++; } else { indeksAktif = 0; }
-        muatHalaman(indeksAktif);
-    }
     function cariTeksBuku() {
         const kataKunci = prompt("Masukkan kata kunci catatan yang ingin dicari:");
         if (!kataKunci || !kataKunci.trim()) return;
-        const indeksDitemukan = databaseBuku.findIndex(item => item.teks.toLowerCase().includes(kataKunci.toLowerCase().trim()));
+        const indeksDitemukan = databaseBuku.findIndex(item => item.teks.toLowerCase().includes(kataKunci.toLowerCase()));
         if (indeksDitemukan !== -1) { muatHalaman(indeksDitemukan); } else { alert("Kata kunci tidak ditemukan."); }
     }
 
@@ -456,13 +416,8 @@
         if (nilaiPilihan.startsWith("riwayat-")) { lompatKeRiwayatPenanda(); return; }
 
         if (nilaiPilihan === 'aksi-tambah') {
-            databaseBuku[indeksAktif].teks = elTextField.innerHTML;
             databaseBuku.push({ teks: "" });
             muatHalaman(databaseBuku.length - 1);
-            elMenu.value = 'default';
-        }
-        else if (nilaiPilihan === 'aksi-bookmark') {
-            buatPenandaDariBlokTeks();
             elMenu.value = 'default';
         }
         else if (nilaiPilihan === 'aksi-cari') {
@@ -473,26 +428,17 @@
             const extra = clone.querySelectorAll('.embedded-media-block, .record-status');
             extra.forEach(x => x.remove());
             const teksMurni = clone.innerText || clone.textContent;
-            
-            const teksKirim = encodeURIComponent Atlantic (`Berikut update Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n"${teksMurni.trim()}"\n\nIkuti saluran KASY di WhatsApp: https://whatsapp.com`);
+            const teksKirim = encodeURIComponent(`Berikut Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n` + teksMurni);
             const linkWA = document.createElement('a'); linkWA.href = `https://wa.me{teksKirim}`; linkWA.target = '_blank';
             document.body.appendChild(linkWA); linkWA.click(); document.body.removeChild(linkWA);
             elMenu.value = 'default';
-        } 
-        else if (nilaiPilihan === 'aksi-upload-img') {
-            document.getElementById('file-image').click(); elMenu.value = 'default';
-        } 
-        else if (nilaiPilihan === 'aksi-upload-vid') {
-            document.getElementById('file-video').click(); elMenu.value = 'default';
         }
-        else if (nilaiPilihan === 'aksi-upload-mp3') {
-            document.getElementById('file-audio').click(); elMenu.value = 'default';
-        }
-        else if (nilaiPilihan === 'aksi-rekan') {
-            toggleRekamSuara(); elMenu.value = 'default';
-        }
+        else if (nilaiPilihan === 'aksi-upload-img') { document.getElementById('file-image').click(); elMenu.value = 'default'; }
+        else if (nilaiPilihan === 'aksi-upload-vid') { document.getElementById('file-video').click(); elMenu.value = 'default'; }
+        else if (nilaiPilihan === 'aksi-upload-mp3') { document.getElementById('file-audio').click(); elMenu.value = 'default'; }
+        else if (nilaiPilihan === 'aksi-rekam') { toggleRekamSuara(); elMenu.value = 'default'; }
         else if (nilaiPilihan === 'aksi-hapus') {
-            if (databaseBuku.length <= 1) { alert("Gagal!"); elMenu.value = 'default'; return; }
+            if (databaseBuku.length <= 1) { alert("Gagal! Minimal harus ada 1 halaman."); elMenu.value = 'default'; return; }
             if (confirm("Hapus lembar halaman ini?")) {
                 databaseBuku.splice(indeksAktif, 1);
                 if (indeksAktif >= databaseBuku.length) { indeksAktif = databaseBuku.length - 1; }
@@ -501,17 +447,12 @@
             elMenu.value = 'default';
         }
     }
-
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
             const fileObj = input.files[0];
-
             const selection = window.getSelection();
-            let range;
-            if (selection.rangeCount > 0) {
-                range = selection.getRangeAt(0);
-            } else {
-                range = document.createRange();
+            let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : document.createRange();
+            if (selection.rangeCount === 0) {
                 range.selectNodeContents(elTextField);
                 range.collapse(false);
             }
@@ -519,32 +460,21 @@
             const mediaBlock = document.createElement('div');
             mediaBlock.className = 'embedded-media-block';
             mediaBlock.contentEditable = 'false';
-
             const mediaURL = URL.createObjectURL(fileObj);
 
             if (type === 'image') {
-                const img = document.createElement('img');
-                img.src = mediaURL;
+                const img = document.createElement('img'); img.src = mediaURL;
                 mediaBlock.appendChild(img);
-                prosesPenyisipanBlokMedia(range, mediaBlock);
-            } 
-            else if (type === 'video') {
-                const video = document.createElement('video');
-                video.src = mediaURL;
-                video.controls = true;
-                video.playsInline = true;
+            } else if (type === 'video') {
+                const video = document.createElement('video'); video.src = mediaURL; video.controls = true; video.playsInline = true;
                 mediaBlock.appendChild(video);
-                prosesPenyisipanBlokMedia(range, mediaBlock);
-            }
-            else if (type === 'audio') {
-                const audio = document.createElement('audio');
-                audio.src = mediaURL;
-                audio.controls = true;
+            } else if (type === 'audio') {
+                const audio = document.createElement('audio'); audio.src = mediaURL; audio.controls = true;
                 mediaBlock.appendChild(audio);
-                prosesPenyisipanBlokMedia(range, mediaBlock);
             }
+            prosesPenyisipanBlokMedia(range, mediaBlock);
         }
-        input.value = ''; 
+        input.value = '';
     }
 
     function prosesPenyisipanBlokMedia(range, mediaBlock) {
@@ -554,11 +484,9 @@
         range.insertNode(brNode);
         range.setStartAfter(brNode);
         range.collapse(true);
-        
         const selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(range);
-
         databaseBuku[indeksAktif].teks = elTextField.innerHTML;
         elTextField.focus();
     }
@@ -567,26 +495,23 @@
         const semuaMedia = elTextField.querySelectorAll('video, audio');
         semuaMedia.forEach(med => {
             med.controls = true;
-            med.onclick = (e) => { e.stopPropagation(); };
+            med.onclick = (e) => e.stopPropagation();
         });
     }
 
-    // FIX MUTLAK PEREKAMAN AUDIO OBJECT BLOB JALAN DI SEMUA HP & LAPTOP
     function toggleRekamSuara() {
         if (!sedangMerekam) {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(stream => {
+                navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                     streamSuara = stream;
-                    mediaRecorder = new MediaRecorder(stream); 
+                    mediaRecorder = new MediaRecorder(stream);
                     audioChunks = [];
-                    
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    
                     mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        // FIX: Menggunakan audio/webm standar browser agar aman diputar kembali
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                         const audioURL = URL.createObjectURL(audioBlob);
-                        
-                        // Menyisipkan player audio baru tepat di letak kursor ketikan aktif Anda
                         const selection = window.getSelection();
                         let range = selection.rangeCount > 0 ? selection.getRangeAt(0) : document.createRange();
                         
@@ -601,20 +526,20 @@
                         mediaBlock.appendChild(audio);
                         prosesPenyisipanBlokMedia(range, mediaBlock);
                     };
-                    
-                    mediaRecorder.start(); 
-                    sedangMerekam = true; 
+
+                    mediaRecorder.start();
+                    sedangMerekam = true;
                     elRecordIndicator.style.display = 'block';
-                }).catch(err => alert("Gagal merekam! Pastikan menggunakan protokol HTTPS resmi halaman Pages Anda."));
+                }).catch(err => alert('Gagal merekam! Pastikan akses mikrofon diizinkan dan berjalan di protokol HTTPS/localhost.'));
             }
         } else {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop(); 
-                if (streamSuara) {
-                    streamSuara.getTracks().forEach(track => track.stop());
-                }
+                mediaRecorder.stop();
             }
-            sedangMerekam = false; 
+            if (streamSuara) {
+                streamSuara.getTracks().forEach(track => track.stop());
+            }
+            sedangMerekam = false;
             elRecordIndicator.style.display = 'none';
         }
     }
