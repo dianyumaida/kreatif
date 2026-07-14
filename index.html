@@ -21,6 +21,7 @@
         .book-container {
             width: 100%;
             max-width: 420px;
+            height: 580px; /* Dikunci tingginya agar kotak teks bisa meluas penuh ke bawah */
             background: white;
             border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
@@ -78,7 +79,7 @@
         .content-area {
             width: 100%;
             height: 320px;
-            background-size: cover; /* Diubah ke cover agar gambar memenuhi kotak klik */
+            background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-color: #f5f5f5;
@@ -101,23 +102,22 @@
             display: none;
         }
 
-        /* Area Tempat Mengetik Catatan */
-                /* Membuat area pembungkus teks melebar penuh tanpa jarak samping */
+        /* Area Tempat Mengetik Catatan (Dibuat Flex-Grow) */
         .text-work-space {
-            padding: 0; 
+            padding: 0;
             background-color: #fdfcf7;
             border-top: 1px solid #ddd;
             display: flex;
             flex-direction: column;
             width: 100%;
+            flex-grow: 1; /* Menarik area teks agar memenuhi sisa ruang */
         }
 
-        /* Membuat kotak ketik meluas penuh sampai ke sudut bawah kontainer */
         .book-textarea {
             width: 100%;
-            height: 180px; /* Anda bisa memperbesar tinggi kotak ini sesuai kebutuhan */
-            padding: 15px; /* Jarak teks bagian dalam agar rapi saat mengetik */
-            border: none; /* Menghapus garis tepi bawaan agar menyatu sempurna */
+            height: 100%; /* Dibuat 100% agar otomatis meninggi penuh */
+            padding: 15px;
+            border: none;
             margin: 0;
             resize: none;
             font-size: 15px;
@@ -126,9 +126,8 @@
             background-color: #ffffff;
             color: #333;
             outline: none;
-            border-radius: 0 0 12px 12px; /* Melengkungkan sudut bawah mengikuti kontainer */
+            flex-grow: 1;
         }
-
     </style>
 </head>
 <body>
@@ -152,32 +151,29 @@
         <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
         <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
 
-        <!-- AREA GAMBAR: KLIK DUA KALI (ONDBLCLICK) UNTUK MASUK KE LEMBAR BERIKUTNYA -->
+        <!-- AREA GAMBAR -->
         <div class="content-area" id="book-content" ondblclick="klikDuaKaliMajuLembar(event)">
             <div class="record-status" id="record-indicator">🔴 Sedang Merekam...</div>
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
         </div>
 
-        <!-- AREA KETIK TEKS: BISA LANGSUNG DIKETIK / DIEDIT KAPAN SAJA -->
-                <!-- AREA KETIK TEKS: KOTAK FULL PADA PAGE -->
-        <div class="text-work-space">
+        <!-- AREA KETIK TEKS (Dapat didouble-click juga jika area gambar sedang hilang) -->
+        <div class="text-work-space" ondblclick="klikDuaKaliMajuLembar(event)">
             <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar baru di sini..."></textarea>
         </div>
-
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 3</div>
     </div>
 
 <script>
-    // Bersihkan memori cache agar pembaruan kode langsung terasa
     localStorage.clear();
 
-    // 1. PERBAIKAN: Penutup array menggunakan kurung siku ]; yang benar
+    // Contoh data: Lembar kedua ("text-only") dikosongkan src-nya untuk tes lembar teks penuh
     let databaseBuku = [
-        { type: "image", src: "./File/Gambar/Buku/A.png", teks: "" },
-        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" },
-        { type: "image", src: "./File/Gambar/Buku/C.png", teks: "" }
+        { type: "image", src: "./File/Gambar/Buku/A.png", teks: "Ini halaman pertama dengan gambar." },
+        { type: "text-only", src: "", teks: "Ini halaman teks penuh! Karena tidak ada gambar, area teks meluas secara otomatis menutupi satu lembar penuh halaman buku." },
+        { type: "image", src: "./File/Gambar/Buku/C.png", teks: "Ini halaman ketiga dengan gambar kembali." }
     ];
 
     let indeksAktif = 0;
@@ -185,7 +181,6 @@
     let audioChunks = [];
     let sedangMerekam = false;
 
-    // Menghubungkan variabel JavaScript ke ID HTML
     const elContent = document.getElementById('book-content');
     const elPlaceholder = document.getElementById('media-placeholder');
     const elMenu = document.getElementById('menu-navigasi');
@@ -193,47 +188,49 @@
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
 
-    // 2. PERBAIKAN: Menggunakan tanda backtick ` untuk memuat data secara dinamis
+    // LOGIKA DINAMIS: Menyembunyikan gambar jika tipe halaman adalah 'text-only' atau src kosong
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
         elPlaceholder.innerHTML = '';
         elContent.style.backgroundImage = 'none';
 
-        if (data.type === 'image') {
-            elContent.style.backgroundImage = `url('${data.src}')`;
-        } else if (data.type === 'video') {
-            elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
-        } else if (data.type === 'audio') {
-            elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
+        // Jika halaman tidak punya media / berupa teks saja
+        if (data.type === 'text-only' || !data.src) {
+            elContent.style.display = 'none'; // Sembunyikan kotak gambar
+        } else {
+            elContent.style.display = 'flex'; // Munculkan kembali kotak gambar jika ada media
+            
+            if (data.type === 'image') {
+                elContent.style.backgroundImage = `url('${data.src}')`;
+            } else if (data.type === 'video') {
+                elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
+            } else if (data.type === 'audio') {
+                elPlaceholder.innerHTML = `<audio src="${data.src}" controls></audio>`;
+            }
         }
 
-        // Sinkronisasi teks catatan dan angka lembar halaman
         elTextField.value = data.teks || "";
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
     }
 
-    // Menyimpan teks secara realtime saat diketik
     elTextField.addEventListener('input', function() {
         databaseBuku[indeksAktif].teks = elTextField.value;
     });
 
-    // 3. PERBAIKAN: Mengubah huruf 'W' menjadi 'M' agar sinkron dengan HTML
     function klikDuaKaliMajuLembar(event) {
         if (event.target.tagName === 'VIDEO' || event.target.tagName === 'AUDIO') return;
 
         if (indeksAktif < databaseBuku.length - 1) {
             indeksAktif++;
         } else {
-            indeksAktif = 0; // Balik ke halaman pertama
+            indeksAktif = 0;
         }
         muatHalaman(indeksAktif);
     }
 
-    // KONTROL UTAMA MENU DROPDOWN
     function eksekusiPilihanMenu() {
         const nilaiPilihan = elMenu.value;
-
         if (nilaiPilihan === 'default') return;
 
         if (nilaiPilihan === 'aksi-wa') {
@@ -263,7 +260,6 @@
                 elMenu.value = 'default';
                 return;
             }
-
             if (confirm("Hapus lembar halaman ini?")) {
                 databaseBuku.splice(indeksAktif, 1);
                 if (indeksAktif >= databaseBuku.length) {
@@ -271,26 +267,7 @@
                 }
                 muatHalaman(indeksAktif);
             }
-            elMenu.value = 'default';
-        }
-    }
-
-    // Fungsi upload file mandiri dari perangkat
-    function handleFileSelected(input, type) {
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const fileURL = URL.createObjectURL(file);
-            
-            databaseBuku[indeksAktif] = {
-                type: type,
-                src: fileURL,
-                teks: elTextField.value
-            };
-            muatHalaman(indeksAktif);
-        }
-    }
-
-    // Fungsi simulasi rekam suara mikrofon
+                // SAMBUNGAN KODE UTK HTML PENUTUP
     function toggleRekamSuara() {
         sedangMerekam = !sedangMerekam;
         if (sedangMerekam) {
@@ -306,3 +283,4 @@
 
 </body>
 </html>
+
