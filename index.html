@@ -9,7 +9,7 @@
             background-color: #1a252f;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 0; /* Dibuat 0 agar nempel ke tepi layar HP */
+            padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -21,7 +21,7 @@
         .book-container {
             width: 100%;
             max-width: 440px;
-            height: 100vh; /* Menggunakan tinggi penuh layar */
+            height: 100vh;
             background: white;
             display: flex;
             flex-direction: column;
@@ -97,9 +97,9 @@
             z-index: 5;
         }
 
-        /* AREA TEKS PENUH - MENGHAPUS BINGKAI DAN MARGIN KIRI KANAN */
+        /* AREA TEKS PENUH */
         .text-work-space {
-            padding: 20px; /* Jarak ketikan bagian dalam agar nyaman dibaca */
+            padding: 20px;
             background-color: #ffffff;
             border: none;
             margin: 0;
@@ -184,7 +184,7 @@
                 <option value="default">-- MENU UTAMA KELOLA BUKU --</option>
                 <option value="aksi-tambah">➕ Tambah Halaman Baru</option>
                 <option value="aksi-cari">🔍 Jalankan Pencarian Kata Kunci Catatan</option>
-                <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp</option>
+                <option value="aksi-wa">📲 Auto Kirim ke Saluran WhatsApp KASY</option>
                 <option value="aksi-upload-img">🖼️ Upload Gambar Baru</option>
                 <option value="aksi-upload-vid">🎥 Upload Video Baru</option>
                 <option value="aksi-upload-mp3">🎵 Upload Lagu MP3</option>
@@ -192,7 +192,7 @@
                 <option value="aksi-hapus">❌ Hapus Lembar Ini</option>
             </select>
 
-            <!-- 2 DAN 3: DROPDOWN DAFTAR RIWAYAT SEKARANG BERADA DI BAWAH PENANDA -->
+            <!-- DROPDOWN DAFTAR RIWAYAT SEKARANG BERADA DI BAWAH PENANDA -->
             <select class="dropdown-select" id="dropdown-riwayat" onchange="lompatKeRiwayatPenanda()" style="background-color: #34495e; border-color: #2c3e50;">
                 <option value="default">📂 -- DAFTAR RIWAYAT PENANDA TEKS --</option>
             </select>
@@ -214,7 +214,7 @@
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
         </div>
 
-        <!-- 1: AREA KETIK TEKS MELEBAR FULL PAGE DAN SUDAH DIKOSONGKAN TULISANNYA -->
+        <!-- AREA KETIK TEKS MELEBAR FULL PAGE DAN SUDAH DIKOSONGKAN TULISANNYA -->
         <div id="text-input-field" class="text-work-space" contenteditable="true" placeholder="Silakan ketik catatan lembar baru Anda di sini..." onmouseup="periksaSeleksiTeks()" onkeyup="periksaSeleksiTeks()" ondblclick="pemicuKlikAreaTeks(event)"></div>
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
@@ -222,7 +222,6 @@
     </div>
 
 <script>
-    // PERBAIKAN: Isi teks di halaman utama pertama B.png sekarang sudah kosong bersih
     let databaseBuku = [
         { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" }
     ];
@@ -379,7 +378,6 @@
         muatHalaman(indeksAktif);
     }
 
-    // PENCARIAN DIUBAH MENJADI MODEL PROMPT POP-UP AGAR TIDAK MEMENUHI NAVIGASI
     function cariTeksBuku() {
         const kataKunci = prompt("Masukkan kata kunci catatan yang ingin dicari:");
         if (!kataKunci || !kataKunci.trim()) return;
@@ -397,10 +395,7 @@
         if (nilaiPilihan === 'default') return;
 
         if (nilaiPilihan === 'aksi-tambah') {
-            databaseBuku.push({
-                type: "text-only", src: "",
-                teks: "" /* Otomatis kosong saat membuat halaman baru */
-            });
+            databaseBuku.push({ type: "text-only", src: "", teks: "" });
             muatHalaman(databaseBuku.length - 1);
             elMenu.value = 'default';
         }
@@ -409,8 +404,13 @@
             elMenu.value = 'default';
         }
         else if (nilaiPilihan === 'aksi-wa') {
-            const teksKirim = encodeURIComponent(`Catatan Lembar ${indeksAktif + 1}:\n${elTextField.innerText}`);
-            window.open('https://whatsapp.com' + teksKirim, '_blank');
+            const teksMurni = elTextField.innerText || elTextField.textContent;
+            
+            // Format teks yang akan dikirim sekaligus mengarahkan tautan ke saluran WhatsApp KASY Anda
+            const teksKirim = encodeURIComponent(`Berikut update Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n"${teksMurni}"\n\nIkuti saluran KASY di WhatsApp: https://whatsapp.com/channel/0029Vabn5fy9WtBxWL35wy0S`);
+            
+            // Membuka tautan berbagi universal WhatsApp secara langsung
+            window.location.href = `https://wa.me{teksKirim}`;
             elMenu.value = 'default';
         } 
         else if (nilaiPilihan === 'aksi-upload-img') {
