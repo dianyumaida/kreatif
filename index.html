@@ -21,7 +21,7 @@
         .book-container {
             width: 100%;
             max-width: 420px;
-            height: 580px; /* Dikunci tingginya agar kotak teks bisa meluas penuh ke bawah */
+            height: 580px; 
             background: white;
             border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
@@ -102,7 +102,7 @@
             display: none;
         }
 
-        /* Area Tempat Mengetik Catatan (Dibuat Flex-Grow) */
+        /* Area Tempat Mengetik Catatan Full Lembar */
         .text-work-space {
             padding: 0;
             background-color: #fdfcf7;
@@ -110,12 +110,12 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            flex-grow: 1; /* Menarik area teks agar memenuhi sisa ruang */
+            flex-grow: 1; 
         }
 
         .book-textarea {
             width: 100%;
-            height: 100%; /* Dibuat 100% agar otomatis meninggi penuh */
+            height: 100%; 
             padding: 15px;
             border: none;
             margin: 0;
@@ -157,7 +157,7 @@
             <div id="media-placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none;"></div>
         </div>
 
-        <!-- AREA KETIK TEKS (Dapat didouble-click juga jika area gambar sedang hilang) -->
+        <!-- AREA KETIK TEKS -->
         <div class="text-work-space" ondblclick="klikDuaKaliMajuLembar(event)">
             <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar baru di sini..."></textarea>
         </div>
@@ -169,11 +169,11 @@
 <script>
     localStorage.clear();
 
-    // Contoh data: Lembar kedua ("text-only") dikosongkan src-nya untuk tes lembar teks penuh
+    // Mengembalikan data utama Anda menggunakan path lokal Github
     let databaseBuku = [
-        { type: "image", src: "./File/Gambar/Buku/A.png", teks: "Ini halaman pertama dengan gambar." },
-        { type: "text-only", src: "./File/Gambar/Buku/B.png", teks: "Ini halaman teks penuh! Karena tidak ada gambar, area teks meluas secara otomatis menutupi satu lembar penuh halaman buku." },
-        { type: "image", src: "./File/Gambar/Buku/C.png", teks: "Ini halaman ketiga dengan gambar kembali." }
+        { type: "image", src: "./File/Gambar/Buku/A.png", teks: "" },
+        { type: "image", src: "./File/Gambar/Buku/B.png", teks: "" },
+        { type: "image", src: "./File/Gambar/Buku/C.png", teks: "" }
     ];
 
     let indeksAktif = 0;
@@ -188,20 +188,19 @@
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
 
-    // LOGIKA DINAMIS: Menyembunyikan gambar jika tipe halaman adalah 'text-only' atau src kosong
+    // PERBAIKAN LOGIKA: Sekarang mendeteksi kata 'text-only' dengan akurat
     function muatHalaman(indeks) {
         indeksAktif = indeks;
         const data = databaseBuku[indeksAktif];
         elPlaceholder.innerHTML = '';
         elContent.style.backgroundImage = 'none';
 
-        // Jika halaman tidak punya media / berupa teks saja
-        if (data.type === 'text-only' || !data.src) {
-            elContent.style.display = 'none'; // Sembunyikan kotak gambar
+        if (data.type === 'text-only') {
+            elContent.style.display = 'none'; // Sembunyikan gambar jika murni teks saja
         } else {
-            elContent.style.display = 'flex'; // Munculkan kembali kotak gambar jika ada media
+            elContent.style.display = 'flex'; // Tampilkan area media jika ada gambar/video/audio
             
-            if (data.type === 'image') {
+            if (data.type === 'image' && data.src) {
                 elContent.style.backgroundImage = `url('${data.src}')`;
             } else if (data.type === 'video') {
                 elPlaceholder.innerHTML = `<video src="${data.src}" controls></video>`;
@@ -267,7 +266,25 @@
                 }
                 muatHalaman(indeksAktif);
             }
-                // SAMBUNGAN KODE UTK HTML PENUTUP
+            elMenu.value = 'default';
+        }
+    }
+
+    function handleFileSelected(input, type) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileURL = URL.createObjectURL(file);
+            
+            databaseBuku[indeksAktif] = {
+                type: type,
+                src: fileURL,
+                teks: elTextField.value
+            };
+            muatHalaman(indeksAktif);
+        }
+    }
+
+    function toggleRekamSuara() {
     function toggleRekamSuara() {
         sedangMerekam = !sedangMerekam;
         if (sedangMerekam) {
@@ -277,10 +294,9 @@
         }
     }
 
-    // Memuat data halaman pertama saat web pertama kali dibuka
+    // MEMUAT HALAMAN PERTAMA SAAT WEB DIBUKA
     muatHalaman(0);
 </script>
 
 </body>
 </html>
-
