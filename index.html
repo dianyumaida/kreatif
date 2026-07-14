@@ -102,20 +102,22 @@
         }
 
         /* Area Tempat Mengetik Catatan */
+                /* Membuat area pembungkus teks melebar penuh tanpa jarak samping */
         .text-work-space {
-            padding: 15px;
+            padding: 0; 
             background-color: #fdfcf7;
             border-top: 1px solid #ddd;
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
 
+        /* Membuat kotak ketik meluas penuh sampai ke sudut bawah kontainer */
         .book-textarea {
             width: 100%;
-            height: 140px;
-            padding: 12px;
-            border: 1px solid #bdc3c7;
-            border-radius: 8px;
+            height: 180px; /* Anda bisa memperbesar tinggi kotak ini sesuai kebutuhan */
+            padding: 15px; /* Jarak teks bagian dalam agar rapi saat mengetik */
+            border: none; /* Menghapus garis tepi bawaan agar menyatu sempurna */
             margin: 0;
             resize: none;
             font-size: 15px;
@@ -124,7 +126,9 @@
             background-color: #ffffff;
             color: #333;
             outline: none;
+            border-radius: 0 0 12px 12px; /* Melengkungkan sudut bawah mengikuti kontainer */
         }
+
     </style>
 </head>
 <body>
@@ -155,9 +159,11 @@
         </div>
 
         <!-- AREA KETIK TEKS: BISA LANGSUNG DIKETIK / DIEDIT KAPAN SAJA -->
+                <!-- AREA KETIK TEKS: KOTAK FULL PADA PAGE -->
         <div class="text-work-space">
             <textarea id="text-input-field" class="book-textarea" placeholder="Ketik kalimat atau isi catatan lembar baru di sini..."></textarea>
         </div>
+
 
         <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 3</div>
