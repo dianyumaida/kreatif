@@ -1,97 +1,90 @@
-const fs = require('fs');
-const path = require('path');
+// Variabel global untuk menyimpan data dari JSON setelah di-load
+let dataBuku = {};
 
-const FILE_PATH = './buku.json';
-const FOLDER_GAMBAR = './File/Gambar/Buku/';
+// 1. Jalankan fungsi load data JSON saat halaman web pertama kali dibuka
+document.addEventListener("DOMContentLoaded", function() {
+    fetch('buku.json')
+        .then(response => response.json())
+        .then(data => {
+            dataBuku = data;
+            inisialisasiDropdown();
+        })
+        .catch(error => console.error("Gagal memuat data json:", error));
+});
 
-// Fungsi membaca database JSON
-function bacaData() {
-    if (!fs.existsSync(FILE_PATH)) {
-        return { daftarBuku: [] };
+// 2. Fungsi mengisi opsi dropdown secara dinamis dari file JSON
+function inisialisasiDropdown() {
+    const selectElement = document.getElementById("menuDropdown");
+    
+    // Looping data JSON untuk dimasukkan ke dalam elemen HTML <option>
+    for (let key in dataBuku) {
+        let option = document.createElement("option");
+        option.value = key;
+        option.textContent = dataBuku[key].nama;
+        selectElement.appendChild(option);
     }
-    return JSON.parse(fs.readFileSync(FILE_PATH));
+
+    // Pasang event listener ketika dropdown diubah manual oleh user
+    selectElement.addEventListener("change", function() {
+        tampilkanDataCucu(this.value);
+    });
 }
 
-// Fungsi menyimpan database JSON
-function simpanData(data) {
-    fs.writeFileSync(FILE_PATH, JSON.stringify(data, null, 2));
+// 3. Fungsi memicu perpindahan dropdown saat teks buku diklik
+function picuDropdown(idAnak) {
+    const selectElement = document.getElementById("menuDropdown");
+    selectElement.value = idAnak; // Ubah nilai dropdown secara instan
+    tampilkanDataCucu(idAnak);     // Update tampilan list cucu
 }
 
-// 1. FUNGSI AUTO-SCAN & TAMBAH BUKU OTOMATIS
-function sinkronisasiGambarKeBuku() {
-    let data = bacaData();
+// 4. Fungsi menampilkan list data cucu berdasarkan pilihan anak
+function tampilkanDataCucu(idAnak) {
+    const boxCucu = document.getElementById("areaCucu");
+    const listCucu = document.getElementById("listCucu");
+    
+    // Bersihkan isi list lama
+    listCucu.innerHTML = "";
 
-    // Baca semua file di dalam folder gambar
-    if (!fs.existsSync(FOLDER_GAMBAR)) {
-        console.log("❌ Folder gambar tidak ditemukan!");
+    if (idAnak && dataBuku[idAnak]) {
+        // Ambil array cucu dari objek JSON
+        const daftarCucu = dataBuku[idAnak].cucu;
+        
+        daftarCucu.forEach(cucuText => {
+            let li = document.createElement("li");
+            li.textContent = cucuText;
+            listCucu.appendChild(li);
+        });
+
+        boxCucu.style.display = "block"; // Munculkan kotak area hijau
+    } else {
+        boxCucu.style.display = "none";  // Sembunyikan jika memilih '--pilih--'
+    }
+}
+
+// 5. Fungsi kirim data ke WhatsApp tanpa me-load ulang halaman web utama
+function kirimSiaranWA() {
+    const selectElement = document.getElementById("menuDropdown");
+    const pilihanSaatIni = selectElement.value;
+
+    if (!pilihanSaatIni) {
+        alert("Silakan pilih menu atau klik teks hyperlink di dalam buku terlebih dahulu!");
         return;
     }
 
-    const files = fs.readdirSync(FOLDER_GAMBAR);
+    // Mengambil data teks anak dan cucunya untuk dijadikan isi pesan WhatsApp
+    let namaAnak = dataBuku[pilihanSaatIni].nama;
+    let daftarCucu = dataBuku[pilihanSaatIni].cucu.join(", ");
 
-    files.forEach(file => {
-        // Ambil nama file tanpa ekstensi (misal: 'A.png' jadi 'A')
-        const namaFile = path.parse(file).name;
-        const ekstensi = path.parse(file).ext.toLowerCase();
-
-        // Hanya proses file gambar (png, jpg, jpeg)
-        if (['.png', '.jpg', '.jpeg'].includes(ekstensi)) {
-            
-            // Cek apakah buku dengan kode tersebut sudah terdaftar di database
-            const sudahAda = data.daftarBuku.some(buku => buku.kode === `BK-${namaFile}`);
-
-            if (!sudahAda) {
-                const bukuBaru = {
-                    kode: `BK-${namaFile}`, // Hasil: BK-A, BK-B, BK-C
-                    judul: `Buku Seri ${namaFile}`, // Judul default, bisa diedit nanti
-                    pengarang: "Belum Diisi",
-                    lokasiGambar: path.join(FOLDER_GAMBAR, file)
-                };
-                data.daftarBuku.push(bukuBaru);
-                console.log(`✅ Otomatis menambah Buku: BK-${namaFile} dari file gambar.`);
-            }
-        }
-    });
-
-    simpanData(data);
-}
-
-// 2. FUNGSI EDIT BUKU
-function editBuku(kodeBuku, judulBaru, pengarangBaru) {
-    let data = bacaData();
-    let buku = data.daftarBuku.find(b => b.kode === kodeBuku);
+    // Ganti nomor di bawah ini dengan nomor tujuan siaran Anda (format kode negara tanpa spasi/tanda +)
+    let nomorTujuan = "628123456789"; 
     
-    if (buku) {
-        buku.judul = judulBaru || buku.judul;
-        buku.pengarang = pengarangBaru || buku.pengarang;
-        simpanData(data);
-        console.log(`📝 Buku ${kodeBuku} berhasil diperbarui.`);
-    } else {
-        console.log("❌ Kode buku tidak ditemukan.");
-    }
+    // Susun pesan text
+    let teksPesan = `Laporan Data Buku:\n- Kategori: ${namaAnak}\n- Anggota: ${daftarCucu}`;
+
+    // Buat URL API WhatsApp dengan encoding text yang aman
+    let urlWhatsApp = `https://wa.me{nomorTujuan}?text=${encodeURIComponent(teksPesan)}`;
+
+    // Menggunakan window.open dengan parameter '_blank' 
+    // Ini membuka aplikasi WhatsApp di tab/jendela baru secara background tanpa me-refresh halaman buku Anda
+    window.open(urlWhatsApp, "_blank");
 }
-
-// 3. FUNGSI HAPUS BUKU
-function hapusBuku(kodeBuku) {
-    let data = bacaData();
-    const index = data.daftarBuku.findIndex(b => b.kode === kodeBuku);
-    
-    if (index !== -1) {
-        data.daftarBuku.splice(index, 1);
-        simpanData(data);
-        console.log(`🗑️ Buku ${kodeBuku} berhasil dihapus dari database.`);
-    } else {
-        console.log("❌ Kode buku tidak ditemukan.");
-    }
-}
-
-// === CARA MENJALANKAN ===
-
-// Langkah A: Jalankan ini pertama kali untuk membaca folder gambar secara otomatis
-sinkronisasiGambarKeBuku();
-
-// Langkah B: Jalankan ini jika ingin mengedit judul buku A atau B atau C
-// editBuku("BK-A", "Novel Sejarah Dunia", "Tere Liye");
-
-// Langkah C: Jalankan ini jika ingin menghapus data buku dari daftar
-// hapusBuku("BK-A");
