@@ -147,43 +147,13 @@ function buatHyperlinkLangsung() {
     hasilLink.onclick = function() {
         masukkanKeDataA(this);
     };
-
-    // Munculkan wadah hasil ke layar HP
-    wadahTeks.style.display = "block";
-
-    // Kosongkan kembali kotak input agar bisa digunakan mengetik teks baru berikutnya
-    inputElement.value = "";
-}
-
-
-    let elemenLinkBaru = document.createElement("span");
-    elemenLinkBaru.className = "teks-bacaan"; 
-    elemenLinkBaru.textContent = teksTerakhir;
-    
-    elemenLinkBaru.onclick = function() {
-        masukkanKeDataA(this);
-    };
-
-    try {
-        rangeTerakhir.deleteContents();
-        rangeTerakhir.insertNode(elemenLinkBaru);
-        
-        // Reset memori setelah sukses
-        teksTerakhir = "";
-        rangeTerakhir = null;
-        window.getSelection().removeAllRanges();
-    } catch (e) {
-        alert("Gagal membuat link. Silakan blok ulang teksnya.");
+        wadahTeks.style.display = "block";
+        inputElement.value = "";
     }
-}
-
-
-
 // 2. Pastikan fungsi masukkanKeDataA Anda tetap terpasang dengan benar di bawahnya
-
 function masukkanKeDataA(elemenTeks) {
     const selectElement = document.getElementById("menuDropdown");
-    
+
     // PENTING: Cek apakah ID dropdown di index.html Anda adalah "menuDropdown" atau "menuDropdownKategori"
     const pilihanSaat Ini = selectElement.value;
 
@@ -216,6 +186,7 @@ function masukkanKeDataA(elemenTeks) {
 }
 
 // Fungsi untuk menghapus kalimat dari daftar data cucu berdasarkan nomor urutan (index)
+
 function hapusDataCucu(idAnak, index) {
     // Beri konfirmasi ke user sebelum menghapus
     let yakin = confirm("Apakah Anda yakin ingin menghapus kalimat ini dari daftar?");
