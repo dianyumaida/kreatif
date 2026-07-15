@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buku Digital Interaktif</title>
     <style>
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7f6;
@@ -30,6 +31,20 @@
             padding: 15px;
             border-radius: 0 8px 8px 0;
         }
+        /* Style agar kalimat di buku terlihat bisa diklik dan interaktif */
+.teks-bacaan {
+    background-color: #fff3cd; /* Warna stabilo kuning muda */
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.teks-bacaan:hover {
+    background-color: #ffeba4;
+    color: #0056b3;
+    text-decoration: underline;
+}
+
         /* Style untuk teks dalam buku yang berfungsi sebagai hyperlink */
         .hyperlink-teks {
             color: #007bff;
@@ -84,9 +99,17 @@
 <div class="container">
     <!-- Bagian Halaman Buku -->
     <div class="area-buku">
-        <h3>Halaman Buku Digital</h3>
-        <p>Silakan baca paragraf ini. Di dalam teks ini terdapat sebuah <span class="hyperlink-teks" onclick="picuDropdown('anak1')">hyperlink tek (anak)</span> yang jika diklik akan otomatis merubah pilihan menu di bawah beserta data cucunya.</p>
-    </div>
+    <h3>Halaman Buku Digital</h3>
+    <p>
+        Silakan baca paragraf ini. 
+        <!-- Setiap kalimat pembacaan dibungkus tag span dengan class 'teks-bacaan' -->
+        <span class="teks-bacaan" onclick="masukkanKeDataA(this)">"Penting: Langkah pertama belajar coding adalah memahami logika dasar pemrograman."</span> 
+        Lalu ada kalimat kedua di sini yaitu 
+        <span class="teks-bacaan" onclick="masukkanKeDataA(this)">"WhatsApp Gateway lokal bisa dibuat gratis menggunakan Node.js dan library Baileys."</span> 
+        Klik pada salah satu kalimat bertanda kutip di atas untuk memasukkannya ke daftar Data A di bawah!
+    </p>
+</div>
+
 
     <!-- Bagian Komponen Dropdown -->
     <label for="menuDropdown"><b>Pilih Menu Kategori:</b></label>
