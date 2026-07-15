@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen Buku Digital</title>
+    <style>
+        /* Gaya Tampilan Dasar - Silakan sesuaikan dengan CSS Anda */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .menu-io {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 6px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        #btnEkspor {
+            background-color: #28a745;
+            color: white;
+        }
+        #btnEkspor:hover { background-color: #218838; }
+        #btnImpor {
+            background-color: #007bff;
+            color: white;
+        }
+        #btnImpor:hover { background-color: #0069d9; }
+        .konten-aplikasi {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📚 Sistem Manajemen Buku Digital</h2>
+    
+    <!-- MODUL EKSPOR & IMPOR DATA (.JSON) -->
+    <div class="menu-io">
+        <button id="btnEkspor" onclick="eksporDataJSON()">📥 Ekspor Data (.json)</button>
+        <input type="file" id="inputImpor" accept=".json" style="display: none;" onchange="imporDataJSON(this)">
+        <button id="btnImpor" onclick="document.getElementById('inputImpor').click()">📤 Impor Data (.json)</button>
+    </div>
+
+    <!-- AREA UTAMA APLIKASI (Tempat Accordion Tree & Fitur Lain Anda) -->
+    <div class="konten-aplikasi">
+        <p>[ Area ini untuk Custom Accordion Tree, Perekam Suara, dan Upload Media Anda ]</p>
+    </div>
+</div>
+
+<script>
+// ==========================================
+// FUNGSI 1: MENGUNDUH DATA DARI LOCALSTORAGE (EKSPOR)
+// ==========================================
+function eksporDataJSON() {
+    try {
+        const seluruhData = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const kunci = localStorage.key(i);
+            seluruhData[kunci] = localStorage.getItem(kunci);
+        }
+
+        const stringData = JSON.stringify(seluruhData, null, 2);
+        const blob = new Blob([stringData], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        
+        const tautanUnduh = document.createElement("a");
+        tautanUnduh.href = url;
+        tautanUnduh.download = `Buku_Digital_${new Date().toISOString().slice(0,10)}.json`;
+        
+        document.body.appendChild(tautanUnduh);
+        tautanUnduh.click();
+        
+        document.body.removeChild(tautanUnduh);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        alert("Gagal mengekspor data: " + error.message);
+    }
+}
+
+// ==========================================
+// FUNGSI 2: MEMBACA & MEMASUKKAN FILE KE LOCALSTORAGE (IMPOR)
+// ==========================================
+function imporDataJSON(input) {
+    const berkas = input.files[0];
+    if (!berkas) return;
+
+    const pembacaBerkas = new FileReader();
+    pembacaBerkas.onload = function(e) {
+        try {
+            const dataHasilParsing = JSON.parse(e.target.result);
+            
+            if (typeof dataHasilParsing !== 'object' || dataHasilParsing === null) {
+                throw new Error("Format file tidak valid.");
+            }
+
+            if (confirm("Perhatian! Mengimpor data baru akan menimpa seluruh data lama di aplikasi ini. Lanjutkan?")) {
+                localStorage.clear();
+                
+                Object.keys(dataHasilParsing).forEach(kunci => {
+                    localStorage.setItem(kunci, dataHasilParsing[kunci]);
+                });
+
+                alert("Data berhasil diimpor! Halaman akan dimuat ulang.");
+                location.reload();
+            }
+        } catch (error) {
+            alert("Gagal membaca file .json: " + error.message);
+        } finally {
+            input.value = '';
+        }
+    };
+    
+    pembacaBerkas.readAsText(berkas);
+}
+</script>
+
+</body>
+</html>
