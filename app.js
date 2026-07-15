@@ -105,38 +105,38 @@ function kirimSiaranWA() {
     // Ini membuka aplikasi WhatsApp di tab/jendela baru secara background tanpa me-refresh halaman buku Anda
     window.open(urlWhatsApp, "_blank");
 }
-// 1. Fungsi untuk mendeteksi teks yang diblok dan mengubahnya menjadi hyperlink teks interaktif
-function buatHyperlinkOtomatis() {
-    // Mengambil teks yang sedang diblok/diseleksi oleh kursor user
+function buatHyperlinkOtomatis(event) {
+    // CRITICAL: Mencegah hilangnya seleksi/blok teks saat tombol diklik (khususnya di HP)
+    if (event) {
+        event.preventDefault();
+    }
+
     let seleksi = window.getSelection();
     let teksDipilih = seleksi.toString().trim();
 
-    // Validasi jika user belum memblok kata apapun
+    // Jika teks kosong, coba ambil ulang (beberapa browser HP butuh delay/toleransi)
     if (!teksDipilih) {
         alert("Silakan blok/seleksi kata atau kalimat di dalam kotak ketik terlebih dahulu!");
         return;
     }
 
-    // Ambil elemen range teks yang diblok
     let range = seleksi.getRangeAt(0);
     
-    // Buat elemen span baru untuk mengubah tampilan kata yang diblok menjadi link kuning
-    let elemenLink Baru = document.createElement("span");
-    elemenLinkBaru.className = "teks-bacaan"; // Menggunakan class CSS stabilo yang sudah ada
+    let elemenLinkBaru = document.createElement("span");
+    elemenLinkBaru.className = "teks-bacaan"; 
     elemenLinkBaru.textContent = teksDipilih;
     
-    // Pasang fungsi klik otomatis agar ketika teks diklik, langsung masuk ke Data Cucu (Data A)
     elemenLinkBaru.onclick = function() {
         masukkanKeDataA(this);
     };
 
-    // Hapus teks lama yang diblok dan ganti dengan elemen link baru buatan kita
     range.deleteContents();
     range.insertNode(elemenLinkBaru);
 
-    // Hilangkan efek blok kursor setelah selesai membuat link
+    // Bersihkan seleksi setelah berhasil dibuat
     seleksi.removeAllRanges();
 }
+
 
 // 2. Pastikan fungsi masukkanKeDataA Anda tetap terpasang dengan benar di bawahnya
 function masukkanKeDataA(elemenTeks) {
