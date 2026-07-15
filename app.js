@@ -180,27 +180,35 @@ function buatHyperlinkLangsung() {
 
 
 // 2. Pastikan fungsi masukkanKeDataA Anda tetap terpasang dengan benar di bawahnya
+
 function masukkanKeDataA(elemenTeks) {
     const selectElement = document.getElementById("menuDropdown");
-    const pilihanSaatIni = selectElement.value;
+    
+    // PENTING: Cek apakah ID dropdown di index.html Anda adalah "menuDropdown" atau "menuDropdownKategori"
+    const pilihanSaat Ini = selectElement.value;
 
     if (!pilihanSaatIni) {
-        alert("Silakan pilih Menu Kategori di bawah terlebih dahulu sebelum mengklik hyperlink!");
+        alert("Silakan pilih Menu Kategori di bawah terlebih dahulu!");
         return;
     }
 
     let kalimatBaru = elemenTeks.textContent;
 
-    if (dataBuku[pilihanSaatIni].cucu.includes(kalimatBaru)) {
-        alert("Kalimat hyperlink ini sudah dimasukkan ke dalam daftar!");
-        return;
-    }
+    // Pastikan variabel dataBuku di bagian atas app.js Anda sudah terisi dari JSON
+    if (dataBuku[pilihanSaatIni] && dataBuku[pilihanSaatIni].cucu) {
+        if (dataBuku[pilihanSaatIni].cucu.includes(kalimatBaru)) {
+            alert("Kalimat ini sudah ada di dalam daftar!");
+            return;
+        }
 
-    // Masukkan ke memori lokal data cucu
-    dataBuku[pilihanSaatIni].cucu.push(kalimatBaru);
-    
-    // Update tampilan list di layar
-    tampilkanDataCucu(pilihanSaatIni);
+        // Masukkan data baru ke memori lokal
+        dataBuku[pilihanSaatIni].cucu.push(kalimatBaru);
+        
+        // Panggil fungsi untuk menampilkan list ke layar bawah
+        tampilkanDataCucu(pilihanSaatIni);
+    } else {
+        alert("Gagal membaca struktur data dari JSON. Silakan refresh halaman.");
+    }
 }
 
     // Notifikasi sukses kecil
