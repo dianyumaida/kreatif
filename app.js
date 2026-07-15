@@ -154,13 +154,6 @@ function buatHyperlinkOtomatis() {
 }
 
 
-    range.deleteContents();
-    range.insertNode(elemenLinkBaru);
-
-    // Bersihkan seleksi setelah berhasil dibuat
-    seleksi.removeAllRanges();
-}
-
 
 // 2. Pastikan fungsi masukkanKeDataA Anda tetap terpasang dengan benar di bawahnya
 function masukkanKeDataA(elemenTeks) {
