@@ -88,3 +88,32 @@ function kirimSiaranWA() {
     // Ini membuka aplikasi WhatsApp di tab/jendela baru secara background tanpa me-refresh halaman buku Anda
     window.open(urlWhatsApp, "_blank");
 }
+// Fungsi untuk memasukkan kalimat dari buku ke dalam Data A (Cucu) secara dinamis
+function masukkanKeDataA(elemenTeks) {
+    const selectElement = document.getElementById("menuDropdown");
+    const pilihanSaatIni = selectElement.value;
+
+    // Validasi: User harus memilih kategori menu dulu agar sistem tahu data mau dimasukkan ke mana
+    if (!pilihanSaatIni) {
+        alert("Silakan pilih Menu Kategori di bawah terlebih dahulu sebelum mengoleksi kalimat!");
+        return;
+    }
+
+    // Ambil teks bacaan dari kalimat buku yang diklik
+    let kalimatBaru = elemenTeks.textContent;
+
+    // Cek apakah kalimat tersebut sudah pernah dimasukkan sebelumnya agar tidak duplikat
+    if (dataBuku[pilihanSaatIni].cucu.includes(kalimatBaru)) {
+        alert("Kalimat ini sudah ada di dalam daftar Data Cucu!");
+        return;
+    }
+
+    // MASUKKAN DATA BARU: Tambahkan kalimat dari buku ke dalam array JSON di memori lokal
+    dataBuku[pilihanSaatIni].cucu.push(kalimatBaru);
+
+    // Refresh tampilan list agar kalimat yang baru dimasukkan langsung muncul di layar
+    tampilkanDataCucu(pilihanSaatIni);
+
+    // Notifikasi sukses kecil
+    alert("✓ Kalimat berhasil dimasukkan ke dalam daftar data!");
+}
