@@ -333,7 +333,7 @@
 </head>
 <body>
     <div class="book-container">
-        <!-- TOMBOL STOP REKAMAN INDEPENDEN -->
+        <!-- TOMBOL STOP REKAMAN BERDIRI INDEPENDEN -->
         <button class="record-status" id="record-indicator" onclick="toggleRekamSuara(event)">⏹️ STOP REKAMAN (KLIK DI SINI)</button>
 
         <div class="nav-header">
@@ -666,7 +666,7 @@
 
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
-            const fileTarget = input.files[0]; // PERBAIKAN: Mengunci objek berkas tunggal pertama
+            const fileTarget = input.files[0]; 
             const reader = new FileReader();
 
             reader.onload = function(e) {
@@ -692,7 +692,7 @@
                 prosesPenyisipanBlokMedia(range, mediaBlock);
             };
 
-            reader.readAsDataURL(fileTarget); // Konversi file ke teks Base64 DataURL agar awet tersimpan
+            reader.readAsDataURL(fileTarget); 
         }
         input.value = '';
     }
@@ -720,7 +720,7 @@
         });
     }
 
-    // FUNGSI UTAMA: Merekam data suara murni dan mengubahnya menjadi string teks Base64 aman
+    // FIX FIX INTI: Fungsi perekam suara hibrida pintar tanpa pembagian interval pecahan (mencegah blob kosong)
     function toggleRekamSuara(event) {
         if(event) event.stopPropagation();
 
@@ -736,11 +736,11 @@
                     };
                     
                     mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
                         const readerAudio = new FileReader();
                         
                         readerAudio.onloadend = function() {
-                            const base64AudioData = readerAudio.result; // Data teks Base64 hasil rekaman suara murni
+                            const base64AudioData = readerAudio.result; 
                             
                             let selection = window.getSelection();
                             let range = (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) ? selection.getRangeAt(0) : document.createRange();
@@ -754,7 +754,7 @@
                             mediaBlock.contentEditable = 'false';
                             
                             const audio = document.createElement('audio');
-                            audio.src = base64AudioData; // Dijamin bisa disetel di iPhone Safari, Chrome Mobile, Laptop
+                            audio.src = base64AudioData; 
                             audio.controls = true;
                             audio.preload = "auto";
                             
@@ -762,10 +762,10 @@
                             prosesPenyisipanBlokMedia(range, mediaBlock);
                         };
                         
-                        readerAudio.readAsDataURL(audioBlob); // Eksekusi konversi rekaman suara murni
+                        readerAudio.readAsDataURL(audioBlob); 
                     };
 
-                    mediaRecorder.start(250);
+                    mediaRecorder.start(); // JANGAN berikan angka interval di dalam kurung agar data terkumpul utuh di akhir tanpa korup
                     sedangMerekam = true;
                     elRecordIndicator.style.display = 'block';
                 }).catch(err => alert('Gagal merekam! Silakan beri akses izin mikrofon perangkat Anda.'));
@@ -778,8 +778,9 @@
         }
     }
 
+    // FIX SINKRONISASI KETIK: Mengembalikan penulisan parameter yang benar agar tidak memicu error crash script
     renderSubLinksTreeDropdown();
-    muatHalaman(indeksActive = 0);
+    muatHalaman(0);
 </script>
 </body>
 </html>
