@@ -1,3 +1,4 @@
+ree-panel-box">
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -17,10 +18,9 @@
             justify-content: center;
         }
 
-        /* Kontainer Utama Buku - FULL PAGE */
         .book-container {
             width: 100%;
-            max-width: 440px;
+            max-width: 680px;
             height: 100vh;
             background: white;
             display: flex;
@@ -28,7 +28,6 @@
             position: relative;
         }
 
-        /* Area Menu Navigasi Atas */
         .nav-header {
             background-color: #2c3e50;
             padding: 12px;
@@ -39,7 +38,6 @@
             z-index: 200;
         }
 
-        /* STRUKTUR CUSTOM TREE ACCORDION DROPDOWN COMPONENT */
         .custom-dropdown-wrapper {
             position: relative;
             width: 100%;
@@ -49,7 +47,7 @@
             background-color: #ffffff;
             color: #333333;
             padding: 12px 15px;
-            border-radius: 6px;
+            border-radius: 4px;
             border: 1px solid #bdc3c7;
             font-size: 14px;
             font-weight: bold;
@@ -69,7 +67,7 @@
             background: #ffffff;
             border: 1px solid #bdc3c7;
             border-radius: 0 0 6px 6px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.175);
             max-height: 420px;
             overflow-y: auto;
             z-index: 300;
@@ -79,7 +77,6 @@
             display: block;
         }
 
-        /* Item Induk Operasi Kelola Catatan Buku */
         .action-item-row {
             padding: 11px 15px;
             font-size: 13px;
@@ -88,10 +85,9 @@
             cursor: pointer;
             border-bottom: 1px solid #f1f2f6;
         }
-        .action-item-row:hover {
-            background-color: #f8f9fa;
-        }
-        /* Desain Baris Folder Kategori Sesuai Permintaan */
+
+        .action-item-row:hover { background-color: #f8f9fa; }
+
         .folder-toggle-bar {
             background-color: #f5f6fa;
             padding: 10px 15px;
@@ -105,22 +101,22 @@
             border-bottom: 1px solid #dcdde1;
             user-select: none;
         }
+
         .folder-left-info {
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        /* Kontainer Akordion Isi Sub Folder */
         .folder-sub-content {
-            display: none; 
+            display: none;
             background-color: #ffffff;
         }
+
         .folder-sub-content.folder-terbuka {
             display: block;
         }
 
-        /* Item Baris Pilihan Bertingkat/Anak di dalam Folder */
         .parameter-select-row {
             padding: 10px 15px 10px 35px;
             font-size: 13px;
@@ -131,13 +127,11 @@
             align-items: center;
             border-bottom: 1px solid #f5f6fa;
         }
-        .parameter-select-row:hover {
-            background-color: #fcfcfc;
-        }
 
-        /* Gaya Baris Khusus Anak Tanpa Radio */
+        .parameter-select-row:hover { background-color: #fcfcfc; }
+
         .folder-child-no-radio {
-            padding: 9px 15px 9px 40px;
+            padding: 8px 15px 8px 40px;
             font-size: 12px;
             font-weight: bold;
             color: #2c3e50;
@@ -148,7 +142,6 @@
             gap: 6px;
         }
 
-        /* Tombol Bundar Radio Kustom Sisi Kanan */
         .radio-dot-marker {
             width: 15px;
             height: 15px;
@@ -174,7 +167,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
-        /* Tampilan Anak Hyperlink Dinamis */
+
         .child-link-bookmark-row {
             padding: 8px 15px 8px 60px;
             font-size: 11px;
@@ -184,21 +177,6 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            border-bottom: 1px solid #f1f2f6;
-        }
-        .child-link-bookmark-row:hover {
-            background-color: #f5f6fa;
-            color: #0984e3;
-        }
-
-        /* PANEL HP PENGATUR MEDIA */
-        .media-tools-bar {
-            background-color: #2c3e50;
-            padding: 6px;
-            display: none;
-            gap: 6px;
-            border-bottom: 2px solid #27ae60;
-            z-index: 200;
         }
 
         .media-btn {
@@ -213,33 +191,32 @@
             cursor: pointer;
             text-align: center;
         }
+
         .media-btn:hover { background-color: #2ecc71; }
-        
-        /* Tombol Stop Rekaman ditaruh paling depan agar responsif saat disentuh */
+
         .record-status {
             font-weight: bold;
             color: white;
             position: absolute;
-            top: 75px; 
+            top: 75px;
             left: 50%;
             transform: translateX(-50%);
             display: none;
             background: #e74c3c;
             padding: 12px 24px;
             border-radius: 30px;
-            z-index: 99999 !important; 
+            z-index: 99999 !important;
             cursor: pointer;
             border: 3px solid white;
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
             animation: pulse 1s infinite alternate;
         }
 
-        @keyframes pulse { 
-            from { transform: scale(1) translateX(-50%); } 
-            to { transform: scale(1.05) translateX(-50%); } 
+        @keyframes pulse {
+            from { transform: scale(1) translateX(-50%); }
+            to { transform: scale(1.05) translateX(-50%); }
         }
 
-        /* Info Indikator Halaman Paling Bawah */
         .page-footer {
             text-align: center;
             padding: 12px;
@@ -248,9 +225,9 @@
             font-size: 14px;
             font-weight: bold;
             color: #7f8c8d;
-            z-index: 190;
+            z-index: 100;
         }
-        /* AREA KETIK TEKS UTAMA */
+
         .text-work-space {
             padding: 20px;
             background-color: #ffffff;
@@ -275,7 +252,7 @@
             width: 180px;
             border: 2px solid transparent;
             box-sizing: border-box;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             transition: border 0.1s ease;
         }
@@ -285,8 +262,8 @@
             box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
         }
 
-        .embedded-media-block img, 
-        .embedded-media-block video, 
+        .embedded-media-block img,
+        .embedded-media-block video,
         .embedded-media-block audio {
             width: 100%;
             height: auto;
@@ -294,14 +271,25 @@
             border-radius: 4px;
         }
 
-        .hyperlink-bookmark {
-            color: #0066cc;
-            text-decoration: underline;
-            font-weight: bold;
-            cursor: pointer;
-            background-color: rgba(0, 102, 204, 0.1);
+        .hyperlink-bookmark, .excel-link {
+            color: #107c41 !important;
+            text-decoration: underline !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
             padding: 0 2px;
-            border-radius: 3px;
+            transition: background-color 0.2s ease;
+        }
+        .excel-link:hover {
+            color: #0b592e !important;
+            background-color: #e1dfdd !important;
+        }
+
+        .target-section-box {
+            margin-top: 40px;
+            padding: 15px;
+            border: 1px solid #dcdde1;
+            border-radius: 4px;
+            background-color: #fafafa;
         }
 
         .audio-dropdown-panel {
@@ -315,119 +303,102 @@
             z-index: 190;
         }
 
-        .audio-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #2c3e50;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-
         input[type="file"] { display: none; }
     </style>
 </head>
 <body>
-
     <div class="book-container">
-        <!-- TOMBOL STOP REKAMAN BERDIRI INDEPENDEN -->
-        <button class="record-status" id="record-indicator" onclick="toggleRekamSuara(event)">⏹️ STOP REKAMAN (KLIK DI SINI)</button>
+        <button class="record-status" id="record-indicator" onclick="toggleRekamanSuara()">🛑 STOP REKAMAN</button>
 
+        <!-- AREA NAVIGASI ATAS -->
         <div class="nav-header">
-            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target: Buat Hyperlink Penanda</h3>
+            <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target: Kelompok Wadah A</h3>
             <div class="custom-dropdown-wrapper">
-                <div class="dropdown-main-button" id="main-dropdown-btn" onclick="toggleMainTreePanel(event)">
-                    <span id="label-dropdown-text">-- Pilih Menu --</span>
+                <button class="dropdown-main-button" id="main-dropdown-btn" onclick="toggleMainMenuTreePanel(event)">
+                    <span id="label-dropdown-text">--- Pilih Menu ---</span>
                     <span>▼</span>
-                </div>
-                
+                </button>
+
                 <div class="dropdown-tree-panel" id="tree-panel-box">
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-tambah')">➕ Tambah Halaman Baru</div>
-                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-cari')">🔍 Pencarian</div>
-                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-wa')">📲 Kirim Saluran WhatsApp</div>
-                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-upload-img')">📸 Upload Gambar Baru (Letak Kursor)</div>
-                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-upload-vid')">📹 Upload Video Baru (Letak Kursor)</div>
-                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-upload-mp3')">🎵 Upload Lagu MP3</div>
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-rekam')">🎙️ Mulai Perekaman Suara</div>
+                    <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-buat-link')">🔗 Buat Hyperlink Teks Terpilih</div>
                     <div class="action-item-row" onclick="eksekusiAksiKelola('aksi-hapus')">❌ Hapus Lembar Ini</div>
-                    
-                    <!-- FOLDER UTAMA -->
+
+                    <!-- PENGELOLA POHON AKORDION FOLDER -->
                     <div class="folder-toggle-bar" onclick="toggleFolderContent('folder-hyperlink-box', event)">
-                        <div class="folder-left-info">📂 <span>-- daftar hyperlink --</span></div>
-                        <span id="panah-folder-hyperlink-box">▼</span>
-                    </div>
-                    
-                    <div class="folder-sub-content folder-terbuka" id="folder-hyperlink-box">
-                        <div class="parameter-select-row aktif-target-wadah" id="row-wadah-penanda" onclick="gantiTargetWadahAktif('wadah-penanda', event)">
-                            <span>🔗 Buat Hyperlink Penanda</span> <span class="radio-dot-marker"></span>
+                        <div class="folder-left-info">
+                            <span>📁</span> <span>Daftar Hyperlink Penanda</span>
                         </div>
-                        <div id="links-box-penanda"></div>
+                        <span id="panah-folder-hyperlink-box">▶</span>
+                    </div>
 
-                        <div class="folder-child-no-radio">📁 Kelompok Wadah A</div>
-                        <div id="links-box-grupA"></div>
+                    <div class="folder-sub-content" id="folder-hyperlink-box">
+                        <div class="parameter-select-row aktif-target-wadah" id="row-wadah-penanda" onclick="gantiTargetWadahAktif('wadah-penanda', event)">
+                            <span>📌 Wadah Utama A</span>
+                            <span class="radio-dot-marker"></span>
+                        </div>
+                        <div id="links-box-penanda" class="target-section-box">
+                            <div class="folder-child-no-radio">📂 Kelompok Wadah A</div>
+                        </div>
 
-                        <div class="folder-child-no-radio">📁 Kelompok Wadah B</div>
-                        <div id="links-box-grupB"></div>
+                        <div class="parameter-select-row" id="row-wadah-grupA" onclick="gantiTargetWadahAktif('wadah-grupA', event)">
+                            <span>📌 Kelompok Wadah B</span>
+                            <span class="radio-dot-marker"></span>
+                        </div>
+                        <div id="links-box-grupA" class="target-section-box" style="margin-top:5px;">
+                            <div class="folder-child-no-radio">📂 Kelompok Wadah B</div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- PANEL OPERASI EDITOR ELEMEN MEDIA -->
+            <div class="audio-dropdown-panel" id="media-tools" style="display:none;">
+                <button class="media-btn" onclick="ubahUkuranKlik(10)">➕ Perbesar</button>
+                <button class="media-btn" onclick="ubahUkuranKlik(-10)">➖ Perkecil</button>
+                <button class="media-btn" onclick="hapusMediaKlik()" style="background-color:#e74c3c;">❌ Hapus</button>
+            </div>
         </div>
-        
-        <!-- BAR TOMBOL KONTROL UKURAN MEDIA -->
-        <div class="media-tools-bar" id="media-tools">
-            <button class="media-btn" onclick="ubahUkuranKlik(30)">➕ Perbesar</button>
-            <button class="media-btn" onclick="ubahUkuranKlik(-30)">➖ Perkecil</button>
-            <button class="media-btn" onclick="hapusMediaKlik()" style="background:#e74c3c;">❌ Hapus</button>
+
+        <!-- AREA TEMPAT KETIK & EDIT TEKS BUKU -->
+        <div id="text-input-field" class="text-work-space" contenteditable="true">
+            Blok teks kalimat di sini, lalu buka menu dropdown atas dan pilih "Buat Hyperlink Teks Terpilih" untuk membuat tautan lompat seperti Excel.
         </div>
 
-        <!-- PANEL RADIO BUTTON HALAMAN -->
-        <div class="audio-dropdown-panel" id="radio-container"></div>
-
-        <!-- Input File Picker Perangkat -->
-        <input type="file" id="file-image" accept="image/*" onchange="handleFileSelected(this, 'image')">
-        <input type="file" id="file-video" accept="video/*" onchange="handleFileSelected(this, 'video')">
-        <input type="file" id="file-audio" accept="audio/*" onchange="handleFileSelected(this, 'audio')">
-
-        <!-- KANVAS UTAMA CATATAN -->
-        <div id="text-input-field" class="text-work-space" contenteditable="true" onclick="deteksiKlikMedia(event)" onkeyup="periksaSeleksiTeks()" onmouseup="periksaSeleksiTeks()"></div>
-
-        <!-- INDIKATOR STRUKTUR HALAMAN BAWAH -->
         <div class="page-footer" id="page-indicator">Lembar 1 dari 1</div>
     </div>
-
 <script>
-    // Membaca database otomatis dari penyimpanan lokal (local storage) HP/Komputer agar data tidak hilang
-    let databaseBuku = JSON.parse(localStorage.getItem('db_buku_digital')) || [{ teks: "" }];
+    let databaseBuku = JSON.parse(localStorage.getItem('db_buku_digital')) || [{ teks: "Blok kalimat di sini untuk tes hyperlink..." }];
     let indeksAktif = 0;
     let elemenMediaTerpilih = null;
-    let mediaRecorder;
+    let mediaRecorder = null;
     let audioChunks = [];
     let sedangMerekam = false;
     let streamSuara = null;
 
     let dataPenandaKategori = JSON.parse(localStorage.getItem('db_kategori_hyperlink')) || {
-        "wadah-penanda": { nama: "Buat Hyperlink Penanda", domBoxId: "links-box-penanda", listLink: [] },
-        "wadah-grupA": { nama: "Kelompok Wadah A", domBoxId: "links-box-grupA", listLink: [] },
-        "wadah-grupB": { nama: "Kelompok Wadah B", domBoxId: "links-box-grupB", listLink: [] }
+        "wadah-penanda": { nama: "Kelompok Wadah A", domBoxId: "#links-box-penanda", listLink: [] },
+        "wadah-grupA": { nama: "Kelompok Wadah B", domBoxId: "#links-box-grupA", listLink: [] }
     };
+
     let wadahTerpilihSaatIni = "wadah-penanda";
+    let kataKunciSeleksi = "";
+
     const elDropdownLabel = document.getElementById('label-dropdown-text');
     const elTreePanelBox = document.getElementById('tree-panel-box');
     const elIndikator = document.getElementById('page-indicator');
     const elTextField = document.getElementById('text-input-field');
     const elRecordIndicator = document.getElementById('record-indicator');
-    const elRadioContainer = document.getElementById('radio-container');
     const elMediaTools = document.getElementById('media-tools');
-    const textHeaderUtama = document.getElementById('textHeaderUtama');
+    const elTextHeaderUtama = document.getElementById('textHeaderUtama');
 
     function simpanKeLocalStorage() {
         localStorage.setItem('db_buku_digital', JSON.stringify(databaseBuku));
         localStorage.setItem('db_kategori_hyperlink', JSON.stringify(dataPenandaKategori));
     }
 
-    function toggleMainTreePanel(event) {
+    function toggleMainMenuTreePanel(event) {
         if (event) event.stopPropagation();
         elTreePanelBox.classList.toggle('show-panel');
     }
@@ -439,48 +410,40 @@
     function toggleFolderContent(boxId, event) {
         if (event) event.stopPropagation();
         const targetBox = document.getElementById(boxId);
-        const panahIndikator = document.getElementById(`panah-${boxId}`);
-        
+        const panahIndikator = document.getElementById('panah-' + boxId);
         targetBox.classList.toggle('folder-terbuka');
-        if (targetBox.classList.contains('folder-terbuka')) {
-            panahIndikator.innerText = "▼";
-        } else {
-            panahIndikator.innerText = "▶";
+        if (panahIndikator) {
+            panahIndikator.innerText = targetBox.classList.contains('folder-terbuka') ? "▼" : "▶";
         }
     }
 
     function gantiTargetWadahAktif(idWadah, event) {
         if (event) event.stopPropagation();
-
         wadahTerpilihSaatIni = idWadah;
-        textHeaderUtama.innerText = "Target: " + dataPenandaKategori[idWadah].nama;
+        elTextHeaderUtama.innerText = "Target: " + dataPenandaKategori[idWadah].nama;
         elDropdownLabel.innerText = dataPenandaKategori[idWadah].nama;
 
         document.querySelectorAll('.parameter-select-row').forEach(row => row.classList.remove('aktif-target-wadah'));
-        
-        const elRow = document.getElementById(`row-${idWadah}`);
-        if(elRow) elRow.classList.add('aktif-target-wadah');
-
+        document.getElementById('row-' + idWadah).classList.add('aktif-target-wadah');
         elTreePanelBox.classList.remove('show-panel');
     }
 
     function renderSubLinksTreeDropdown() {
         Object.keys(dataPenandaKategori).forEach(key => {
             const dataKat = dataPenandaKategori[key];
-            const boxContainer = document.getElementById(dataKat.domBoxId);
+            const boxContainer = document.querySelector(dataKat.domBoxId);
             if (!boxContainer) return;
 
-            boxContainer.innerHTML = ""; 
+            boxContainer.querySelectorAll('.child-link-bookmark-row').forEach(ch => ch.remove());
 
-            dataKat.listLink.forEach((link, index) => {
+            dataKat.listLink.forEach(link => {
                 const childRow = document.createElement('div');
                 childRow.className = "child-link-bookmark-row";
-                childRow.innerText = `└─ 🔗 [Hlm ${link.idHalaman + 1}] "${link.isiTeks.substring(0, 11)}..."`;
-                
+                childRow.innerText = `🔗 [Hlm ${link.idHalaman + 1}] "${link.isiTeks.substring(0, 12)}..."`;
                 childRow.onclick = function(event) {
                     event.stopPropagation();
                     lompatKeTargetHyperlink(link.idHalaman, link.linkId);
-                    elTreePanelBox.classList.remove('show-panel'); 
+                    elTreePanelBox.classList.remove('show-panel');
                 };
                 boxContainer.appendChild(childRow);
             });
@@ -489,81 +452,57 @@
 
     function muatHalaman(indeks) {
         indeksAktif = indeks;
-        const data = databaseBuku[indeksAktif];
-        elMediaTools.style.display = 'none';
-        elemenMediaTerpilih = null;
-        elTextField.innerHTML = data.teks || "";
-        perbaruiElemenVideoHalaman();
+        elTextField.innerHTML = databaseBuku[indeksAktif].teks || "";
         elIndikator.innerText = `Lembar ${indeksAktif + 1} dari ${databaseBuku.length}`;
-        renderRadioHalaman();
     }
-    function deteksiKlikMedia(event) {
-        let targetBlock = event.target.closest('.embedded-media-block');
-        if (targetBlock) {
-            event.stopPropagation();
-            const semuaM = elTextField.querySelectorAll('.embedded-media-block');
-            semuaM.forEach(m => m.classList.remove('selected-target'));
-            elemenMediaTerpilih = targetBlock;
-            elemenMediaTerpilih.classList.add('selected-target');
-            elMediaTools.style.display = 'flex';
-        } else {
-            elemenMediaTerpilih = null;
-            elMediaTools.style.display = 'none';
-            const semuaM = elTextField.querySelectorAll('.embedded-media-block');
-            semuaM.forEach(m => m.classList.remove('selected-target'));
+
+    elTextField.addEventListener('mouseup', function() {
+        kataKunciSeleksi = window.getSelection().toString().trim();
+    });
+
+    function eksekusiAksiKelola(jenis) {
+        if (jenis === 'aksi-tambah') {
+            databaseBuku.push({ teks: "Halaman baru..." });
+            simpanKeLocalStorage();
+            muatHalaman(databaseBuku.length - 1);
+        } else if (jenis === 'aksi-buat-link') {
+            triggerPembuatanLinkExcelOtomatis();
+        } else if (jenis === 'aksi-rekam') {
+            toggleRekamanSuara();
+        } else if (jenis === 'aksi-hapus') {
+            if (databaseBuku.length > 1) {
+                databaseBuku.splice(indeksAktif, 1);
+                simpanKeLocalStorage();
+                muatHalaman(0);
+            }
         }
     }
 
-    function ubahUkuranKlik(nilaiTambah) {
-        if (!elemenMediaTerpilih) return;
-        let lebarLama = elemenMediaTerpilih.offsetWidth;
-        let lebarBaru = lebarLama + nilaiTambah;
-        if (lebarBaru < 60) lebarBaru = 60;
-        if (lebarBaru > 380) lebarBaru = 380;
-        elemenMediaTerpilih.style.width = lebarBaru + 'px';
-        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
-        simpanKeLocalStorage();
-    }
-
-    function hapusMediaKlik() {
-        if (!elemenMediaTerpilih) return;
-        elemenMediaTerpilih.remove();
-        elemenMediaTerpilih = null;
-        elMediaTools.style.display = 'none';
-        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
-        simpanKeLocalStorage();
-    }
-
-    let kataKunciSeleksi = "";
-    function periksaSeleksiTeks() {
-        kataKunciSeleksi = window.getSelection().toString().trim();
-    }
-
-    function triggerMenuBuatPenandaCatatan() {
+    function triggerPembuatanLinkExcelOtomatis() {
         if (!kataKunciSeleksi) {
-            alert("Gagal! Silakan sorot/blok kalimat teks di dalam catatan terlebih dahulu.");
+            alert("Silakan sorot/blok kalimat teks terlebih dahulu!");
             return;
         }
-        
-        const targetWadahPrompt = prompt("Masukkan tujuan wadah teks penanda ini:\n1 = Wadah Utama\n2 = Kelompok Wadah A\n3 = Kelompok Wadah B", "1");
-        
-        let targetKey = "wadah-penanda";
-        if (targetWadahPrompt === "2") targetKey = "wadah-grupA";
-        if (targetWadahPrompt === "3") targetKey = "wadah-grupB";
 
+        const targetDomBoxId = dataPenandaKategori[wadahTerpilihSaatIni].domBoxId;
         const seleksi = window.getSelection();
+
         if (seleksi.rangeCount > 0) {
             const range = seleksi.getRangeAt(0);
-            const aLink = document.createElement('span');
-            aLink.className = 'hyperlink-bookmark';
-            aLink.textContent = kataKunciSeleksi;
+            const alink = document.createElement('span');
+            alink.className = "hyperlink-bookmark excel-link";
+            alink.textContent = kataKunciSeleksi;
+
             const penandaId = "link-" + Date.now();
-            aLink.setAttribute('data-link-id', penandaId);
+            alink.setAttribute('data-link-id', penandaId);
+            alink.setAttribute('data-target', targetDomBoxId);
+
             range.deleteContents();
-            range.insertNode(aLink);
+            range.insertNode(alink);
+
             databaseBuku[indeksAktif].teks = elTextField.innerHTML;
 
-            dataPenandaKategori[targetKey].listLink.push({
+            dataPenandaKategori[wadahTerpilihSaatIni].listLink.push({
                 idHalaman: indeksAktif,
                 linkId: penandaId,
                 isiTeks: kataKunciSeleksi
@@ -571,10 +510,8 @@
 
             renderSubLinksTreeDropdown();
             simpanKeLocalStorage();
-
-            seleksi.removeAllRanges();
             kataKunciSeleksi = "";
-            alert(`Sukses! Teks disimpan di bawah: ${dataPenandaKategori[targetKey].nama}`);
+            alert("Sukses membuat tautan internal!");
         }
     }
 
@@ -585,118 +522,72 @@
             if (elemenLink) {
                 elemenLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 elemenLink.style.backgroundColor = "#ffcc00";
-                setTimeout(() => elemenLink.style.backgroundColor = "rgba(0, 102, 204, 0.1)", 1500);
+                setTimeout(() => { elemenLink.style.backgroundColor = ""; }, 1500);
             }
         }, 350);
     }
-    function handleFileSelected(input, type) {
-        if (input.files && input.files.length > 0) {
-            const fileTarget = input.files[0]; 
-            const reader = new FileReader();
 
-            reader.onload = function(e) {
-                const dataURL = e.target.result;
-                let selection = window.getSelection();
-                let range = (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) ? selection.getRangeAt(0) : document.createRange();
-                if (selection.rangeCount === 0 || !elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
-                    range.selectNodeContents(elTextField);
-                    range.collapse(false);
+    /* Handler Klik Teks: Navigasi Lompat Ke Kelompok Bawah */
+    elTextField.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('excel-link')) {
+            e.preventDefault();
+            const targetSelector = e.target.getAttribute('data-target');
+            const targetElement = document.querySelector(targetSelector);
+
+            if (targetElement) {
+                const parentFolder = targetElement.closest('.folder-sub-content');
+                if (parentFolder && !parentFolder.classList.contains('folder-terbuka')) {
+                    parentFolder.classList.add('folder-terbuka');
+                    const folderBar = parentFolder.previousElementSibling;
+                    if (folderBar) {
+                        const panah = folderBar.querySelector('span[id^="panah-"]');
+                        if (panah) panah.innerText = "▼";
+                    }
                 }
 
-                const mediaBlock = document.createElement('div');
-                mediaBlock.className = 'embedded-media-block';
-                mediaBlock.contentEditable = 'false';
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetElement.style.transition = "background-color 0.5s, outline 0.3s";
+                targetElement.style.backgroundColor = "#dff6dd";
+                targetElement.style.outline = "2px solid #107c41";
 
-                if (type === 'image') {
-                    const img = document.createElement('img'); img.src = dataURL; mediaBlock.appendChild(img);
-                } else if (type === 'video') {
-                    const video = document.createElement('video'); video.src = dataURL; video.controls = true; video.playsInline = true; mediaBlock.appendChild(video);
-                } else if (type === 'audio') {
-                    const audio = document.createElement('audio'); audio.src = dataURL; audio.controls = true; mediaBlock.appendChild(audio);
-                }
-                prosesPenyisipanBlokMedia(range, mediaBlock);
-            };
-
-            reader.readAsDataURL(fileTarget); 
-        }
-        input.value = '';
-    }
-
-    function prosesPenyisipanBlokMedia(range, mediaBlock) {
-        range.insertNode(mediaBlock);
-        const brNode = document.createElement('br');
-        range.setStartAfter(mediaBlock);
-        range.insertNode(brNode);
-        range.setStartAfter(brNode);
-        range.collapse(true);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
-        elTextField.focus();
-        simpanKeLocalStorage();
-    }
-
-    function perbaruiElemenVideoHalaman() {
-        const semuaMedia = elTextField.querySelectorAll('video, audio');
-        semuaMedia.forEach(med => {
-            med.controls = true;
-            med.onclick = (e) => e.stopPropagation();
-        });
-    }
-
-    function toggleRekamSuara(event) {
-        if(event) event.stopPropagation();
-
-        if (!sedangMerekam) {
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                    streamSuara = stream;
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-                    
-                    mediaRecorder.ondataavailable = e => {
-                        if (e.data && e.data.size > 0) audioChunks.push(e.data);
-                    };
-                    
-                    mediaRecorder.onstop = () => {
-                        const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-                        const readerAudio = new FileReader();
-                        
-                        readerAudio.onloadend = function() {
-                            const base64AudioData = readerAudio.result; 
-                            
-                            let selection = window.getSelection();
-                            let range = (selection.rangeCount > 0 && elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) ? selection.getRangeAt(0) : document.createRange();
-                            if (selection.rangeCount === 0 || !elTextField.contains(selection.getRangeAt(0).commonAncestorContainer)) {
-                                range.selectNodeContents(elTextField);
-                                range.collapse(false);
-                            }
-                            
-                            const mediaBlock = document.createElement('div');
-                            mediaBlock.className = 'embedded-media-block';
-                            mediaBlock.contentEditable = 'false';
-                            
-                            const audio = document.createElement('audio');
-                            audio.src = base64AudioData; 
-                            audio.controls = true;
-                            audio.preload = "auto";
-                            
-                            mediaBlock.appendChild(audio);
-                            prosesPenyisipanBlokMedia(range, mediaBlock);
-                        };
-                        
-                        readerAudio.readAsDataURL(audioBlob); 
-                    };
-
-                    mediaRecorder.start(); 
-                    sedangMerekam = true;
-                    elRecordIndicator.style.display = 'block';
-                }).catch(err => alert('Gagal merekam! Periksa izin mikrofon perangkat Anda.'));
+                setTimeout(() => {
+                    targetElement.style.backgroundColor = "";
+                    targetElement.style.outline = "";
+                }, 2000);
             }
+        }
+    });
+
+    function toggleRekamanSuara() {
+        if (!sedangMerekam) {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                streamSuara = stream;
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const mediaBlock = document.createElement('div');
+                        mediaBlock.className = 'embedded-media-block';
+                        const audio = document.createElement('audio');
+                        audio.src = reader.result;
+                        audio.controls = true;
+                        mediaBlock.appendChild(audio);
+                        elTextField.appendChild(mediaBlock);
+                        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
+                        simpanKeLocalStorage();
+                    };
+                    reader.readAsDataURL(audioBlob);
+                };
+                mediaRecorder.start();
+                sedangMerekam = true;
+                elRecordIndicator.style.display = 'block';
+            }).catch(() => alert('Gagal mengakses mikrofon.'));
         } else {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-            if (streamSuara) streamSuara.getTracks().forEach(track => track.stop());
+            if (streamSuara) streamSuara.getTracks().forEach(t => t.stop());
             sedangMerekam = false;
             elRecordIndicator.style.display = 'none';
         }
