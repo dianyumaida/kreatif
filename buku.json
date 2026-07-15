@@ -1,4 +1,16 @@
 {
-  "lastId": 0,
-  "daftarBuku": []
+  "anak1": {
+    "nama": "hyperlink tek (anak)",
+    "cucu": [
+      "data 1 (cucu anak 1)",
+      "data 2 (cucu anak 1)"
+    ]
+  },
+  "anak2": {
+    "nama": "opsi alternatif (anak 2)",
+    "cucu": [
+      "data A (cucu anak 2)",
+      "data B (cucu anak 2)"
+    ]
+  }
 }
