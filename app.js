@@ -105,30 +105,57 @@ function kirimSiaranWA() {
     // Ini membuka aplikasi WhatsApp di tab/jendela baru secara background tanpa me-refresh halaman buku Anda
     window.open(urlWhatsApp, "_blank");
 }
-function buatHyperlinkOtomatis(event) {
-    // CRITICAL: Mencegah hilangnya seleksi/blok teks saat tombol diklik (khususnya di HP)
-    if (event) {
-        event.preventDefault();
-    }
+// Variabel global untuk menyimpan teks dan posisi yang diblok di HP
+let rangeTerakhir = null;
+let teksTerakhir = "";
 
+// Sistem otomatis merekam setiap kali user memblok kata di HP
+document.addEventListener("selectionchange", function() {
     let seleksi = window.getSelection();
-    let teksDipilih = seleksi.toString().trim();
+    let kotakKetik = document.getElementById("kotakKetik");
 
-    // Jika teks kosong, coba ambil ulang (beberapa browser HP butuh delay/toleransi)
-    if (!teksDipilih) {
+    if (seleksi.rangeCount > 0) {
+        let range = seleksi.getRangeAt(0);
+        
+        // Memastikan user memblok teks di dalam kotakKetik, bukan di tempat lain
+        if (kotakKetik.contains(range.commonAncestorContainer)) {
+            rangeTerakhir = range.cloneRange();
+            teksTerakhir = seleksi.toString().trim();
+        }
+    }
+});
+
+// Fungsi tombol yang mengambil data rekaman otomatis di atas
+function buatHyperlinkOtomatis() {
+    // Validasi jika belum ada teks yang terekam
+    if (!teksTerakhir || !rangeTerakhir) {
         alert("Silakan blok/seleksi kata atau kalimat di dalam kotak ketik terlebih dahulu!");
         return;
     }
 
-    let range = seleksi.getRangeAt(0);
-    
+    // Buat elemen span hyperlink kuning
     let elemenLinkBaru = document.createElement("span");
     elemenLinkBaru.className = "teks-bacaan"; 
-    elemenLinkBaru.textContent = teksDipilih;
+    elemenLinkBaru.textContent = teksTerakhir;
     
     elemenLinkBaru.onclick = function() {
         masukkanKeDataA(this);
     };
+
+    try {
+        // Eksekusi perubahan teks menggunakan range yang sudah disimpan aman
+        rangeTerakhir.deleteContents();
+        rangeTerakhir.insertNode(elemenLinkBaru);
+        
+        // Reset memori rekaman setelah sukses
+        teksTerakhir = "";
+        rangeTerakhir = null;
+        window.getSelection().removeAllRanges();
+    } catch (e) {
+        console.error(e);
+        alert("Gagal membuat link. Sila blok ulang teksnya.");
+    }
+}
 
     range.deleteContents();
     range.insertNode(elemenLinkBaru);
