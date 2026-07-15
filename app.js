@@ -37,7 +37,7 @@ function picuDropdown(idAnak) {
     tampilkanDataCucu(idAnak);     // Update tampilan list cucu
 }
 
-// 4. Fungsi menampilkan list data cucu berdasarkan pilihan anak
+// Fungsi menampilkan list data cucu beserta tombol hapus silang (X)
 function tampilkanDataCucu(idAnak) {
     const boxCucu = document.getElementById("areaCucu");
     const listCucu = document.getElementById("listCucu");
@@ -46,20 +46,37 @@ function tampilkanDataCucu(idAnak) {
     listCucu.innerHTML = "";
 
     if (idAnak && dataBuku[idAnak]) {
-        // Ambil array cucu dari objek JSON
         const daftarCucu = dataBuku[idAnak].cucu;
         
-        daftarCucu.forEach(cucuText => {
+        // Looping setiap kalimat/data di dalam array cucu
+        daftarCucu.forEach((cucuText, index) => {
             let li = document.createElement("li");
-            li.textContent = cucuText;
+            
+            // Atur gaya tampilan item list agar tombol hapus berada di ujung kanan
+            li.style.display = "flex";
+            li.style.justifyContent = "space-between";
+            li.style.alignItems = "center";
+            li.style.marginBottom = "8px";
+
+            // Masukkan teks kalimat beserta tombol silang merah (X) yang membawa index data
+            li.innerHTML = `
+                <span style="flex: 1; padding-right: 10px;">${cucuText}</span>
+                <button 
+                    onclick="hapusDataCucu('${idAnak}', ${index})" 
+                    style="background: none; border: none; color: #dc3545; font-size: 18px; font-weight: bold; cursor: pointer; padding: 0 5px;"
+                    title="Hapus kalimat ini"
+                >©</button>
+            `;
+            
             listCucu.appendChild(li);
         });
 
-        boxCucu.style.display = "block"; // Munculkan kotak area hijau
+        boxCucu.style.display = "block"; 
     } else {
-        boxCucu.style.display = "none";  // Sembunyikan jika memilih '--pilih--'
+        boxCucu.style.display = "none";  
     }
 }
+
 
 // 5. Fungsi kirim data ke WhatsApp tanpa me-load ulang halaman web utama
 function kirimSiaranWA() {
@@ -116,4 +133,18 @@ function masukkanKeDataA(elemenTeks) {
 
     // Notifikasi sukses kecil
     alert("✓ Kalimat berhasil dimasukkan ke dalam daftar data!");
+}
+
+// Fungsi untuk menghapus kalimat dari daftar data cucu berdasarkan nomor urutan (index)
+function hapusDataCucu(idAnak, index) {
+    // Beri konfirmasi ke user sebelum menghapus
+    let yakin = confirm("Apakah Anda yakin ingin menghapus kalimat ini dari daftar?");
+    
+    if (yakin) {
+        // Hapus 1 data di posisi index yang dipilih dari array memori lokal
+        dataBuku[idAnak].cucu.splice(index, 1);
+        
+        // Refresh kembali tampilan layar agar data terupdate secara instan
+        tampilkanDataCucu(idAnak);
+    }
 }
