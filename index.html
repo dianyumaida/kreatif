@@ -98,17 +98,24 @@
 
 <div class="container">
     <!-- Bagian Halaman Buku -->
-    <div class="area-buku">
-    <h3>Halaman Buku Digital</h3>
-    <p>
-        Silakan baca paragraf ini. 
-        <!-- Setiap kalimat pembacaan dibungkus tag span dengan class 'teks-bacaan' -->
-        <span class="teks-bacaan" onclick="masukkanKeDataA(this)">"Penting: Langkah pertama belajar coding adalah memahami logika dasar pemrograman."</span> 
-        Lalu ada kalimat kedua di sini yaitu 
-        <span class="teks-bacaan" onclick="masukkanKeDataA(this)">"WhatsApp Gateway lokal bisa dibuat gratis menggunakan Node.js dan library Baileys."</span> 
-        Klik pada salah satu kalimat bertanda kutip di atas untuk memasukkannya ke daftar Data A di bawah!
+    <!-- Bagian Input dan Pembuat Teks Buku -->
+<div class="area-buku" style="border-left: 4px solid #28a745;">
+    <h3>Alat Pembuat Teks & Hyperlink</h3>
+    <p style="font-size: 14px; color: #666; margin-top: -10px;">
+        Ketik teks Anda di kotak bawah. <b>Blok/seleksi kata</b> yang diinginkan dengan kursor, lalu klik tombol "Jadikan Hyperlink".
     </p>
+
+    <!-- Kotak tempat mengetik teks bebas (bisa diedit langsung seperti MS Word) -->
+    <div id="kotakKetik" contenteditable="true" style="border: 1px solid #ced4da; padding: 12px; background: #fff; min-height: 100px; border-radius: 6px; outline: none; font-size: 16px;">
+        Silakan hapus teks contoh ini dan ketik kalimat Anda sendiri. Blok kata tertentu untuk dicoba.
+    </div>
+
+    <!-- Tombol untuk mengubah teks yang diblok menjadi link -->
+    <button onclick="buatHyperlinkOtomatis()" style="margin-top: 10px; background-color: #007bff; color: white; border: none; padding: 8px 15px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 14px;">
+        🔗 Jadikan Hyperlink
+    </button>
 </div>
+
 
 
     <!-- Bagian Komponen Dropdown -->
