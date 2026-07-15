@@ -105,31 +105,62 @@ function kirimSiaranWA() {
     // Ini membuka aplikasi WhatsApp di tab/jendela baru secara background tanpa me-refresh halaman buku Anda
     window.open(urlWhatsApp, "_blank");
 }
-// Fungsi untuk memasukkan kalimat dari buku ke dalam Data A (Cucu) secara dinamis
+// 1. Fungsi untuk mendeteksi teks yang diblok dan mengubahnya menjadi hyperlink teks interaktif
+function buatHyperlinkOtomatis() {
+    // Mengambil teks yang sedang diblok/diseleksi oleh kursor user
+    let seleksi = window.getSelection();
+    let teksDipilih = seleksi.toString().trim();
+
+    // Validasi jika user belum memblok kata apapun
+    if (!teksDipilih) {
+        alert("Silakan blok/seleksi kata atau kalimat di dalam kotak ketik terlebih dahulu!");
+        return;
+    }
+
+    // Ambil elemen range teks yang diblok
+    let range = seleksi.getRangeAt(0);
+    
+    // Buat elemen span baru untuk mengubah tampilan kata yang diblok menjadi link kuning
+    let elemenLink Baru = document.createElement("span");
+    elemenLinkBaru.className = "teks-bacaan"; // Menggunakan class CSS stabilo yang sudah ada
+    elemenLinkBaru.textContent = teksDipilih;
+    
+    // Pasang fungsi klik otomatis agar ketika teks diklik, langsung masuk ke Data Cucu (Data A)
+    elemenLinkBaru.onclick = function() {
+        masukkanKeDataA(this);
+    };
+
+    // Hapus teks lama yang diblok dan ganti dengan elemen link baru buatan kita
+    range.deleteContents();
+    range.insertNode(elemenLinkBaru);
+
+    // Hilangkan efek blok kursor setelah selesai membuat link
+    seleksi.removeAllRanges();
+}
+
+// 2. Pastikan fungsi masukkanKeDataA Anda tetap terpasang dengan benar di bawahnya
 function masukkanKeDataA(elemenTeks) {
     const selectElement = document.getElementById("menuDropdown");
     const pilihanSaatIni = selectElement.value;
 
-    // Validasi: User harus memilih kategori menu dulu agar sistem tahu data mau dimasukkan ke mana
     if (!pilihanSaatIni) {
-        alert("Silakan pilih Menu Kategori di bawah terlebih dahulu sebelum mengoleksi kalimat!");
+        alert("Silakan pilih Menu Kategori di bawah terlebih dahulu sebelum mengklik hyperlink!");
         return;
     }
 
-    // Ambil teks bacaan dari kalimat buku yang diklik
     let kalimatBaru = elemenTeks.textContent;
 
-    // Cek apakah kalimat tersebut sudah pernah dimasukkan sebelumnya agar tidak duplikat
     if (dataBuku[pilihanSaatIni].cucu.includes(kalimatBaru)) {
-        alert("Kalimat ini sudah ada di dalam daftar Data Cucu!");
+        alert("Kalimat hyperlink ini sudah dimasukkan ke dalam daftar!");
         return;
     }
 
-    // MASUKKAN DATA BARU: Tambahkan kalimat dari buku ke dalam array JSON di memori lokal
+    // Masukkan ke memori lokal data cucu
     dataBuku[pilihanSaatIni].cucu.push(kalimatBaru);
-
-    // Refresh tampilan list agar kalimat yang baru dimasukkan langsung muncul di layar
+    
+    // Update tampilan list di layar
     tampilkanDataCucu(pilihanSaatIni);
+}
 
     // Notifikasi sukses kecil
     alert("✓ Kalimat berhasil dimasukkan ke dalam daftar data!");
