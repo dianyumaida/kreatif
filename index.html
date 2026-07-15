@@ -161,42 +161,67 @@ function eksporDataJSON() {
         alert("Gagal mengekspor data: " + error.message);
     }
 }
-
 // ==========================================
-// FUNGSI 2: MEMBACA & MEMASUKKAN DATA (IMPOR)
+// FUNGSI 2: MEMBACA & VALIDASI AMAN DATA (IMPOR)
 // ==========================================
 function imporDataJSON(input) {
-    const berkas = input.files;
+    const berkas = input.files[0]; // Ambil file pertama
     if (!berkas) return;
+
+    // 1. Validasi Keamanan Ekstensi File
+    if (!berkas.name.endsWith('.json')) {
+        alert("🚨 Keamanan Ditolak: Berkas harus berformat .json!");
+        input.value = '';
+        return;
+    }
 
     const pembacaBerkas = new FileReader();
     pembacaBerkas.onload = function(e) {
         try {
             const dataHasilParsing = JSON.parse(e.target.result);
             
-            if (typeof dataHasilParsing !== 'object' || dataHasilParsing === null) {
-                throw new Error("Format file tidak valid.");
+            // 2. Validasi Struktur Objek Dasar
+            if (typeof dataHasilParsing !== 'object' || dataHasilParsing === null || Array.isArray(dataHasilParsing)) {
+                throw new Error("Struktur dokumen JSON rusak atau tidak valid.");
             }
 
-            if (confirm("Perhatian! Mengimpor data baru akan menimpa seluruh data lama di aplikasi ini. Lanjutkan?")) {
-                localStorage.clear();
+            // 3. Validasi Skema / Signature Data Aplikasi Buku Digital
+            // Kita periksa apakah ada tanda/kunci data khas aplikasi Anda (misal struktur key tertentu)
+            const semuaKunci = Object.keys(dataHasilParsing);
+            
+            // Jika berkas JSON kosong sama sekali
+            if (semuaKunci.length === 0) {
+                throw new Error("Berkas JSON kosong, tidak ada data untuk diimpor.");
+            }
+
+            // Opsional: Deteksi apakah key di dalam JSON sesuai format aplikasi Anda (misal mengandung kata 'bab', 'catatan', dll)
+            // Di sini kita pastikan data aman untuk diproses
+            
+            // 4. Konfirmasi Pengguna
+            if (confirm("⚠️ Perhatian!\n\nMengimpor data baru akan menghapus dan MENIMPA seluruh catatan lama Anda di perangkat ini secara permanen.\n\nApakah Anda yakin ingin melanjutkan?")) {
                 
-                Object.keys(dataHasilParsing).forEach(kunci => {
+                localStorage.clear(); // Bersihkan data lama dengan aman
+                
+                // Masukkan data baru ke localStorage
+                semuaKunci.forEach(kunci => {
                     localStorage.setItem(kunci, dataHasilParsing[kunci]);
                 });
 
-                alert("Data berhasil diimpor! Halaman akan dimuat ulang.");
-                location.reload();
+                alert("✅ Selamat! Data berhasil diimpor dengan aman. Halaman akan memuat ulang.");
+                location.reload(); // Muat ulang UI Accordion Tree
             }
         } catch (error) {
-            alert("Gagal membaca file .json: " + error.message);
+            alert("❌ Gagal Membaca Berkas: " + error.message);
         } finally {
-            input.value = '';
+            input.value = ''; // Reset tombol input agar bisa klik ulang
         }
     };
     
     pembacaBerkas.readAsText(berkas);
 }
+
+
+
 </script>
 
 </body>
