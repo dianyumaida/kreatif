@@ -98,22 +98,28 @@
 
 <div class="container">
     <!-- Bagian Halaman Buku -->
-    <!-- Bagian Input dan Pembuat Teks Buku -->
-<div class="area-buku" style="border-left: 4px solid #28a745;">
+<!-- Area Input Teks Buku Khusus HP -->
+<div class="area-buku" style="border-left: 4px solid #28a745; background: #f8f9fa; padding: 15px; border-radius: 8px;">
     <h3>Alat Pembuat Teks & Hyperlink</h3>
-    <p style="font-size: 14px; color: #666; margin-top: -10px;">
-        Ketik teks Anda di kotak bawah. <b>Blok/seleksi kata</b> yang diinginkan dengan kursor, lalu klik tombol "Jadikan Hyperlink".
+    <p style="font-size: 14px; color: #666; margin-top: -5px;">
+        Ketik kata atau kalimat di bawah ini, lalu klik tombol biru untuk menjadikannya link buku.
     </p>
 
-    <!-- Kotak tempat mengetik teks bebas (bisa diedit langsung seperti MS Word) -->
-    <div id="kotakKetik" contenteditable="true" style="border: 1px solid #ced4da; padding: 12px; background: #fff; min-height: 100px; border-radius: 6px; outline: none; font-size: 16px;">
-        Silakan hapus teks contoh ini dan ketik kalimat Anda sendiri. Blok kata tertentu untuk dicoba.
-    </div>
+    <!-- Gunakan input teks murni agar keyboard HP bekerja sempurna -->
+    <input type="text" id="inputTeksBuku" placeholder="Contoh: Bacaan materi 1 atau Kata Coba" style="width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; outline: none; margin-bottom: 10px;">
 
-<button onclick="buatHyperlinkOtomatis()" style="margin-top: 10px; background-color: #007bff; color: white; border: none; padding: 12px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%;">
-    🔗 Jadikan Hyperlink (Sistem Blok)
-</button>
+    <!-- Tombol eksekusi langsung -->
+    <button onclick="buatHyperlinkLangsung()" style="background-color: #007bff; color: white; border: none; padding: 12px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%;">
+        🔗 Buat Menjadi Teks Hyperlink
+    </button>
+
+    <!-- Tempat menampung teks yang sudah sukses diubah menjadi link kuning -->
+    <div id="wadahTeksLink" style="margin-top: 15px; min-height: 40px; padding: 10px; background: white; border: 1px dashed #ccc; border-radius: 6px; display: none;">
+        <b>Hasil Teks Link (Klik tulisan kuning):</b><br>
+        <span id="teksLinkHasil"></span>
+    </div>
 </div>
+
 
     <!-- Bagian Komponen Dropdown -->
     <label for="menuDropdown"><b>Pilih Menu Kategori:</b></label>
