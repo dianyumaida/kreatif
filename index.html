@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Manajemen Buku Digital</title>
     <style>
-        /* Gaya Tampilan Dasar - Silakan sesuaikan dengan CSS Anda */
+        /* Gaya Tampilan Aplikasi */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -24,10 +24,25 @@
         .menu-io {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding: 15px;
             background: #e9ecef;
             border-radius: 6px;
+        }
+        /* Style Kolom Pencarian Baru */
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        .search-box:focus {
+            border-color: #007bff;
+            outline: none;
         }
         button {
             padding: 10px 15px;
@@ -38,22 +53,29 @@
             font-weight: bold;
             transition: background 0.2s;
         }
-        #btnEkspor {
-            background-color: #28a745;
-            color: white;
-        }
+        #btnEkspor { background-color: #28a745; color: white; }
         #btnEkspor:hover { background-color: #218838; }
-        #btnImpor {
-            background-color: #007bff;
-            color: white;
-        }
+        #btnImpor { background-color: #007bff; color: white; }
         #btnImpor:hover { background-color: #0069d9; }
-        .konten-aplikasi {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px dashed #ccc;
-            text-align: center;
-            color: #666;
+        
+        /* Contoh Style Sederhana untuk Accordion Tree Anda */
+        .accordion-item {
+            background: #fdfdfd;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 12px;
+            background: #f1f1f1;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .accordion-content {
+            padding: 12px;
+            background: #fff;
+            border-top: 1px solid #ddd;
         }
     </style>
 </head>
@@ -69,15 +91,50 @@
         <button id="btnImpor" onclick="document.getElementById('inputImpor').click()">📤 Impor Data (.json)</button>
     </div>
 
-    <!-- AREA UTAMA APLIKASI (Tempat Accordion Tree & Fitur Lain Anda) -->
-    <div class="konten-aplikasi">
-        <p>[ Area ini untuk Custom Accordion Tree, Perekam Suara, dan Upload Media Anda ]</p>
+    <!-- FITUR BARU: SEARCH BAR GLOBAL -->
+    <input type="text" id="inputCari" class="search-box" placeholder="🔍 Cari judul bab atau isi catatan di sini..." onkeyup="cariKontenBuku()">
+
+    <!-- AREA STRUKTUR BUKU (Silakan sesuaikan class/id dengan Accordion Tree asli Anda) -->
+    <div id="pohonBuku">
+        <div class="accordion-item">
+            <div class="accordion-header">Bab 1: Pengenalan Buku</div>
+            <div class="accordion-content">Ini adalah isi catatan bab satu tentang dasar manajemen.</div>
+        </div>
+        <div class="accordion-item">
+            <div class="accordion-header">Bab 2: Upload Media & Suara</div>
+            <div class="accordion-content">Panduan merekam suara universal menggunakan format Base64 secara offline.</div>
+        </div>
+        <div class="accordion-item">
+            <div class="accordion-header">Bab 3: Sinkronisasi Data</div>
+            <div class="accordion-content">Menyimpan data catatan, gambar, dan audio langsung ke dalam localstorage perangkat.</div>
+        </div>
     </div>
 </div>
 
 <script>
 // ==========================================
-// FUNGSI 1: MENGUNDUH DATA DARI LOCALSTORAGE (EKSPOR)
+// FUNGSI BARU: PENCARIAN TEKS GLOBAL (SEARCH)
+// ==========================================
+function cariKontenBuku() {
+    const kataKunci = document.getElementById('inputCari').value.toLowerCase();
+    const seluruhItem = document.querySelectorAll('.accordion-item');
+
+    seluruhItem.forEach(item => {
+        // Mengambil teks dari Judul Bab dan Isi Catatan di dalam item tersebut
+        const teksJudul = item.querySelector('.accordion-header').textContent.toLowerCase();
+        const teksIsi = item.querySelector('.accordion-content').textContent.toLowerCase();
+
+        // Jika kata kunci cocok dengan judul ATAU isi catatan
+        if (teksJudul.includes(kataKunci) || teksIsi.includes(kataKunci)) {
+            item.style.display = ""; // Tampilkan elemen jika cocok
+        } else {
+            item.style.display = "none"; // Sembunyikan elemen jika tidak cocok
+        }
+    });
+}
+
+// ==========================================
+// FUNGSI 1: MENGUNDUH DATA (EKSPOR)
 // ==========================================
 function eksporDataJSON() {
     try {
@@ -106,10 +163,10 @@ function eksporDataJSON() {
 }
 
 // ==========================================
-// FUNGSI 2: MEMBACA & MEMASUKKAN FILE KE LOCALSTORAGE (IMPOR)
+// FUNGSI 2: MEMBACA & MEMASUKKAN DATA (IMPOR)
 // ==========================================
 function imporDataJSON(input) {
-    const berkas = input.files[0];
+    const berkas = input.files;
     if (!berkas) return;
 
     const pembacaBerkas = new FileReader();
