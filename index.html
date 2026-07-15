@@ -91,7 +91,6 @@
         .action-item-row:hover {
             background-color: #f8f9fa;
         }
-
         /* Desain Baris Folder Kategori Sesuai Permintaan */
         .folder-toggle-bar {
             background-color: #f5f6fa;
@@ -120,6 +119,7 @@
         .folder-sub-content.folder-terbuka {
             display: block;
         }
+
         /* Item Baris Pilihan Bertingkat/Anak di dalam Folder */
         .parameter-select-row {
             padding: 10px 15px 10px 35px;
@@ -174,7 +174,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
-
         /* Tampilan Anak Hyperlink Dinamis */
         .child-link-bookmark-row {
             padding: 8px 15px 8px 60px;
@@ -251,7 +250,6 @@
             color: #7f8c8d;
             z-index: 190;
         }
-
         /* AREA KETIK TEKS UTAMA */
         .text-work-space {
             padding: 20px;
@@ -332,13 +330,13 @@
     </style>
 </head>
 <body>
+
     <div class="book-container">
         <!-- TOMBOL STOP REKAMAN BERDIRI INDEPENDEN -->
         <button class="record-status" id="record-indicator" onclick="toggleRekamSuara(event)">⏹️ STOP REKAMAN (KLIK DI SINI)</button>
 
         <div class="nav-header">
             <h3 id="textHeaderUtama" style="color: white; margin: 0 0 5px 0; font-size: 14px; text-align: center;">Target: Buat Hyperlink Penanda</h3>
-            
             <div class="custom-dropdown-wrapper">
                 <div class="dropdown-main-button" id="main-dropdown-btn" onclick="toggleMainTreePanel(event)">
                     <span id="label-dropdown-text">-- Pilih Menu --</span>
@@ -591,79 +589,6 @@
             }
         }, 350);
     }
-    function renderRadioHalaman() {
-        elRadioContainer.innerHTML = "";
-        databaseBuku.forEach((item, index) => {
-            const label = document.createElement('label');
-            label.className = 'audio-item';
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = 'anak-penanda';
-            radio.value = index;
-            radio.checked = (index === indeksAktif);
-            radio.onchange = function() {
-                databaseBuku[indeksAktif].teks = elTextField.innerHTML;
-                muatHalaman(parseInt(radio.value));
-            };
-            label.appendChild(radio);
-            label.appendChild(document.createTextNode(`Halaman ${index + 1}`));
-            elRadioContainer.appendChild(label);
-        });
-    }
-
-    elTextField.addEventListener('input', function() {
-        databaseBuku[indeksAktif].teks = elTextField.innerHTML;
-        simpanKeLocalStorage();
-    });
-
-    function cariTeksBuku() {
-        const kataKunci = prompt("Masukkan kata kunci catatan yang ingin dicari:");
-        if (!kataKunci || !kataKunci.trim()) return;
-        const indeksDitemukan = databaseBuku.findIndex(item => item.teks.toLowerCase().includes(kataKunci.toLowerCase()));
-        if (indeksDitemukan !== -1) { muatHalaman(indeksDitemukan); } else { alert("Kata kunci tidak ditemukan."); }
-    }
-
-    function eksekusiAksiKelola(nilaiAksi) {
-        elTreePanelBox.classList.remove('show-panel'); 
-
-        if (nilaiAksi === 'aksi-tambah') {
-            databaseBuku.push({ teks: "" });
-            muatHalaman(databaseBuku.length - 1);
-            simpanKeLocalStorage();
-        }
-        else if (nilaiAksi === 'aksi-cari') {
-            cariTeksBuku();
-        }
-        else if (nilaiAksi === 'aksi-wa') {
-            const clone = elTextField.cloneNode(true);
-            const extra = clone.querySelectorAll('.embedded-media-block, .record-status');
-            extra.forEach(x => x.remove());
-            const teksMurni = clone.innerText || clone.textContent;
-            const teksKirim = encodeURIComponent(`Berikut Catatan Buku Digital Lembar ${indeksAktif + 1}:\n\n` + teksMurni);
-            const linkWA = document.createElement('a'); linkWA.href = `https://wa.me{teksKirim}`; linkWA.target = '_blank';
-            document.body.appendChild(linkWA); linkWA.click(); document.body.removeChild(linkWA);
-        }
-        else if (nilaiAksi === 'aksi-upload-img') { document.getElementById('file-image').click(); }
-        else if (nilaiAksi === 'aksi-upload-vid') { document.getElementById('file-video').click(); }
-        else if (nilaiAksi === 'aksi-upload-mp3') { document.getElementById('file-audio').click(); }
-        else if (nilaiAksi === 'aksi-rekam') { toggleRekamSuara(); }
-        else if (nilaiAksi === 'aksi-hapus') {
-            if (databaseBuku.length <= 1) { alert("Gagal! Minimal harus ada 1 halaman."); return; }
-            if (confirm("Hapus lembar halaman ini?")) {
-                databaseBuku.splice(indeksAktif, 1);
-                if (indeksAktif >= databaseBuku.length) { indeksAktif = databaseBuku.length - 1; }
-                muatHalaman(indeksAktif);
-                simpanKeLocalStorage();
-            }
-        }
-    }
-
-    document.getElementById('row-wadah-penanda').addEventListener('click', function(e) {
-        e.stopPropagation();
-        elTreePanelBox.classList.remove('show-panel');
-        triggerMenuBuatPenandaCatatan();
-    });
-
     function handleFileSelected(input, type) {
         if (input.files && input.files.length > 0) {
             const fileTarget = input.files[0]; 
@@ -720,7 +645,6 @@
         });
     }
 
-    // FIX FIX INTI: Fungsi perekam suara hibrida pintar tanpa pembagian interval pecahan (mencegah blob kosong)
     function toggleRekamSuara(event) {
         if(event) event.stopPropagation();
 
@@ -765,10 +689,10 @@
                         readerAudio.readAsDataURL(audioBlob); 
                     };
 
-                    mediaRecorder.start(); // JANGAN berikan angka interval di dalam kurung agar data terkumpul utuh di akhir tanpa korup
+                    mediaRecorder.start(); 
                     sedangMerekam = true;
                     elRecordIndicator.style.display = 'block';
-                }).catch(err => alert('Gagal merekam! Silakan beri akses izin mikrofon perangkat Anda.'));
+                }).catch(err => alert('Gagal merekam! Periksa izin mikrofon perangkat Anda.'));
             }
         } else {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
@@ -778,7 +702,6 @@
         }
     }
 
-    // FIX SINKRONISASI KETIK: Mengembalikan penulisan parameter yang benar agar tidak memicu error crash script
     renderSubLinksTreeDropdown();
     muatHalaman(0);
 </script>
