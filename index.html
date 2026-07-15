@@ -5,97 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Manajemen Buku Digital</title>
     <style>
-        /* Gaya Tampilan Aplikasi */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f2f5;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .menu-io {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #e9ecef;
-            border-radius: 6px;
-        }
-        /* Style Kolom Pencarian Baru */
-        .search-box {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            border: 2px solid #ccc;
-            border-radius: 6px;
-            font-size: 16px;
-            transition: border-color 0.2s;
-        }
-        .search-box:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-        button {
-            padding: 10px 15px;
-            font-size: 14px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        #btnEkspor { background-color: #28a745; color: white; }
-        #btnEkspor:hover { background-color: #218838; }
-        #btnImpor { background-color: #007bff; color: white; }
-        #btnImpor:hover { background-color: #0069d9; }
-        
-        /* Contoh Style Sederhana untuk Accordion Tree Anda */
-        .accordion-item {
-            background: #fdfdfd;
-            border: 1px solid #ddd;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .accordion-header {
-            padding: 12px;
-            background: #f1f1f1;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .accordion-content {
-            padding: 12px;
-            background: #fff;
-            border-top: 1px solid #ddd;
-        }
+        /* ========================================== */
+/* VARIABEL WARNA (Mendukung Light & Dark)     */
+/* ========================================== */
+:root {
+    --bg-utama: #f8fafc;
+    --bg-kartu: #ffffff;
+    --teks-utama: #0f172a;
+    --teks-sekunder: #475569;
+    --aksen-ekspor: #10b981;
+    --aksen-ekspor-hover: #059669;
+    --aksen-impor: #3b82f6;
+    --aksen-impor-hover: #2563eb;
+    --garis-tepi: #e2e8f0;
+    --fokus: #6366f1;
+}
+
+/* OTOMATIS BERUBAH JADI DARK MODE JIKA HP/LAPTOP USER SETTINGNYA DARK MODE */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-utama: #0f172a;
+        --bg-kartu: #1e293b;
+        --teks-utama: #f8fafc;
+        --teks-sekunder: #94a3b8;
+        --garis-tepi: #334155;
+        --fokus: #818cf8;
+    }
+}
+
+/* ========================================== */
+/* GAYA TAMPILAN ELEMEN KONTROL               */
+/* ========================================== */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--bg-utama);
+    color: var(--teks-utama);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    max-width: 700px;
+    margin: 40px auto;
+    background: var(--bg-kartu);
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--garis-tepi);
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Struktur Grid Baris Tombol Menu IO */
+.menu-io {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+#btnEkspor {
+    background-color: var(--aksen-ekspor);
+    color: #ffffff;
+}
+#btnEkspor:hover {
+    background-color: var(--aksen-ekspor-hover);
+    transform: translateY(-1px);
+}
+
+#btnImpor {
+    background-color: var(--aksen-impor);
+    color: #ffffff;
+}
+#btnImpor:hover {
+    background-color: var(--aksen-impor-hover);
+    transform: translateY(-1px);
+}
+
+/* Kolom Pencarian Premium */
+.search-box-wrapper {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.search-box {
+    width: 100%;
+    padding: 14px 16px 14px 44px; /* Sisakan ruang kiri untuk ikon kaca pembesar */
+    box-sizing: border-box;
+    background-color: var(--bg-utama);
+    color: var(--teks-utama);
+    border: 2px solid var(--garis-tepi);
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.search-box:focus {
+    border-color: var(--fokus);
+    background-color: var(--bg-kartu);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    outline: none;
+}
+
+/* Ikon Pencarian Menggunakan Karakter unicode murni (ringan) */
+.search-box-wrapper::before {
+    content: "🔍";
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    opacity: 0.6;
+}
+
+/* Contoh Konten Accordion Mengikuti Tema */
+.accordion-item {
+    background: var(--bg-kartu);
+    border: 1px solid var(--garis-tepi);
+    margin-bottom: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.accordion-header {
+    padding: 14px 16px;
+    background: var(--bg-utama);
+    cursor: pointer;
+    font-weight: 600;
+}
+.accordion-content {
+    padding: 14px 16px;
+    color: var(--teks-sekunder);
+    border-top: 1px solid var(--garis-tepi);
+}
+
+            
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📚 Sistem Manajemen Buku Digital</h2>
+    <h2>📚 Buku Digital Pro</h2>
     
-    <!-- MODUL EKSPOR & IMPOR DATA (.JSON) -->
+    <!-- MODUL EKSPOR & IMPOR DATA -->
     <div class="menu-io">
-        <button id="btnEkspor" onclick="eksporDataJSON()">📥 Ekspor Data (.json)</button>
+        <button id="btnEkspor" onclick="eksporDataJSON()">📥 Ekspor (.json)</button>
         <input type="file" id="inputImpor" accept=".json" style="display: none;" onchange="imporDataJSON(this)">
-        <button id="btnImpor" onclick="document.getElementById('inputImpor').click()">📤 Impor Data (.json)</button>
+        <button id="btnImpor" onclick="document.getElementById('inputImpor').click()">📤 Impor (.json)</button>
     </div>
 
-    <!-- FITUR BARU: SEARCH BAR GLOBAL -->
-    <input type="text" id="inputCari" class="search-box" placeholder="🔍 Cari judul bab atau isi catatan di sini..." onkeyup="cariKontenBuku()">
+    <!-- STRUKTUR PENCARIAN BARU YANG SUDAH DIBUNGKUS -->
+    <div class="search-box-wrapper">
+        <input type="text" id="inputCari" class="search-box" placeholder="Cari judul bab atau isi catatan..." onkeyup="cariKontenBuku()">
+    </div>
 
-    <!-- AREA STRUKTUR BUKU (Silakan sesuaikan class/id dengan Accordion Tree asli Anda) -->
+    <!-- AREA STRUKTUR ACCORDION TREE ANDA -->
     <div id="pohonBuku">
+        <!-- Struktur konten Anda tetap di sini -->
+    </div>
+</div>
+
         <div class="accordion-item">
             <div class="accordion-header">Bab 1: Pengenalan Buku</div>
             <div class="accordion-content">Ini adalah isi catatan bab satu tentang dasar manajemen.</div>
@@ -109,6 +199,13 @@
             <div class="accordion-content">Menyimpan data catatan, gambar, dan audio langsung ke dalam localstorage perangkat.</div>
         </div>
     </div>
+</div>
+<!-- Elemen Textarea Catatan Anda -->
+<textarea id="teksCatatanAplikasi" onkeyup="pemicuAutosave()" placeholder="Mulai menulis catatan di sini..."></textarea>
+
+<!-- Elemen Teks Indikator Status Simpan (Taruh di sudut bawah area ketik) -->
+<div id="statusAutosave" style="font-size: 12px; color: var(--teks-sekunder); margin-top: 5px; font-style: italic;">
+    ✅ Semua perubahan disimpan otomatis
 </div>
 
 <script>
@@ -220,6 +317,50 @@ function imporDataJSON(input) {
     pembacaBerkas.readAsText(berkas);
 }
 
+// ==========================================
+// FITUR: SIMPAN OTOMATIS (AUTOSAVE) DENGAN DEBOUNCE
+// ==========================================
+let timerAutosave;
+
+function pemicuAutosave() {
+    // Tampilkan indikator status sedang mengetik
+    perbaruiStatusSimpan("⏳ Sedang mengetik...");
+
+    // Batalkan timer sebelumnya (menunda penyimpanan sampai pengguna selesai mengetik)
+    clearTimeout(timerAutosave);
+
+    // Jalankan penyimpanan otomatis setelah pengguna berhenti mengetik selama 1 detik (1000ms)
+    timerAutosave = setTimeout(function() {
+        simpanKeLocalStorage();
+    }, 1000);
+}
+
+function simpanKeLocalStorage() {
+    try {
+        // Ambil elemen teks catatan Anda (sesuaikan ID dengan elemen milik Anda)
+        const areaTeksCatatan = document.getElementById("teksCatatanAplikasi"); 
+        
+        if (areaTeksCatatan) {
+            // Contoh penyimpanan menggunakan key dinamis berdasarkan bab aktif
+            // Nilai key ini bisa Anda sesuaikan dengan sistem Accordion Tree Anda
+            const idBabAktif = "catatan_bab_aktif"; 
+            
+            localStorage.setItem(idBabAktif, areaTeksCatatan.value);
+            
+            // Perbarui status menjadi berhasil disimpan
+            perbaruiStatusSimpan("✅ Semua perubahan disimpan otomatis");
+        }
+    } catch (error) {
+        perbaruiStatusSimpan("❌ Gagal menyimpan otomatis: " + error.message);
+    }
+}
+
+function perbaruiStatusSimpan(pesan) {
+    const elemenStatus = document.getElementById("statusAutosave");
+    if (elemenStatus) {
+        elemenStatus.textContent = pesan;
+    }
+}
 
 
 </script>
