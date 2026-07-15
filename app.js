@@ -126,11 +126,35 @@ document.addEventListener("selectionchange", function() {
     }
 });
 
-function buatHyperlinkOtomatis() {
-    if (!teksTerakhir || !rangeTerakhir) {
-        alert("Silakan blok/seleksi kata di dalam kotak terlebih dahulu!");
+function buatHyperlinkLangsung() {
+    const inputElement = document.getElementById("inputTeksBuku");
+    const wadahTeks = document.getElementById("wadahTeksLink");
+    const hasilLink = document.getElementById("teksLinkHasil");
+
+    let teksInputan = inputElement.value.trim();
+
+    // Validasi jika kotak input masih kosong
+    if (!teksInputan) {
+        alert("Silakan ketik kata atau kalimat terlebih dahulu di dalam kotak!");
         return;
     }
+
+    // Ubah isi wadah menjadi elemen span link kuning yang bisa diklik
+    hasilLink.className = "teks-bacaan";
+    hasilLink.textContent = teksInputan;
+    
+    // Pasang fungsi klik agar teks melompat ke Data Cucu (Data A) di bawah
+    hasilLink.onclick = function() {
+        masukkanKeDataA(this);
+    };
+
+    // Munculkan wadah hasil ke layar HP
+    wadahTeks.style.display = "block";
+
+    // Kosongkan kembali kotak input agar bisa digunakan mengetik teks baru berikutnya
+    inputElement.value = "";
+}
+
 
     let elemenLinkBaru = document.createElement("span");
     elemenLinkBaru.className = "teks-bacaan"; 
