@@ -123,44 +123,48 @@
 
     if (!kolomInput) return;
 
-    const teksUtuh = kolomInput.value; 
+    const teksUtuh = kolomInput.value.trim(); 
     
-    // 1. Deteksi kata yang diblok
-    const posisiMulai = kolomInput.selectionStart;
-    const posisiSelesai = kolomInput.selectionEnd;
-    const teksYangDiblok = teksUtuh.substring(posisiMulai, posisiSelesai).trim();
-
-    if (posisiMulai === posisiSelesai || teksYangDiblok === "") {
-        alert("Silakan BLOK/SELEKSI salah satu kata di dalam kotak teks terlebih dahulu!");
+    // VALIDASI: Pastikan kotak input tidak kosong
+    if (teksUtuh === "") {
+        alert("Silakan ketik kalimat terlebih dahulu di dalam kotak teks!");
         return;
     }
 
-    kolomInput.blur(); // Tutup keyboard HP 
+    kolomInput.blur(); // Tutup keyboard HP secara otomatis agar layar lega
 
-    // 2. Proses isolasi kata yang diblok agar tidak bocor
-    const teksSebelumBlok = teksUtuh.substring(0, posisiMulai);
-    const teksSetelahBlok = teksUtuh.substring(posisiSelesai);
-    const formatHyperlinkTerisolasi = `<a href="#" class="hyperlink-teks" onclick="aksiKlikLink('${teksYangDiblok}')">${teksYangDiblok}</a>`;
+    // SYSTEM OTOMATIS: Memecah kalimat menjadi deretan kata berdasarkan spasi
+    const kumpulanKata = teksUtuh.split(" ");
+    
+    // Mengambil kata paling terakhir dari kalimat untuk dijadikan sebagai Hyperlink
+    const kataTerakhir = kumpulanKata[kumpulanKata.length - 1];
 
-    const hasilKalimatFinal = teksSebelumBlok + formatHyperlinkTerisolasi + teksSetelahBlok;
+    // Mengamankan sisa kata sebelumnya agar tidak ikut terinfeksi menjadi link
+    const sisaKataSebelumnya = kumpulanKata.slice(0, kumpulanKata.length - 1).join(" ");
 
-    // 3. Masukkan data ke memori internal
+    // Membungkus kata terakhir dengan tag <a> dan ditutup rapat </a> di baris yang sama
+    const formatHyperlinkTerisolasi = `<a href="#" class="hyperlink-teks" onclick="aksiKlikLink('${kataTerakhir}')">🔗 ${kataTerakhir}</a>`;
+
+    // Gabungkan kembali sisa kata biasa dengan kata terakhir yang sudah jadi link
+    // Jika input hanya 1 kata, langsung jadikan hyperlink
+    const hasilKalimatFinal = sisaKataSebelumnya ? (sisaKataSebelumnya + " " + formatHyperlinkTerisolasi) : formatHyperlinkTerisolasi;
+
+    // Masukkan data baru ke dalam memori array statis aplikasi Anda
     const dataBaru = {
         judul: hasilKalimatFinal,
         kelompok: "A" 
     };
     databaseBukuStatis.push(dataBaru);
 
-    // 4. Update tampilan kelompok A
+    // Update tampilan halaman dan arahkan ke Kelompok A
     if (dropdown) {
         dropdown.value = "A";
         renderDaftarBuku(); 
     }
 
-    // KUNCI PERUBAHAN: Baris kolomInput.value = ""; DIHAPUS 
-    // Teks di dalam kotak ketikan Anda sekarang akan tetap utuh dan TIDAK HILANG lagi!
+    // KUNCI UTAMA: Teks di dalam kotak ketikan dibiarkan menetap utuh & TIDAK HILANG!
+    console.log("Hyperlink kata terakhir sukses dibuat tanpa mengganggu kursor HP.");
 }
-
 
             // Bersihkan kembali kotak input teks atas agar kosong kembali
             kolomInput.value = "";
