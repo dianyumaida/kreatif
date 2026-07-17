@@ -1,6 +1,4 @@
-// GANTI KODE DI APP.JS ANDA DENGAN INI
-
-let teksHyperlinkBaruMaju = "";
+// GANTI SELURUH KODE FUNGSI INI DI FILE APP.JS ANDA
 
 function buatHyperlinkLangsung() {
     const kolomInput = document.getElementById('inputTeksBuku');
@@ -12,58 +10,47 @@ function buatHyperlinkLangsung() {
         return;
     }
 
-    kolomInput.blur(); // Tutup keyboard HP secara otomatis
+    // 1. Matikan fokus input agar keyboard HP otomatis menutup
+    kolomInput.blur();
 
-    // Simpan teks yang diketik ke variabel global
-    teksHyperlinkBaruMaju = nilaiTeks;
-
-    // Jalankan fungsi perpindahan kelompok
-    pilihKelompokA();
-    
-    kolomInput.value = ""; // Bersihkan kembali kolom ketik
-}
-
-function pilihKelompokA() {
+    // 2. Ubah menu dropdown kategori otomatis ke Kelompok A (Sesuai baris 124 HTML Anda)
     const dropdownKelompok = document.getElementById('menuDropdown');
-    if (!dropdownKelompok) return;
-
-    // 1. Ubah nilai dropdown ke Kelompok A
-    dropdownKelompok.value = "A"; 
-    if (dropdownKelompok.selectedIndex <= 0) {
-        for (let i = 0; i < dropdownKelompok.options.length; i++) {
-            if (dropdownKelompok.options[i].text.includes("Kelompok A")) {
-                dropdownKelompok.selectedIndex = i;
-                break;
-            }
-        }
-    }
-
-    dropdownKelompok.blur(); // Tutup kotak pop-up pilihan hitam di HP
-
-    // 2. Picu event ganti kelompok untuk menjalankan fungsi bawaan kode asli Anda
-    const event = new Event('change', { bubbles: true });
-    dropdownKelompok.dispatchEvent(event);
-
-    // 3. SEGERA MUNCULKAN TEKS DI WADAH RIWAYAT BARU YANG KITA BUAT
-    const kotakRiwayat = document.getElementById('wadahRiwayatKelompokA');
-    const listTeksMasuk = document.getElementById('listTeksMasuk');
-
-    if (kotakRiwayat && listTeksMasuk && teksHyperlinkBaruMaju !== "") {
-        // Tampilkan kotak pembungkusnya yang tadi tersembunyi
-        kotakRiwayat.style.display = "block";
-
-        // Buat elemen hyperlink baru sesuai dengan gaya CSS Anda
-        const barisBaru = document.createElement('div');
-        barisBaru.style.padding = "6px 0";
-        barisBaru.style.borderBottom = "1px dashed #ddd";
-        barisBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight:bold; font-size:16px; color:#0056b3; text-decoration:underline;">🔗 ${teksHyperlinkBaruMaju}</a>`;
+    if (dropdownKelompok) {
+        dropdownKelompok.value = "A";
         
-        // Masukkan teks ke dalam daftar riwayat kelompok A
-        listTeksMasuk.appendChild(barisBaru);
+        // Tutup pop-up kotak hitam pilihan bawaan HP agar tidak mengganggu
+        dropdownKelompok.blur();
+
+        // Picu event 'change' agar data kelompok A asli dimuat terlebih dahulu oleh aplikasi Anda
+        const event = new Event('change', { bubbles: true });
+        dropdownKelompok.dispatchEvent(event);
     }
 
-    // Tampilkan notifikasi keberhasilan
+    // 3. SEGERA SELIPKAN TEKS BARU ANDA SEBAGAI ANAK KELOMPOK A (`id="listCucu"`)
+    // Kita beri jeda sangat singkat (200 milidetik) agar daftar asli selesai digambar dulu oleh sistem,
+    // kemudian teks baru Anda akan diselipkan di bagian paling bawah kelompok tersebut.
     setTimeout(function() {
-        alert("Berhasil! Teks baru langsung dimasukkan ke dalam daftar Kelompok A di bawah.");
-    }, 150);
+        const wadahListCucu = document.getElementById('listCucu'); // Target baris 139 di HTML Anda
+        const areaBoxCucu = document.getElementById('areaCucuCucu'); // Target pembungkus utama di baris 137
+
+        if (wadahListCucu) {
+            // Pastikan kotak pembungkus "Data Cucu Terkait" terlihat di layar HP
+            if (areaBoxCucu) {
+                areaBoxCucu.style.display = "block";
+            }
+
+            // Buat elemen daftar <li> baru
+            const elemenDaftarBaru = document.createElement('li');
+            elemenDaftarBaru.style.margin = "8px 0";
+            
+            // Masukkan teks Anda dibungkus tag tautan <a> dengan class CSS Anda (baris 49)
+            elemenDaftarBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight: bold; font-size: 16px;">🔗 ${nilaiTeks}</a>`;
+            
+            // Tempelkan teks baru tersebut ke dalam daftar Kelompok A
+            wadahListCucu.appendChild(elemenDaftarBaru);
+        }
+    }, 200);
+
+    // 4. Bersihkan kembali kolom ketik teks setelah sukses
+    kolomInput.value = "";
 }
