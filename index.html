@@ -107,40 +107,11 @@
 <!-- Kolom Tempat Mengetik Teks (Baris 109) -->
 <input type="text" id="inputTeksBuku" placeholder="Contoh: Bacaan materi 1 atau Kata C" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
 
-<!-- GANTI TOMBOL BIRU LAMA DI INDEX.HTML DENGAN KODE MANDIRI INI -->
-<button type="button" id="btnBuatLink" style="background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 20px;" onclick="(function(){
-    var input = document.getElementById('inputTeksBuku');
-    var select = document.getElementById('menuDropdown');
-    var list = document.getElementById('listCucu');
-    var area = document.getElementById('areaCucuCucu');
-    
-    if(!input || !input.value.trim()){ 
-        alert('Silakan ketik teks terlebih dahulu!'); 
-        return; 
-    }
-    
-    var teks = input.value.trim();
-    input.value = '';
-    input.blur();
-    
-    if(select){
-        select.value = 'A';
-        select.blur();
-        select.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    
-    setTimeout(function(){
-        if(area){ area.style.display = 'block'; }
-        if(list){
-            var li = document.createElement('li');
-            li.style.margin = '8px 0';
-            li.innerHTML = '<a href=\'#\' class=\'hyperlink-teks\' style=\'font-weight: bold; font-size: 16px;\'>🔗 ' + teks + '</a>';
-            list.appendChild(li);
-        }
-    }, 250);
-})()">
+<!-- GANTI TOMBOL BIRU ANDA DENGAN STRUKTUR BARU INI -->
+<button type="button" onclick="prosesTeksLinkBuku()" id="btnBuatLinkBaru" style="background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 20px;">
     🔗 Buat Menjadi Teks Hyperlink
 </button>
+
 
   <!-- Pastikan kode wadah ini ada di index.html (di bawah tombol biru) -->
 <div id="teksLinkHasil" style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border-left: 4px solid #007bff;">
