@@ -118,51 +118,49 @@
         ];
 
         function buatHyperlinkLangsung() {
-            const kolomInput = document.getElementById('inputTeksBuku');
-            const dropdown = document.getElementById('menuDropdown');
+    const kolomInput = document.getElementById('inputTeksBuku');
+    const dropdown = document.getElementById('menuDropdown');
 
-            if (!kolomInput) return;
+    if (!kolomInput) return;
 
-            const teksUtuh = kolomInput.value; 
-            
-            // 1. DETEKSI POSISI TEKS YANG SEDANG DIBLOK OLEH JARI/KURSOR PENGGUNA
-            const posisiMulai = kolomInput.selectionStart;
-            const posisiSelesai = kolomInput.selectionEnd;
-            const teksYangDiblok = teksUtuh.substring(posisiMulai, posisiSelesai).trim();
+    const teksUtuh = kolomInput.value; 
+    
+    // 1. Deteksi kata yang diblok
+    const posisiMulai = kolomInput.selectionStart;
+    const posisiSelesai = kolomInput.selectionEnd;
+    const teksYangDiblok = teksUtuh.substring(posisiMulai, posisiSelesai).trim();
 
-            // 2. VALIDASI PENYALAHGUNAAN BLOK TEKS
-            if (posisiMulai === posisiSelesai || teksYangDiblok === "") {
-                alert("Silakan BLOK/SELEKSI salah satu kata di dalam kotak teks terlebih dahulu!");
-                return;
-            }
+    if (posisiMulai === posisiSelesai || teksYangDiblok === "") {
+        alert("Silakan BLOK/SELEKSI salah satu kata di dalam kotak teks terlebih dahulu!");
+        return;
+    }
 
-            // Tutup keyboard HP agar tampilan layar lega
-            kolomInput.blur(); 
+    kolomInput.blur(); // Tutup keyboard HP 
 
-            // 3. PROSES PEMISAHAN KALIMAT AGAR TIDAK BOCOR
-            // Mengambil potongan teks sebelum kata yang diblok dan setelah kata yang diblok
-            const teksSebelumBlok = teksUtuh.substring(0, posisiMulai);
-            const teksSetelahBlok = teksUtuh.substring(posisiSelesai);
+    // 2. Proses isolasi kata yang diblok agar tidak bocor
+    const teksSebelumBlok = teksUtuh.substring(0, posisiMulai);
+    const teksSetelahBlok = teksUtuh.substring(posisiSelesai);
+    const formatHyperlinkTerisolasi = `<a href="#" class="hyperlink-teks" onclick="aksiKlikLink('${teksYangDiblok}')">${teksYangDiblok}</a>`;
 
-            // 4. PEMBUNGKUSAN HYPERLINK SECARA KETAT
-            // Mengamankan tag penutup </a> di baris yang sama untuk mengisolasi efek klik link
-            const formatHyperlinkTerisolasi = `<a href="#" class="hyperlink-teks" onclick="aksiKlikLink('${teksYangDiblok}')">${teksYangDiblok}</a>`;
+    const hasilKalimatFinal = teksSebelumBlok + formatHyperlinkTerisolasi + teksSetelahBlok;
 
-            // Satukan kembali menjadi susunan kalimat utuh baru
-            const hasilKalimatFinal = teksSebelumBlok + formatHyperlinkTerisolasi + teksSetelahBlok;
+    // 3. Masukkan data ke memori internal
+    const dataBaru = {
+        judul: hasilKalimatFinal,
+        kelompok: "A" 
+    };
+    databaseBukuStatis.push(dataBaru);
 
-            // 5. MASUKKAN SEBAGAI DATA BARU DI DALAM ARRAY INTERNAL
-            const dataBaru = {
-                judul: hasilKalimatFinal,
-                kelompok: "A" // Mengunci otomatis agar selalu masuk ke Kelompok A
-            };
-            databaseBukuStatis.push(dataBaru);
+    // 4. Update tampilan kelompok A
+    if (dropdown) {
+        dropdown.value = "A";
+        renderDaftarBuku(); 
+    }
 
-            // 6. PAKSA DROPDOWN BERGESER KE KELOMPOK A & RE-RENDER
-            if (dropdown) {
-                dropdown.value = "A";
-                renderDaftarBuku(); 
-            }
+    // KUNCI PERUBAHAN: Baris kolomInput.value = ""; DIHAPUS 
+    // Teks di dalam kotak ketikan Anda sekarang akan tetap utuh dan TIDAK HILANG lagi!
+}
+
 
             // Bersihkan kembali kotak input teks atas agar kosong kembali
             kolomInput.value = "";
