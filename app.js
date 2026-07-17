@@ -1,60 +1,57 @@
-// GANTI KODE DI APP.JS ANDA DENGAN INI
-
 function buatHyperlinkLangsung() {
     const kolomInput = document.getElementById('inputTeksBuku');
     const dropdownKelompok = document.getElementById('menuDropdown'); 
 
     if (!kolomInput) return;
     
-    // 1. Ambil kata murni yang diketik
     const nilaiTeks = kolomInput.value.trim();
     if (nilaiTeks === "") {
         alert("Silakan ketik teks terlebih dahulu di kolom!");
         return;
     }
 
-    kolomInput.blur(); // Tutup keyboard HP
+    // 1. Tutup keyboard HP agar tidak menghalangi layar
+    kolomInput.blur(); 
 
-    // 2. Geser menu dropdown otomatis ke Kelompok A
+    // 2. Ubah kategori ke Kelompok A dan picu pemuatan data asli buku.json
     if (dropdownKelompok) {
         dropdownKelompok.value = "A";
-        dropdownKelompok.blur(); 
+        dropdownKelompok.blur(); // Amankan fokus pop-up HP
         
-        // Pemicu event ganti kelompok agar aplikasi memuat data asli buku.json
         const event = new Event('change', { bubbles: true });
         dropdownKelompok.dispatchEvent(event);
     }
 
-    // 3. JEDA 400 MILIDETIK (Menunggu aplikasi selesai membersihkan layar & merender ulang JSON)
-    // Setelah daftar asli Kelompok A selesai digambar, barulah teks baru disisipkan secara paksa di baris paling bawah.
+    // 3. SELESAIKAN PROSES PENYUNTIKAN TEKS TERLEBIH DAHULU
+    // Kita beri jeda 500 milidetik agar aplikasi Anda selesai memuat data dari buku.json
     setTimeout(function() {
         const wadahListCucu = document.getElementById('listCucu'); 
         const areaBoxCucu = document.getElementById('areaCucuCucu'); 
 
         if (wadahListCucu) {
-            // Pastikan kotak area kelompok tujuan dalam posisi terbuka
             if (areaBoxCucu) {
                 areaBoxCucu.style.display = "block";
             }
 
-            // Buat elemen baris <li> baru yang terisolasi secara penuh
+            // Buat baris baru yang terisolasi dengan tag penutup </a> yang rapat
             const barisBaru = document.createElement('li');
             barisBaru.style.margin = "8px 0";
             barisBaru.style.padding = "4px 0";
-            
-            // Masukkan teks murni dibungkus tag <a> dan </a> yang tertutup rapat,
-            // memastikan teks lain di bawahnya tidak akan ikut terblokir menjadi link!
             barisBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight: bold; font-size: 16px; color: #0056b3; text-decoration: underline; display: inline-block;">🔗 ${nilaiTeks}</a>`;
             
-            // Tempelkan teks baru tersebut ke baris daftar paling bawah kelompok tujuan
+            // Tempelkan teks baru ke daftar Kelompok A paling bawah
             wadahListCucu.appendChild(barisBaru);
             
-            alert(`Sukses! Teks "${nilaiTeks}" berhasil masuk ke dalam daftar Kelompok A.`);
-        } else {
-            alert("Gagal: Komponen id='listCucu' tidak ditemukan saat teks akan disisipkan.");
-        }
-    }, 400);
+            // 4. NOTIFIKASI DILETAKKAN DI SINI (Muncul setelah teks benar-benar terpasang di layar)
+            setTimeout(function() {
+                alert(`Sukses! Teks "${nilaiTeks}" sudah menetap di dalam daftar Kelompok A.`);
+            }, 50);
 
-    // 4. Bersihkan kembali isi kolom input di atas
+        } else {
+            alert("Gagal: Komponen id='listCucu' tidak ditemukan di halaman.");
+        }
+    }, 500);
+
+    // Bersihkan kolom input teks agar kosong kembali
     kolomInput.value = "";
 }
