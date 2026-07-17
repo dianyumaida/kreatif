@@ -1,49 +1,47 @@
 function buatHyperlinkLangsung() {
     const kolomInput = document.getElementById('inputTeksBuku');
-    const wadahListCucu = document.getElementById('listCucu'); // ID dari baris 139 HTML Anda
-    const areaBoxCucu = document.getElementById('areaCucuCucu'); // ID dari baris 137 HTML Anda
+    const wadahListCucu = document.getElementById('listCucu'); 
+    const areaBoxCucu = document.getElementById('areaCucuCucu'); 
+    const dropdownKelompok = document.getElementById('menuDropdown'); 
 
-    // 1. Validasi jika kolom ketik masih kosong
     if (!kolomInput) return;
+    
+    // Mengambil teks murni yang diketik tanpa spasi berlebih di awal/akhir
     const nilaiTeks = kolomInput.value.trim();
     if (nilaiTeks === "") {
-        alert("Silakan ketik teks terlebih dahulu!");
+        alert("Silakan ketik teks terlebih dahulu di kolom!");
         return;
     }
 
-    // 2. Tutup keyboard HP agar tidak menghalangi pandangan mata
-    kolomInput.blur();
+    kolomInput.blur(); // Tutup keyboard HP
 
-    // 3. Paksa menu dropdown pilihan otomatis bergeser ke Kelompok A
-    const dropdownKelompok = document.getElementById('menuDropdown');
     if (dropdownKelompok) {
         dropdownKelompok.value = "A";
-        dropdownKelompok.blur(); // Tutup kotak pop-up hitam bawaan sistem HP
+        dropdownKelompok.blur(); 
     }
 
-    // 4. METODE APLIKASI QUR'AN: Langsung gambar teks ke layar tanpa mematikan sistem
     if (wadahListCucu) {
-        // Buka kotak pembungkus list data jika awalnya tersembunyi
         if (areaBoxCucu) {
             areaBoxCucu.style.display = "block";
         }
 
-        // Buat elemen daftar baru (li)
+        // 1. Buat elemen list item baru
         const barisBaru = document.createElement('li');
         barisBaru.style.margin = "10px 0";
-        barisBaru.style.listStyleType = "none"; // Menghilangkan dot hitam bawaan list
+        barisBaru.style.listStyleType = "none"; 
         
-        // Masukkan teks Anda dengan gaya tautan biru bergaris bawah sesuai kelas CSS Anda
-        barisBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight: bold; font-size: 16px; color: #0056b3; text-decoration: underline;">🔗 ${nilaiTeks}</a>`;
+        // 2. KUNCI UTAMA: Tag <a> harus ditutup dengan ketat (</a>) 
+        // agar teks lain di luar daftar tidak ikut-ikutan menjadi hyperlink!
+        barisBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight: bold; font-size: 16px; color: #0056b3; text-decoration: underline; display: inline-block;">🔗 ${nilaiTeks}</a>`;
         
-        // Tempelkan langsung ke dalam barisan Kelompok A
+        // 3. Tempelkan teks baru yang bersih ke dalam Kelompok A
         wadahListCucu.appendChild(barisBaru);
         
         alert(`Sukses! Teks "${nilaiTeks}" berhasil masuk ke dalam Kelompok A.`);
     } else {
-        alert("Eror: Tempat tujuan id='listCucu' tidak ditemukan di HTML Anda.");
+        alert("Eror: Tempat tujuan id='listCucu' tidak ditemukan.");
     }
 
-    // 5. Bersihkan kembali kolom ketik di atas
+    // Bersihkan kolom input teks agar kosong kembali
     kolomInput.value = "";
 }
