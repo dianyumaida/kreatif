@@ -166,45 +166,93 @@
             kolomInput.value = "";
         }
 
-        // FUNGSI UNTUK MENGGAMBAR DAFTAR BUKU KE LAYAR HP
-        function renderDaftarBuku() {
-            const dropdown = document.getElementById('menuDropdown');
-            const areaBox = document.getElementById('areaCucuCucu');
-            const wadahList = document.getElementById('listCucu');
-            const labelKelompok = document.getElementById('namaKelompokAktif');
+        function buatHyperlinkLangsung() {
+    const kolomInput = document.getElementById('inputTeksBuku');
+    const dropdown = document.getElementById('menuDropdown');
 
-            if (!dropdown || !areaBox || !wadahList || !labelKelompok) return;
+    if (!kolomInput) return;
 
-            const kategoriDipilih = dropdown.value;
+    const teksUtuh = kolomInput.value; 
+    
+    // 1. Deteksi kata yang diblok
+    const posisiMulai = kolomInput.selectionStart;
+    const posisiSelesai = kolomInput.selectionEnd;
+    const teksYangDiblok = teksUtuh.substring(posisiMulai, posisiSelesai).trim();
 
-            // Jika dropdown bernilai kosong/--pilih--, sembunyikan daftar bawah
-            if (kategoriDipilih === "") {
-                areaBox.style.display = "none";
-                return;
-            }
+    if (posisiMulai === posisiSelesai || teksYangDiblok === "") {
+        alert("Silakan BLOK/SELEKSI salah satu kata di dalam kotak teks terlebih dahulu!");
+        return;
+    }
 
-            // Bersihkan tampilan layar lama sebelum menggambar data saringan baru
-            wadahList.innerHTML = "";
-            labelKelompok.innerText = kategoriDipilih;
-            areaBox.style.display = "block";
+    kolomInput.blur(); // Tutup keyboard HP
 
-            // Saring dan gambar baris data yang cocok dengan pilihan kelompok
-            databaseBukuStatis.forEach(function(buku) {
-                if (buku.kelompok === kategoriDipilih) {
-                    const barisLi = document.createElement('li');
-                    barisLi.innerHTML = buku.judul; // Memasukkan string HTML secara aman
-                    wadahList.appendChild(barisLi);
-                }
-            });
+    // Melepas efek blokir biru di HP agar browser tidak nge-bug/macet
+    if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+    }
+
+    // 2. Proses isolasi kata yang diblok agar tidak bocor (Sintaks Baris 143 Diperbaiki)
+    const teksSebelumBlok = teksUtuh.substring(0, posisiMulai);
+    const teksSetelahBlok = teksUtuh.substring(posisiSelesai);
+    const formatHyperlinkTerisolasi = `<a href="#" class="hyperlink-teks" onclick="aksiKlikLink('${teksYangDiblok}')">🔗 ${teksYangDiblok}</a>`;
+
+    const hasilKalimatFinal = teksSebelumBlok + formatHyperlinkTerisolasi + teksSetelahBlok;
+
+    // 3. Masukkan data ke memori internal
+    const dataBaru = {
+        judul: hasilKalimatFinal,
+        kelompok: "A" 
+    };
+    databaseBukuStatis.push(dataBaru);
+
+    // 4. Update tampilan kelompok A (Huruf Besar Kecil Diperbaiki)
+    if (dropdown) {
+        dropdown.value = "A";
+        renderDaftarBuku(); 
+    }
+    
+    // KUNCI UTAMA: Teks ketikan dibiarkan utuh di dalam kotak, TIDAK HILANG!
+}
+
+// 5. FUNGSI UNTUK MENGGAMBAR DAFTAR BUKU KE LAYAR HP
+function renderDaftarBuku() {
+    const dropdown = document.getElementById('menuDropdown');
+    const areaBox = document.getElementById('areaCucuCucu');
+    const wadahList = document.getElementById('listCucu');
+    const labelKelompok = document.getElementById('namaKelompokAktif');
+
+    if (!dropdown || !areaBox || !wadahList || !labelKelompok) return;
+
+    const kategoriDipilih = dropdown.value;
+
+    if (kategoriDipilih === "") {
+        areaBox.style.display = "none";
+        return;
+    }
+
+    // Bersihkan tampilan layar lama sebelum menggambar baru
+    wadahList.innerHTML = "";
+    labelKelompok.innerText = kategoriDipilih;
+    areaBox.style.display = "block";
+
+    // Saring dan tampilkan data
+    databaseBukuStatis.forEach(function(buku) {
+        if (buku.kelompok === kategoriDipilih) {
+            const barisLi = document.createElement('li');
+            barisLi.innerHTML = buku.buku ? buku.buku : buku.judul; // Antisipasi nama properti objek
+            wadahList.appendChild(barisLi);
         }
+    });
+}
 
-        // FUNGSI KETIKA TEKS HYPERLINK DIKLIK OLEH PEMBACA BUKU
-        function aksiKlikLink(kataDipilih) {
-            alert(`Sistem Berhasil Merespons! Anda mengklik tautan kata interaktif: "${kataDipilih}"`);
-        }
+// 6. FUNGSI KETIKA TEKS HYPERLINK DIKLIK OLEH PEMBACA BUKU
+function aksiKlikLink(kataDipilih) {
+    alert(`Sistem Berhasil Merespons! Anda mengklik tautan kata interaktif: "${kataDipilih}"`);
+}
 
-        // Jalankan fungsi penampilan awal saat halaman dimuat
-        renderDaftarBuku();
+// Jalankan penampilan awal saat halaman dimuat
+renderDaftarBuku();
+
     </script>
 </body>
 </html>
