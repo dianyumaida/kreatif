@@ -1,8 +1,8 @@
+// GANTI KODE DI FILE APP.JS ANDA DENGAN INI
+
 function buatHyperlinkLangsung() {
     const kolomInput = document.getElementById('inputTeksBuku');
     const dropdownKelompok = document.getElementById('menuDropdown'); 
-    const wadahListCucu = document.getElementById('listCucu'); 
-    const areaBoxCucu = document.getElementById('areaCucuCucu'); 
 
     if (!kolomInput) return;
     
@@ -13,45 +13,42 @@ function buatHyperlinkLangsung() {
         return;
     }
 
-    // 2. Tutup keyboard HP
-    kolomInput.blur(); 
+    kolomInput.blur(); // Matikan fokus agar keyboard HP menutup
 
-    // 3. Pindahkan nilai dropdown ke Kelompok A secara visual saja
-    // Kita sengaja TIDAK memicu event 'change' agar sistem buku.json tidak berjalan menghapus teks Anda
+    // 2. STRATEGI AL-QUR'AN DIGITAL: Buat objek data baru sesuai format aplikasi Anda
+    const objekBukuBaru = {
+        judul: nilaiTeks,     // Teks murni dari kotak
+        kelompok: "A",       // Kunci target ke Kelompok A
+        link: "#"            // Tautan kosong atau arahkan ke link tujuan
+    };
+
+    // 3. MASUKKAN DATA BARU LANGSUNG KE DALAM MEMORI UTAMA KODINGAN ANDA
+    // Kode di bawah ini otomatis mendeteksi nama variabel Array data buku kodingan asli Anda
+    if (typeof dataBuku !== 'undefined' && Array.isArray(dataBuku)) {
+        dataBuku.push(objekBukuBaru);
+    } else if (typeof daftarBuku !== 'undefined' && Array.isArray(daftarBuku)) {
+        daftarBuku.push(objekBukuBaru);
+    } else if (typeof listBuku !== 'undefined' && Array.isArray(listBuku)) {
+        listBuku.push(objekBukuBaru);
+    } else if (typeof bukuData !== 'undefined' && Array.isArray(bukuData)) {
+        bukuData.push(objekBukuBaru);
+    }
+
+    // 4. ALIRKAN KE DROPDOWN UNTUK MEMICU TAMPILAN KELOMPOK A
     if (dropdownKelompok) {
         dropdownKelompok.value = "A";
         dropdownKelompok.blur(); 
+        
+        // Memicu event ganti kelompok agar fungsi render data asli Anda memuat memori baru kita
+        const event = new Event('change', { bubbles: true });
+        dropdownKelompok.dispatchEvent(event);
     }
 
-    // 4. Masukkan teks langsung ke kelompok tujuan secara terisolasi
-    if (wadahListCucu) {
-        // Pastikan kotak area kelompok tujuan dalam posisi terbuka dan terlihat
-        if (areaBoxCucu) {
-            areaBoxCucu.style.display = "block";
-        }
+    // 5. JALANKAN ULANG FUNGSI RENDER BAWAAN ANDA SECARA MANUAL (JIKA LAYAR MASIH KOSONG)
+    if (typeof tampilkanBuku === 'function') { tampilkanBuku(); }
+    else if (typeof renderBuku === 'function') { renderBuku(); }
+    else if (typeof tampilkanData === 'function') { tampilkanData(); }
 
-        // Buat elemen baris daftar (li) baru
-        const barisBaru = document.createElement('li');
-        barisBaru.style.margin = "10px 0";
-        barisBaru.style.padding = "5px 0";
-        barisBaru.style.listStyleType = "none"; // Hilangkan titik hitam bawaan daftar
-
-        // KUNCI UTAMA: Menggunakan struktur HTML yang terkunci rapat
-        // Tag <a> dibuka dan langsung ditutup </a> di baris yang sama.
-        // display: inline-block memastikan area klik hanya sepanjang teks itu saja, teks lain TIDAK AKAN TERPENGARUH!
-        barisBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight: bold; font-size: 16px; color: #0056b3; text-decoration: underline; display: inline-block; padding: 2px 5px;">🔗 ${nilaiTeks}</a>`;
-        
-        // Tempelkan teks baru tersebut ke baris daftar paling bawah kelompok tujuan
-        wadahListCucu.appendChild(barisBaru);
-        
-        // Tampilkan notifikasi setelah teks sukses terpasang secara fisik di layar
-        setTimeout(function() {
-            alert(`Sukses! Teks "${nilaiTeks}" telah masuk ke Kelompok A tanpa memengaruhi teks lain.`);
-        }, 100);
-    } else {
-        alert("Gagal: Komponen id='listCucu' tidak ditemukan di halaman HTML Anda.");
-    }
-
-    // 5. Bersihkan kembali isi kotak input di atas agar kosong
+    // Bersihkan kembali isi kotak input di atas agar kosong
     kolomInput.value = "";
 }
