@@ -1,58 +1,57 @@
 function buatHyperlinkLangsung() {
     const kolomInput = document.getElementById('inputTeksBuku');
     const dropdownKelompok = document.getElementById('menuDropdown'); 
+    const wadahListCucu = document.getElementById('listCucu'); 
+    const areaBoxCucu = document.getElementById('areaCucuCucu'); 
 
     if (!kolomInput) return;
     
-    // 1. Ambil teks murni yang diketik pengguna
+    // 1. Ambil teks murni dari kotak input
     const nilaiTeks = kolomInput.value.trim();
     if (nilaiTeks === "") {
-        alert("Silakan ketik teks terlebih dahulu di kolom!");
+        alert("Silakan ketik teks terlebih dahulu di dalam kotak!");
         return;
     }
 
-    kolomInput.blur(); // Tutup keyboard HP agar layar lega
+    // 2. Tutup keyboard HP
+    kolomInput.blur(); 
 
-    // 2. STRATEGI QUR'AN DIGITAL: Buat objek data baru dengan format JSON Anda
-    // Mengisolasi tag </a> agar teks lain di aplikasi tidak ikut terblokir menjadi link!
-    const itemBukuBaru = {
-        judul: `<a href="#" class="hyperlink-teks" style="font-weight: bold; color: #0056b3; text-decoration: underline; display: inline-block;">🔗 ${nilaiTeks}</a>`,
-        kelompok: "A", // Mengunci target ke Kelompok A tujuan
-        link: "#"
-    };
-
-    // 3. AMANKAN DATA KE ARRAY UTAMA APLIKASI
-    // Kode ini otomatis mendeteksi nama variabel Array data buku kodingan asli Anda
-    if (typeof dataBuku !== 'undefined' && Array.isArray(dataBuku)) {
-        dataBuku.push(itemBukuBaru);
-    } else if (typeof daftarBuku !== 'undefined' && Array.isArray(daftarBuku)) {
-        daftarBuku.push(itemBukuBaru);
-    } else if (typeof listBuku !== 'undefined' && Array.isArray(listBuku)) {
-        listBuku.push(itemBukuBaru);
-    } else if (typeof bukuData !== 'undefined' && Array.isArray(bukuData)) {
-        bukuData.push(itemBukuBaru);
-    }
-
-    // 4. PINDAHKAN DROPDOWN KE KELOMPOK A
+    // 3. Pindahkan nilai dropdown ke Kelompok A secara visual saja
+    // Kita sengaja TIDAK memicu event 'change' agar sistem buku.json tidak berjalan menghapus teks Anda
     if (dropdownKelompok) {
         dropdownKelompok.value = "A";
-        dropdownKelompok.blur(); // Amankan fokus pop-up sistem HP
-        
-        // Memicu event ganti kelompok agar aplikasi memuat ulang data + teks baru kita
-        const event = new Event('change', { bubbles: true });
-        dropdownKelompok.dispatchEvent(event);
+        dropdownKelompok.blur(); 
     }
 
-    // 5. JALANKAN ULANG FUNGSI RENDER BAWAAN ANDA SECARA MANUAL (JIKA PERLU)
-    if (typeof tampilkanBuku === 'function') { tampilkanBuku(); }
-    else if (typeof renderBuku === 'function') { renderBuku(); }
-    else if (typeof tampilkanData === 'function') { tampilkanData(); }
+    // 4. Masukkan teks langsung ke kelompok tujuan secara terisolasi
+    if (wadahListCucu) {
+        // Pastikan kotak area kelompok tujuan dalam posisi terbuka dan terlihat
+        if (areaBoxCucu) {
+            areaBoxCucu.style.display = "block";
+        }
 
-    // Tampilkan notifikasi setelah teks sukses disuntikkan ke dalam sistem kelompok
-    setTimeout(function() {
-        alert(`Sukses! Teks "${nilaiTeks}" berhasil terdaftar menetap di Kelompok A.`);
-    }, 100);
+        // Buat elemen baris daftar (li) baru
+        const barisBaru = document.createElement('li');
+        barisBaru.style.margin = "10px 0";
+        barisBaru.style.padding = "5px 0";
+        barisBaru.style.listStyleType = "none"; // Hilangkan titik hitam bawaan daftar
 
-    // Bersihkan isi kolom input di atas
+        // KUNCI UTAMA: Menggunakan struktur HTML yang terkunci rapat
+        // Tag <a> dibuka dan langsung ditutup </a> di baris yang sama.
+        // display: inline-block memastikan area klik hanya sepanjang teks itu saja, teks lain TIDAK AKAN TERPENGARUH!
+        barisBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight: bold; font-size: 16px; color: #0056b3; text-decoration: underline; display: inline-block; padding: 2px 5px;">🔗 ${nilaiTeks}</a>`;
+        
+        // Tempelkan teks baru tersebut ke baris daftar paling bawah kelompok tujuan
+        wadahListCucu.appendChild(barisBaru);
+        
+        // Tampilkan notifikasi setelah teks sukses terpasang secara fisik di layar
+        setTimeout(function() {
+            alert(`Sukses! Teks "${nilaiTeks}" telah masuk ke Kelompok A tanpa memengaruhi teks lain.`);
+        }, 100);
+    } else {
+        alert("Gagal: Komponen id='listCucu' tidak ditemukan di halaman HTML Anda.");
+    }
+
+    // 5. Bersihkan kembali isi kotak input di atas agar kosong
     kolomInput.value = "";
 }
