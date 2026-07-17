@@ -214,6 +214,52 @@
     // KUNCI UTAMA: Teks ketikan dibiarkan utuh di dalam kotak, TIDAK HILANG!
 }
 
+function buatHyperlinkLangsung() {
+    const kolomInput = document.getElementById('inputTeksBuku');
+    const dropdown = document.getElementById('menuDropdown');
+
+    if (!kolomInput) return;
+
+    const teksUtuh = kolomInput.value; 
+    
+    // 1. Deteksi kata yang diblok
+    const posisiMulai = kolomInput.selectionStart;
+    const posisiSelesai = kolomInput.selectionEnd;
+    const teksYangDiblok = teksUtuh.substring(posisiMulai, posisiSelesai).trim();
+
+    if (posisiMulai === posisiSelesai || teksYangDiblok === "") {
+        alert("Silakan BLOK/SELEKSI salah satu kata di dalam kotak teks terlebih dahulu!");
+        return;
+    }
+
+    kolomInput.blur(); // Tutup keyboard HP
+
+    // Melepas fokus blokir agar browser HP tidak nge-bug/macet
+    if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+    }
+
+    // 2. Isolasi kata yang diblok agar tidak bocor (Tanda petik baris 143 diperbaiki total)
+    const teksSebelumBlok = teksUtuh.substring(0, posisiMulai);
+    const teksSetelahBlok = teksUtuh.substring(posisiSelesai);
+    const formatHyperlinkTerisolasi = '<a href="#" class="hyperlink-teks" onclick="aksiKlikLink(\'' + teksYangDiblok + '\')">🔗 ' + teksYangDiblok + '</a>';
+
+    const hasilKalimatFinal = teksSebelumBlok + formatHyperlinkTerisolasi + teksSetelahBlok;
+
+    // 3. Masukkan data ke memori internal
+    const dataBaru = {
+        judul: hasilKalimatFinal,
+        kelompok: "A" 
+    };
+    databaseBukuStatis.push(dataBaru);
+
+    // 4. Update tampilan kelompok A (Menggunakan huruf besar kecil yang konsisten)
+    if (dropdown) {
+        dropdown.value = "A";
+        renderDaftarBuku(); 
+    }
+}
+
 // 5. FUNGSI UNTUK MENGGAMBAR DAFTAR BUKU KE LAYAR HP
 function renderDaftarBuku() {
     const dropdown = document.getElementById('menuDropdown');
@@ -235,11 +281,12 @@ function renderDaftarBuku() {
     labelKelompok.innerText = kategoriDipilih;
     areaBox.style.display = "block";
 
-    // Saring dan tampilkan data
+    // Saring dan tampilkan data secara aman
     databaseBukuStatis.forEach(function(buku) {
         if (buku.kelompok === kategoriDipilih) {
             const barisLi = document.createElement('li');
-            barisLi.innerHTML = buku.buku ? buku.buku : buku.judul; // Antisipasi nama properti objek
+            // Menampilkan properti judul objek dengan aman
+            barisLi.innerHTML = buku.judul; 
             wadahList.appendChild(barisLi);
         }
     });
@@ -247,11 +294,12 @@ function renderDaftarBuku() {
 
 // 6. FUNGSI KETIKA TEKS HYPERLINK DIKLIK OLEH PEMBACA BUKU
 function aksiKlikLink(kataDipilih) {
-    alert(`Sistem Berhasil Merespons! Anda mengklik tautan kata interaktif: "${kataDipilih}"`);
+    alert("Sistem Berhasil Merespons! Anda mengklik tautan kata interaktif: " + kataDipilih);
 }
 
 // Jalankan penampilan awal saat halaman dimuat
 renderDaftarBuku();
+
 
     </script>
 </body>
