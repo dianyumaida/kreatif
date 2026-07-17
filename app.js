@@ -1,4 +1,5 @@
-// Deklarasi variabel global sementara untuk menyimpan teks teks baru Anda
+// GANTI KODE DI APP.JS ANDA DENGAN INI
+
 let teksHyperlinkBaruMaju = "";
 
 function buatHyperlinkLangsung() {
@@ -11,15 +12,15 @@ function buatHyperlinkLangsung() {
         return;
     }
 
-    kolomInput.blur(); // Tutup keyboard HP
+    kolomInput.blur(); // Tutup keyboard HP secara otomatis
 
-    // 1. Simpan teks yang diketik ke variabel global agar bisa dipakai di fungsi bawah
+    // Simpan teks yang diketik ke variabel global
     teksHyperlinkBaruMaju = nilaiTeks;
 
-    // 2. Jalankan fungsi perpindahan kelompok
+    // Jalankan fungsi perpindahan kelompok
     pilihKelompokA();
     
-    kolomInput.value = ""; // Bersihkan kolom ketik
+    kolomInput.value = ""; // Bersihkan kembali kolom ketik
 }
 
 function pilihKelompokA() {
@@ -37,33 +38,32 @@ function pilihKelompokA() {
         }
     }
 
-    dropdownKelompok.blur(); // Paksa tutup kotak pop-up hitam di HP
+    dropdownKelompok.blur(); // Tutup kotak pop-up pilihan hitam di HP
 
-    // 2. Picu event ganti kelompok agar kode asli Anda memuat data Kelompok A ke layar
+    // 2. Picu event ganti kelompok untuk menjalankan fungsi bawaan kode asli Anda
     const event = new Event('change', { bubbles: true });
     dropdownKelompok.dispatchEvent(event);
 
-    // 3. TRIK UTAMA: Beri jeda 300 milidetik (menunggu daftar asli selesai digambar di layar),
-    // lalu kita paksa selipkan teks baru Anda ke bagian paling bawah daftar Kelompok A.
-    setTimeout(function() {
-        if (teksHyperlinkBaruMaju !== "") {
-            // Cari wadah tempat daftar isi buku Anda ditampilkan di layar HTML.
-            // Kode di bawah ini otomatis mencari area buku atau kontainer daftar Anda.
-            const wadahDaftarBuku = document.querySelector('.area-buku') || 
-                                    document.getElementById('daftar-buku') || 
-                                    document.getElementById('kontainer-buku') ||
-                                    document.querySelector('.container div');
+    // 3. SEGERA MUNCULKAN TEKS DI WADAH RIWAYAT BARU YANG KITA BUAT
+    const kotakRiwayat = document.getElementById('wadahRiwayatKelompokA');
+    const listTeksMasuk = document.getElementById('listTeksMasuk');
 
-            if (wadahDaftarBuku) {
-                // Buat elemen tautan baru dengan gaya tulisan kuning/biru sesuai CSS Anda
-                const elemenBaru = document.createElement('div');
-                elemenBaru.style.marginTop = "10px";
-                elemenBaru.style.padding = "5px 0";
-                elemenBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight:bold; font-size:16px;">${teksHyperlinkBaruMaju}</a>`;
-                
-                // Tempelkan teks baru tersebut tepat di bawah anak-anak Kelompok A yang lain
-                wadahDaftarBuku.appendChild(elemenBaru);
-            }
-        }
-    }, 300);
+    if (kotakRiwayat && listTeksMasuk && teksHyperlinkBaruMaju !== "") {
+        // Tampilkan kotak pembungkusnya yang tadi tersembunyi
+        kotakRiwayat.style.display = "block";
+
+        // Buat elemen hyperlink baru sesuai dengan gaya CSS Anda
+        const barisBaru = document.createElement('div');
+        barisBaru.style.padding = "6px 0";
+        barisBaru.style.borderBottom = "1px dashed #ddd";
+        barisBaru.innerHTML = `<a href="#" class="hyperlink-teks" style="font-weight:bold; font-size:16px; color:#0056b3; text-decoration:underline;">🔗 ${teksHyperlinkBaruMaju}</a>`;
+        
+        // Masukkan teks ke dalam daftar riwayat kelompok A
+        listTeksMasuk.appendChild(barisBaru);
+    }
+
+    // Tampilkan notifikasi keberhasilan
+    setTimeout(function() {
+        alert("Berhasil! Teks baru langsung dimasukkan ke dalam daftar Kelompok A di bawah.");
+    }, 150);
 }
