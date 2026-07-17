@@ -1,40 +1,55 @@
 function buatHyperlinkLangsung() {
-    // 1. Ambil elemen kolom input tempat Anda mengetik
+    // 1. Ambil elemen input dan tempat hasil
     const kolomInput = document.getElementById('inputTeksBuku');
-    
-    // 2. Ambil elemen wadah tempat memunculkan teks hasil (baris 119 di HTML)
     const wadahHasil = document.getElementById('teksLinkHasil');
 
-    // 3. Ambil isi teks yang diketik pengguna
+    // Validasi jika elemen tidak ditemukan di HTML
+    if (!kolomInput || !wadahHasil) {
+        alert("Eror: Elemen inputTeksBuku atau teksLinkHasil tidak ditemukan di HTML!");
+        return;
+    }
+
     const nilaiTeks = kolomInput.value.trim();
 
-    // Validasi jika kolom kosong
     if (nilaiTeks === "") {
         alert("Silakan ketik teks terlebih dahulu di kolom!");
         return;
     }
 
-    // 4. Masukkan teks ke wadah hasil. 
-    // Saat teks ini diklik, ia akan menjalankan fungsi 'pilihKelompokA()'
-    wadahHasil.innerHTML = `<span class="hyperlink-teks" onclick="pilihKelompokA()" style="cursor:pointer;">${nilaiTeks}</span>`;
+    // 2. Tutup keyboard HP secara otomatis agar tidak menghalangi layar
+    kolomInput.blur();
+
+    // 3. Munculkan teks hasil di dalam wadah dan pasang fungsi klik langsung ke kelompok A
+    wadahHasil.innerHTML = `<span class="hyperlink-teks" onclick="pilihKelompokA()" style="cursor:pointer; display:inline-block; padding: 5px 0;">${nilaiTeks}</span>`;
+    
+    // Informasi bahwa teks berhasil dibuat di bawah tombol
+    alert("Teks Hyperlink berhasil dibuat! Silakan klik teks hasil di bawah tombol untuk memilih Kelompok A.");
 }
 
-// Fungsi yang otomatis berjalan saat teks hyperlink hasil klik diklik oleh pengguna
+// Fungsi untuk memaksa dropdown berpindah ke Kelompok A
 function pilihKelompokA() {
-    // Ambil elemen dropdown kelompok (baris 126 pada HTML Anda)
     const dropdownKelompok = document.getElementById('menuDropdown');
 
     if (dropdownKelompok) {
-        // Mengubah pilihan dropdown secara otomatis ke nilai "A"
-        dropdownKelompok.value = "A";
-        
-        // Memicu event 'change' secara manual agar JavaScript lain (jika ada) 
-        // tahu bahwa pilihan dropdown sudah berubah ke kelompok A
-        const event = new Event('change');
+        // Coba pilih berdasarkan nilai "A" atau cari teks yang mengandung "Kelompok A"
+        dropdownKelompok.value = "A"; 
+
+        // Jika value="A" gagal karena data dari JSON berbeda, kita paksa pilih index ke-1 (opsi kedua)
+        if (dropdownKelompok.selectedIndex <= 0) {
+            for (let i = 0; i < dropdownKelompok.options.length; i++) {
+                if (dropdownKelompok.options[i].text.includes("Kelompok A")) {
+                    dropdownKelompok.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // Pemicu event agar tampilan di HP langsung berubah dan sinkron
+        const event = new Event('change', { bubbles: true });
         dropdownKelompok.dispatchEvent(event);
-        
-        alert("Berhasil! Kelompok otomatis berpindah ke opsi A.");
+
+        alert("Sukses! Menu kategori otomatis berpindah ke Kelompok A.");
     } else {
-        alert("Elemen dropdown tidak ditemukan. Periksa kembali id='menuDropdown' pada HTML Anda.");
+        alert("Eror: Elemen dropdown id='menuDropdown' tidak ditemukan.");
     }
 }
