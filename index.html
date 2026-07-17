@@ -3,147 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buku Digital Interaktif</title>
+    <title>Eksperimen Teks Interaktif ala Al-Qur'an Digital</title>
     <style>
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            margin: 0;
+            font-family: Arial, sans-serif;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #f4f7f6;
+            max-width: 500px;
+            margin: 0 auto;
         }
-        .container {
+        .box-pembuat {
             background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            max-width: 600px;
-            width: 100%;
-        }
-        .area-buku {
-            border-left: 4px solid #007bff;
-            padding-left: 15px;
-            margin-bottom: 25px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 0 8px 8px 0;
-        }
-        /* Style agar kalimat di buku terlihat bisa diklik dan interaktif */
-.teks-bacaan {
-    background-color: #fff3cd; /* Warna stabilo kuning muda */
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 4px;
-    transition: background 0.2s;
-}
-.teks-bacaan:hover {
-    background-color: #ffeba4;
-    color: #0056b3;
-    text-decoration: underline;
-}
-
-        /* Style untuk teks dalam buku yang berfungsi sebagai hyperlink */
-        .hyperlink-teks {
-            color: #007bff;
-            font-weight: bold;
-            text-decoration: underline;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .hyperlink-teks:hover {
-            color: #0056b3;
-            background-color: #e6f0ff;
-        }
-        select {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            margin-bottom: 20px;
-        }
-        .box-cucu {
-            background: #eef9f1;
-            border: 1px solid #c3e6cb;
             padding: 15px;
             border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            display: none; /* Sembunyi di awal, muncul jika ada data */
         }
-        .box-cucu ul {
-            margin: 5px 0 0 20px;
-            padding: 0;
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
         }
-        .btn-wa {
-            background-color: #25D366;
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 16px;
+            border-radius: 5px;
             font-weight: bold;
-            border-radius: 6px;
             cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
         }
-        .btn-wa:hover {
-            background-color: #1bd741;
+        /* Style Hyperlink Terisolasi */
+        .hyperlink-teks {
+            color: #0056b3;
+            text-decoration: underline;
+            font-weight: bold;
+            font-size: 16px;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .box-hasil {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #28a745;
+            display: none;
+        }
+        ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        li {
+            margin: 8px 0;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- Bagian Halaman Buku -->
-<!-- Area Input Teks Buku Khusus HP -->
-<div class="area-buku" style="border-left: 4px solid #28a745; background: #f8f9fa; padding: 15px; border-radius: 8px;">
-    <h3>Alat Pembuat Teks & Hyperlink</h3>
-    <p style="font-size: 14px; color: #666; margin-top: -5px;">
-        Ketik kata atau kalimat di bawah ini, lalu klik tombol biru untuk menjadikannya link buku.
-    </p>
-<!-- Kolom Tempat Mengetik Teks (Baris 109) -->
-<input type="text" id="inputTeksBuku" placeholder="Contoh: Bacaan materi 1 atau Kata C" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+    <!-- 1. AREA KOTAK PEMBUAT TEKS -->
+    <div class="box-pembuat">
+        <label>Ketik Teks Buku:</label>
+        <input type="text" id="inputTeksBuku" placeholder="Contoh: Bacaan Materi 1 atau Ggg">
+        
+        <button type="button" onclick="buatHyperlinkLangsung()">🔗 Buat Menjadi Teks Hyperlink</button>
+    </div>
 
-    <button type="button" onclick="buatHyperlinkLangsung()" id="btnBuatLink" style="background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 20px;">
-    🔗 Buat Menjadi Teks Hyperlink
-</button>
+    <!-- 2. DROPDOWN UTAMA SEBAGAI PENGENDALI KELOMPOK -->
+    <label>Pilih Menu Kategori:</label>
+    <select id="menuDropdown" onchange="renderDaftarBuku()">
+        <option value="">--pilih--</option>
+        <option value="A">Kelompok A</option>
+        <option value="B">Kelompok B</option>
+    </select>
 
-    
-  <!-- Pastikan kode wadah ini ada di index.html (di bawah tombol biru) -->
-<div id="teksLinkHasil" style="margin-top: 15px; margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border-left: 4px solid #007bff;">
-    <!-- Riwayat teks hyperlink akan muncul di sini -->
-</div>
-</div>
-
-
-    <!-- Bagian Komponen Dropdown -->
-    <label for="menuDropdown"><b>Pilih Menu Kategori:</b></label>
-<select id="menuDropdown">
-    <option value="">--pilih--</option>
-    <option value="A">Kelompok A</option> <!-- Pastikan value-nya bernilai "A" -->
-</select>
-
-<!-- LETAKKAN KODE INI TEPAT DI BAWAH DROPDOWN MENU KELOMPOK (Baris 127/128) -->
-<div id="wadahRiwayatKelompokA" style="margin-top: 15px; margin-bottom: 15px; padding: 12px; background-color: #f8f9fa; border-left: 5px solid #007bff; border-radius: 4px; display: none;">
-    <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; font-weight: bold;">Daftar Hyperlink Kelompok A:</p>
-    <!-- Teks Ggg atau teks baru lainnya akan dipaksa muncul di dalam kotak ini -->
-    <div id="listTeksMasuk"></div>
-</div>
-
-    <!-- Tempat Menampilkan Data Cucu -->
-    <div id="areaCucu" class="box-cucu">
-        <strong>Data Cucu Terkait:</strong>
+    <!-- 3. AREA KELOMPOK TUJUAN (Menampung Data Anak Cucu) -->
+    <div id="areaCucuCucu" class="box-hasil">
+        <h4 style="margin:0;">Data Anak Kelompok <span id="namaKelompokAktif"></span></h4>
+        <!-- Daftar teks murni dan link akan digambar di dalam tag UL ini -->
         <ul id="listCucu"></ul>
     </div>
 
-    <!-- Tombol Kirim Siaran WhatsApp -->
-    <button class="btn-wa" onclick="kirimSiaranWA()">Kirim ke Siaran WA</button>
-</div>
+    <script>
+        // SYSTEM AL-QUR'AN DIGITAL: Data bawaan dikunci langsung di memori Array internal
+        let databaseBukuStatis = [
+            { judul: "Materi Bawaan Asli 1", kelompok: "A" },
+            { judul: "Materi Bawaan Asli 2", kelompok: "A" },
+            { judul: "Materi Kelompok B Lainnya", kelompok: "B" }
+        ];
 
-<!-- Menghubungkan ke logika JavaScript -->
-<script src="app.js"></script>
+        // FUNGSI UTAMA TOMBOL BIRU
+        function buatHyperlinkLangsung() {
+            const kolomInput = document.getElementById('inputTeksBuku');
+            const dropdown = document.getElementById('menuDropdown');
+
+            const nilaiTeks = kolomInput.value.trim();
+            if (nilaiTeks === "") {
+                alert("Silakan ketik teks terlebih dahulu di dalam kotak!");
+                return;
+            }
+
+            kolomInput.blur(); // Otomatis menutup keyboard HP
+
+            // SISIPKAN DATA BARU: Struktur teks diubah menjadi tautan aman terisolasi 
+            // Tag pembuka <a> langsung ditutup rapat </a> agar tidak memengaruhi teks lain
+            const dataBaru = {
+                judul: `<a href="#" class="hyperlink-teks" onclick="aksiKlikLink('${nilaiTeks}')">🔗 ${nilaiTeks}</a>`,
+                kelompok: "A" // Mengunci tujuan ke Kelompok A
+            };
+            
+            // Masukkan data baru tersebut ke dalam memori array statis aplikasi
+            databaseBukuStatis.push(dataBaru);
+
+            // Alihkan pilihan menu dropdown secara otomatis ke Kelompok A
+            if (dropdown) {
+                dropdown.value = "A";
+                // Jalankan fungsi gambar layar secara manual untuk memproses data baru
+                renderDaftarBuku(); 
+            }
+
+            // Bersihkan kembali kotak ketik teks atas
+            kolomInput.value = "";
+        }
+
+        // RENDERING SYSTEM: Fungsi menggambar ulang isi layar berdasarkan menu pilihan kelompok
+        function renderDaftarBuku() {
+            const dropdown = document.getElementById('menuDropdown');
+            const areaBox = document.getElementById('areaCucuCucu');
+            const wadahList = document.getElementById('listCucu');
+            const labelKelompok = document.getElementById('namaKelompokAktif');
+
+            const kategoriDipilih = dropdown.value;
+
+            // Jika tidak ada kelompok yang dipilih, sembunyikan kotak daftar bawah
+            if (kategoriDipilih === "") {
+                areaBox.style.display = "none";
+                return;
+            }
+
+            // Bersihkan layar terlebih dahulu sebelum menggambar data yang disaring
+            wadahList.innerHTML = "";
+            labelKelompok.innerText = kategoriDipilih;
+            areaBox.style.display = "block";
+
+            // Saring database internal dan tampilkan teks yang sesuai kelompoknya
+            databaseBukuStatis.forEach(function(buku) {
+                if (buku.kelompok === kategoriDipilih) {
+                    const barisLi = document.createElement('li');
+                    // Mengisi baris list secara aman tanpa kebocoran link ke teks sekitarnya
+                    barisLi.innerHTML = buku.judul; 
+                    wadahList.appendChild(barisLi);
+                }
+            });
+        }
+
+        // FUNGSI KLIK: Ketika teks interaktif hasil buatan Anda di-klik oleh pembaca
+        function aksiKlikLink(namaKata) {
+            alert(`Sistem Al-Qur'an Berhasil Merespons! Anda mengklik tautan interaktif: "${namaKata}"`);
+        }
+
+        // Jalankan render awal saat halaman pertama kali dibuka
+        renderDaftarBuku();
+    </script>
 </body>
 </html>
