@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eksperimen Teks Interaktif ala Al-Qur'an Digital</title>
+    <title>Aplikasi Buku Digital Interaktif</title>
     <style>
+        /* CSS Utama Aplikasi */
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
@@ -19,13 +20,20 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
+        .pilih-kategori {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
         input, select {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 6px;
             box-sizing: border-box;
+            font-size: 15px;
         }
         button {
             width: 100%;
@@ -33,139 +41,171 @@
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
+            font-size: 15px;
+            margin-top: 5px;
         }
-        /* Style Hyperlink Terisolasi */
+        button:active {
+            background-color: #0056b3;
+        }
+        
+        /* STYLE TEKS HYPERLINK ANTI-BOCOR */
+        /* Menggunakan display: inline-block agar area klik hanya sebatas kata yang diblok saja */
         .hyperlink-teks {
             color: #0056b3;
             text-decoration: underline;
             font-weight: bold;
-            font-size: 16px;
-            display: inline-block;
+            display: inline-block; 
             cursor: pointer;
+            padding: 0 2px;
         }
+        .hyperlink-teks:hover {
+            color: #003366;
+        }
+
         .box-hasil {
             background: #fff;
             padding: 15px;
             border-radius: 8px;
             border-left: 5px solid #28a745;
-            display: none;
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         ul {
             padding-left: 20px;
             margin-top: 10px;
         }
         li {
-            margin: 8px 0;
+            margin: 10px 0;
+            line-height: 1.5;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. AREA KOTAK PEMBUAT TEKS -->
+    <!-- AREA ALAT PEMBUAT TEKS HYPERLINK -->
     <div class="box-pembuat">
-        <label>Ketik Teks Buku:</label>
-        <input type="text" id="inputTeksBuku" placeholder="Contoh: Bacaan Materi 1 atau Ggg">
-        
+        <label style="font-weight: bold;">Ketik Teks Buku:</label>
+        <input type="text" id="inputTeksBuku" placeholder="Contoh: Bacaan materi satu hari ini">
         <button type="button" onclick="buatHyperlinkLangsung()">🔗 Buat Menjadi Teks Hyperlink</button>
     </div>
 
-    <!-- 2. DROPDOWN UTAMA SEBAGAI PENGENDALI KELOMPOK -->
-    <label>Pilih Menu Kategori:</label>
+    <!-- DROPDOWN PILIHAN KELOMPOK -->
+    <label class="pilih-kategori">Pilih Menu Kategori:</label>
     <select id="menuDropdown" onchange="renderDaftarBuku()">
         <option value="">--pilih--</option>
         <option value="A">Kelompok A</option>
         <option value="B">Kelompok B</option>
     </select>
 
-    <!-- 3. AREA KELOMPOK TUJUAN (Menampung Data Anak Cucu) -->
-    <div id="areaCucuCucu" class="box-hasil">
-        <h4 style="margin:0;">Data Anak Kelompok <span id="namaKelompokAktif"></span></h4>
-        <!-- Daftar teks murni dan link akan digambar di dalam tag UL ini -->
+    <!-- KOTAK DATA ANAK CUCU (TEMPAT MENAMPILKAN HASIL) -->
+    <div id="areaCucuCucu" class="box-hasil" style="display: none;">
+        <h4 style="margin:0; color: #333;">Data Anak Kelompok <span id="namaKelompokAktif"></span></h4>
         <ul id="listCucu"></ul>
     </div>
 
+
+    <!-- LOGIKA JAVASCRIPT MANDIRI & TERISOLASI -->
     <script>
-        // SYSTEM AL-QUR'AN DIGITAL: Data bawaan dikunci langsung di memori Array internal
+        // DATABASE INTERNAL (Sistem Array Terkunci ala Al-Qur'an Digital)
+        // Data awal default aplikasi Anda
         let databaseBukuStatis = [
             { judul: "Materi Bawaan Asli 1", kelompok: "A" },
-            { judul: "Materi Bawaan Asli 2", kelompok: "A" },
-            { judul: "Materi Kelompok B Lainnya", kelompok: "B" }
+            { judul: "Materi Bawaan Asli 2", kelompok: "A" }
         ];
 
-        // FUNGSI UTAMA TOMBOL BIRU
         function buatHyperlinkLangsung() {
             const kolomInput = document.getElementById('inputTeksBuku');
             const dropdown = document.getElementById('menuDropdown');
 
-            const nilaiTeks = kolomInput.value.trim();
-            if (nilaiTeks === "") {
-                alert("Silakan ketik teks terlebih dahulu di dalam kotak!");
+            if (!kolomInput) return;
+
+            const teksUtuh = kolomInput.value; 
+            
+            // 1. DETEKSI POSISI TEKS YANG SEDANG DIBLOK OLEH JARI/KURSOR PENGGUNA
+            const posisiMulai = kolomInput.selectionStart;
+            const posisiSelesai = kolomInput.selectionEnd;
+            const teksYangDiblok = teksUtuh.substring(posisiMulai, posisiSelesai).trim();
+
+            // 2. VALIDASI PENYALAHGUNAAN BLOK TEKS
+            if (posisiMulai === posisiSelesai || teksYangDiblok === "") {
+                alert("Silakan BLOK/SELEKSI salah satu kata di dalam kotak teks terlebih dahulu!");
                 return;
             }
 
-            kolomInput.blur(); // Otomatis menutup keyboard HP
+            // Tutup keyboard HP agar tampilan layar lega
+            kolomInput.blur(); 
 
-            // SISIPKAN DATA BARU: Struktur teks diubah menjadi tautan aman terisolasi 
-            // Tag pembuka <a> langsung ditutup rapat </a> agar tidak memengaruhi teks lain
+            // 3. PROSES PEMISAHAN KALIMAT AGAR TIDAK BOCOR
+            // Mengambil potongan teks sebelum kata yang diblok dan setelah kata yang diblok
+            const teksSebelumBlok = teksUtuh.substring(0, posisiMulai);
+            const teksSetelahBlok = teksUtuh.substring(posisiSelesai);
+
+            // 4. PEMBUNGKUSAN HYPERLINK SECARA KETAT
+            // Mengamankan tag penutup </a> di baris yang sama untuk mengisolasi efek klik link
+            const formatHyperlinkTerisolasi = `<a href="#" class="hyperlink-teks" onclick="aksiKlikLink('${teksYangDiblok}')">${teksYangDiblok}</a>`;
+
+            // Satukan kembali menjadi susunan kalimat utuh baru
+            const hasilKalimatFinal = teksSebelumBlok + formatHyperlinkTerisolasi + teksSetelahBlok;
+
+            // 5. MASUKKAN SEBAGAI DATA BARU DI DALAM ARRAY INTERNAL
             const dataBaru = {
-                judul: `<a href="#" class="hyperlink-teks" onclick="aksiKlikLink('${nilaiTeks}')">🔗 ${nilaiTeks}</a>`,
-                kelompok: "A" // Mengunci tujuan ke Kelompok A
+                judul: hasilKalimatFinal,
+                kelompok: "A" // Mengunci otomatis agar selalu masuk ke Kelompok A
             };
-            
-            // Masukkan data baru tersebut ke dalam memori array statis aplikasi
             databaseBukuStatis.push(dataBaru);
 
-            // Alihkan pilihan menu dropdown secara otomatis ke Kelompok A
+            // 6. PAKSA DROPDOWN BERGESER KE KELOMPOK A & RE-RENDER
             if (dropdown) {
                 dropdown.value = "A";
-                // Jalankan fungsi gambar layar secara manual untuk memproses data baru
                 renderDaftarBuku(); 
             }
 
-            // Bersihkan kembali kotak ketik teks atas
+            // Bersihkan kembali kotak input teks atas agar kosong kembali
             kolomInput.value = "";
         }
 
-        // RENDERING SYSTEM: Fungsi menggambar ulang isi layar berdasarkan menu pilihan kelompok
+        // FUNGSI UNTUK MENGGAMBAR DAFTAR BUKU KE LAYAR HP
         function renderDaftarBuku() {
             const dropdown = document.getElementById('menuDropdown');
             const areaBox = document.getElementById('areaCucuCucu');
             const wadahList = document.getElementById('listCucu');
             const labelKelompok = document.getElementById('namaKelompokAktif');
 
+            if (!dropdown || !areaBox || !wadahList || !labelKelompok) return;
+
             const kategoriDipilih = dropdown.value;
 
-            // Jika tidak ada kelompok yang dipilih, sembunyikan kotak daftar bawah
+            // Jika dropdown bernilai kosong/--pilih--, sembunyikan daftar bawah
             if (kategoriDipilih === "") {
                 areaBox.style.display = "none";
                 return;
             }
 
-            // Bersihkan layar terlebih dahulu sebelum menggambar data yang disaring
+            // Bersihkan tampilan layar lama sebelum menggambar data saringan baru
             wadahList.innerHTML = "";
             labelKelompok.innerText = kategoriDipilih;
             areaBox.style.display = "block";
 
-            // Saring database internal dan tampilkan teks yang sesuai kelompoknya
+            // Saring dan gambar baris data yang cocok dengan pilihan kelompok
             databaseBukuStatis.forEach(function(buku) {
                 if (buku.kelompok === kategoriDipilih) {
                     const barisLi = document.createElement('li');
-                    // Mengisi baris list secara aman tanpa kebocoran link ke teks sekitarnya
-                    barisLi.innerHTML = buku.judul; 
+                    barisLi.innerHTML = buku.judul; // Memasukkan string HTML secara aman
                     wadahList.appendChild(barisLi);
                 }
             });
         }
 
-        // FUNGSI KLIK: Ketika teks interaktif hasil buatan Anda di-klik oleh pembaca
-        function aksiKlikLink(namaKata) {
-            alert(`Sistem Al-Qur'an Berhasil Merespons! Anda mengklik tautan interaktif: "${namaKata}"`);
+        // FUNGSI KETIKA TEKS HYPERLINK DIKLIK OLEH PEMBACA BUKU
+        function aksiKlikLink(kataDipilih) {
+            alert(`Sistem Berhasil Merespons! Anda mengklik tautan kata interaktif: "${kataDipilih}"`);
         }
 
-        // Jalankan render awal saat halaman pertama kali dibuka
+        // Jalankan fungsi penampilan awal saat halaman dimuat
         renderDaftarBuku();
     </script>
 </body>
