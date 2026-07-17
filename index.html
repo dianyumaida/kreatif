@@ -104,13 +104,13 @@
     <p style="font-size: 14px; color: #666; margin-top: -5px;">
         Ketik kata atau kalimat di bawah ini, lalu klik tombol biru untuk menjadikannya link buku.
     </p>
+<!-- Kolom Tempat Mengetik Teks (Baris 109) -->
+<input type="text" id="inputTeksBuku" placeholder="Contoh: Bacaan materi 1 atau Kata C" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
 
-    <!-- Gunakan input teks murni agar keyboard HP bekerja sempurna -->
-    <input type="text" id="inputTeksBuku" placeholder="Contoh: Bacaan materi 1 atau Kata Coba" style="width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; outline: none; margin-bottom: 10px;">
-
-    <!-- Tombol eksekusi langsung -->
-    <button onclick="buatHyperlinkLangsung()" id="btnBuatLink">
-
+<!-- Tombol Biru Pembuat Hyperlink yang Baru & Bersih (Baris 112) -->
+<button type="button" onclick="buatHyperlinkLangsung()" id="btnBuatLink" style="background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 20px;">
+    🔗 Buat Menjadi Teks Hyperlink
+</button>
 
     <!-- Tempat menampung teks yang sudah sukses diubah menjadi link kuning -->
     <div id="wadahTeksLink" style="margin-top: 15px; min-height: 40px; padding: 10px; background: white; border: 1px dashed #ccc; border-radius: 6px; display: none;">
