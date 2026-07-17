@@ -1,11 +1,9 @@
 function buatHyperlinkLangsung() {
-    // 1. Ambil elemen input dan tempat hasil
     const kolomInput = document.getElementById('inputTeksBuku');
     const wadahHasil = document.getElementById('teksLinkHasil');
 
-    // Validasi jika elemen tidak ditemukan di HTML
     if (!kolomInput || !wadahHasil) {
-        alert("Eror: Elemen inputTeksBuku atau teksLinkHasil tidak ditemukan di HTML!");
+        alert("Eror: Elemen inputTeksBuku atau teksLinkHasil tidak ditemukan!");
         return;
     }
 
@@ -16,25 +14,28 @@ function buatHyperlinkLangsung() {
         return;
     }
 
-    // 2. Tutup keyboard HP secara otomatis agar tidak menghalangi layar
+    // 1. Matikan fokus input agar keyboard HP otomatis menutup
     kolomInput.blur();
 
-    // 3. Munculkan teks hasil di dalam wadah dan pasang fungsi klik langsung ke kelompok A
-    wadahHasil.innerHTML = `<span class="hyperlink-teks" onclick="pilihKelompokA()" style="cursor:pointer; display:inline-block; padding: 5px 0;">${nilaiTeks}</span>`;
-    
-    // Informasi bahwa teks berhasil dibuat di bawah tombol
-    alert("Teks Hyperlink berhasil dibuat! Silakan klik teks hasil di bawah tombol untuk memilih Kelompok A.");
+    // 2. TULIS TEKS HYPERLINK-NYA TERLEBIH DAHULU KE LAYAR
+    // Menggunakan class 'hyperlink-teks' sesuai dengan CSS Anda
+    wadahHasil.innerHTML = `<span class="hyperlink-teks" onclick="pilihKelompokA()" style="cursor:pointer; display:inline-block; font-weight:bold;">${nilaiTeks}</span>`;
+
+    // 3. BERI JEDA 100 MILIDETIK BARU UTUS PINDAH KE KELOMPOK A
+    // Cara ini menjamin teksnya sudah muncul secara fisik sebelum menu berubah
+    setTimeout(function() {
+        pilihKelompokA();
+    }, 100);
 }
 
-// Fungsi untuk memaksa dropdown berpindah ke Kelompok A
 function pilihKelompokA() {
     const dropdownKelompok = document.getElementById('menuDropdown');
 
     if (dropdownKelompok) {
-        // Coba pilih berdasarkan nilai "A" atau cari teks yang mengandung "Kelompok A"
+        // Atur nilai dropdown ke "A"
         dropdownKelompok.value = "A"; 
 
-        // Jika value="A" gagal karena data dari JSON berbeda, kita paksa pilih index ke-1 (opsi kedua)
+        // Cadangan jika value di JSON menggunakan format lain, cari berdasarkan teks
         if (dropdownKelompok.selectedIndex <= 0) {
             for (let i = 0; i < dropdownKelompok.options.length; i++) {
                 if (dropdownKelompok.options[i].text.includes("Kelompok A")) {
@@ -44,12 +45,12 @@ function pilihKelompokA() {
             }
         }
 
-        // Pemicu event agar tampilan di HP langsung berubah dan sinkron
+        // Memicu event perubahan ke browser HP agar tampilan langsung sinkron
         const event = new Event('change', { bubbles: true });
         dropdownKelompok.dispatchEvent(event);
 
-        alert("Sukses! Menu kategori otomatis berpindah ke Kelompok A.");
+        alert("Teks Hyperlink berhasil dibuat di bawah tombol & menu otomatis masuk ke Kelompok A!");
     } else {
-        alert("Eror: Elemen dropdown id='menuDropdown' tidak ditemukan.");
+        alert("Eror: Elemen id='menuDropdown' tidak ditemukan.");
     }
 }
